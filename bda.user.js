@@ -1410,6 +1410,10 @@ var BDA = {
         BDA.setQueryEditorValue("");
       });
 
+      //cache section
+
+      BDA.setupRepositoryCacheSection();
+
       // Hide other sections
       var toggleObj = BDA.getToggleObj();
 
@@ -1455,6 +1459,22 @@ var BDA = {
       $("#showMoreMethods").click(function (){
         BDA.toggleMethods();
       });
+    },
+
+    setupRepositoryCacheSection : function(){
+
+       var $cacheUsage = $(this.cacheUsageSelector);
+       var $cacheTable = $cacheUsage.next().next().find('table');
+
+       var size = $cacheTable.find('th').first().find('th').length;
+
+       var index = -1;
+       $cacheTable.find('tr').each(function(){
+          if(index % 3 == 0){
+            $(this).addClass('odd cache').find('td').first().attr('colspan',23);
+          }
+          index++;
+       });
     },
 
     getToggleObj : function ()

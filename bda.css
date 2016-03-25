@@ -614,3 +614,8 @@ table.tablesorter tr.alt-row:hover td {
   text-decoration : underline;
   cursor: pointer;
 }
+
+tr.odd.cache {
+  background-color: #EEEEFF;
+  border: 1px solid #EEEEFF;
+}
