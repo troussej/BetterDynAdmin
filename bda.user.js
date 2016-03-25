@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Better Dynamo Administration
-// @namespace    BetterDynAdmin
+// @name         Better Dynamo Administration JTRO
+// @namespace    BetterDynAdminJTRO
 // @include      */dyn/admin/*
 // @author       Jean-Charles Manoury
 // @contributor  Benjamin Descamps
@@ -39,7 +39,7 @@
 // @resource whatsnew https://raw.githubusercontent.com/jc7447/BetterDynAdmin/master/WHATSNEW.md
 // @updateUrl https://raw.githubusercontent.com/jc7447/bda/master/bda.user.js
 // @downloadUrl https://raw.githubusercontent.com/jc7447/bda/master/bda.user.js
-// ==/UserScript==
+// ==/UserScript=
 
 var BDA = {
     MAP_SEPARATOR : "=",
