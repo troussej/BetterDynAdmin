@@ -608,3 +608,8 @@ table.tablesorter tr.alt-row:hover td {
 #pipelineTable pre {
 	margin : 0;
 }
+
+tr.odd.cache {
+  background-color: #EEEEFF;
+  border: 1px solid #EEEEFF;
+}
