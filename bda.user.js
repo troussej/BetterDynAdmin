@@ -119,6 +119,7 @@ var BDA = {
                       physics:false
                    },
     STORED_CONFIG : "BdaConfiguration",
+    CACHE_STAT_TITLE_REGEXP : /item-descriptor=(.*) cache-mode=(.*) cache-locality=(.*)/,
 
     init : function(){
       var start = new Date().getTime();
@@ -1273,6 +1274,10 @@ var BDA = {
         BDA.setQueryEditorValue("");
       });
 
+      //cache section
+
+      BDA.setupRepositoryCacheSection();
+
       // Hide other sections
       var toggleObj = BDA.getToggleObj();
 
@@ -1318,6 +1323,39 @@ var BDA = {
       $("#showMoreMethods").click(function (){
         BDA.toggleMethods();
       });
+    },
+
+    setupRepositoryCacheSection : function(){
+
+       var $cacheUsage = $(this.cacheUsageSelector);
+       var $cacheTable = $cacheUsage.next().next().find('table');
+
+       var size = $cacheTable.find('th').first().find('th').length;
+
+       var index = -1;
+       $cacheTable.find('tr').each(function(){
+          var $tr = $(this);
+          if(index % 3 == 0){
+            //highlight per item
+             $tr.addClass('odd cache')
+             var $td = $tr.find('td').first();
+             $td.attr('colspan',23)
+
+            //enhance the title line
+            var $b = $td.find('b:contains("item-descriptor")');
+            var text = $b.html();
+
+            var match = BDA.CACHE_STAT_TITLE_REGEXP.exec(text);
+            var itemDesc = match[1];
+            var cacheMode = match[2];
+            var cacheLocality = match[3];
+            var newText = 'item-descriptor=<b>'+itemDesc+'</b> cache-mode=<b>'+cacheMode+'</b> cache-locality=<b>'+cacheLocality+'</b>';
+            $td.html(newText);
+          }
+
+
+          index++;
+       });
     },
 
     getToggleObj : function ()
