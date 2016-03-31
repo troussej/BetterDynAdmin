@@ -123,6 +123,7 @@ var BDA = {
                       physics:false
                    },
     STORED_CONFIG : "BdaConfiguration",
+    CACHE_STAT_TITLE_REGEXP : /item-descriptor=(.*) cache-mode=(.*) cache-locality=(.*)/,
 
 
     init : function(){
@@ -1470,9 +1471,26 @@ var BDA = {
 
        var index = -1;
        $cacheTable.find('tr').each(function(){
+          var $tr = $(this);
           if(index % 3 == 0){
-            $(this).addClass('odd cache').find('td').first().attr('colspan',23);
+            //highlight per item
+             $tr.addClass('odd cache')
+             var $td = $tr.find('td').first();
+             $td.attr('colspan',23)
+
+            //enhance the title line
+            var $b = $td.find('b:contains("item-descriptor")');
+            var text = $b.html();
+
+            var match = BDA.CACHE_STAT_TITLE_REGEXP.exec(text);
+            var itemDesc = match[1];
+            var cacheMode = match[2];
+            var cacheLocality = match[3];
+            var newText = 'item-descriptor=<b>'+itemDesc+'</b> cache-mode=<b>'+cacheMode+'</b> cache-locality=<b>'+cacheLocality+'</b>';
+            $td.html(newText);
           }
+
+
           index++;
        });
     },
