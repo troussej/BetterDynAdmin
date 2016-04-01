@@ -1534,7 +1534,7 @@ var BDA = {
        .bind('click',function(){
           $cacheTable.find('tr.odd.cache.collapsed').each(BDA.toggleCacheLines);
        })
-       .insertAfter($resetLink)
+       .appendTo($resetLink)
        ;
 
        $collapseAll = $('<button></button>',{
@@ -1546,7 +1546,7 @@ var BDA = {
        .bind('click',function(){
           $cacheTable.find('tr.odd.cache.expanded').each(BDA.toggleCacheLines);
        })
-       .insertAfter($resetLink)
+       .appendTo($resetLink)
       /* .click()*/ //start all collapsed
        ;
 
