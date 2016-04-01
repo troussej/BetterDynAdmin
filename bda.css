@@ -285,6 +285,7 @@ a {
 }
 
 .menu {
+  height: 32px;
   font-size: 11px;
   color: white;
   border: 1px solid #00486c;
@@ -338,6 +339,14 @@ a {
   background-color: #007bb8;
 }
 
+#bdaSearch {
+  background-color: #007bb8;
+}
+
+
+#bdaSearch input{
+   margin-top: 1px;
+}
 #whatsnew {
   background-color: #62A03E;
   border-color : #44702B;
@@ -618,4 +627,8 @@ table.tablesorter tr.alt-row:hover td {
 tr.odd.cache {
   background-color: #EEEEFF;
   border: 1px solid #EEEEFF;
+}
+
+.cacheArrow {
+  margin-right: 5px;
 }

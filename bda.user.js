@@ -368,6 +368,14 @@ var BDA = {
         $arrow.removeClass("fa-arrow-up").addClass("fa-arrow-down");
     },
 
+    rotateArrowQuarter : function ($arrow)
+    {
+      if ($arrow.hasClass("fa-arrow-down"))
+        $arrow.removeClass("fa-arrow-down").addClass("fa-arrow-right");
+      else
+        $arrow.removeClass("fa-arrow-right").addClass("fa-arrow-down");
+    },
+
     //---- Repository page -------------------------------------------------------------------------
 
     getToggleLabel : function(state)
@@ -1462,37 +1470,88 @@ var BDA = {
       });
     },
 
+    toggleCacheLines : function (){
+      $tr = $(this);
+      $tr.toggleClass('collapsed');
+      $tr.toggleClass('expanded');
+      $tr.next().slideToggle();
+      $tr.next().next().slideToggle();
+      BDA.rotateArrowQuarter($tr.find('.cacheArrow i'));
+    },
+
+
     setupRepositoryCacheSection : function(){
 
-       var $cacheUsage = $(this.cacheUsageSelector);
-       var $cacheTable = $cacheUsage.next().next().find('table');
+      var start = new Date().getTime();
 
-       var size = $cacheTable.find('th').first().find('th').length;
+      var $cacheUsage = $(this.cacheUsageSelector);
+      var $cacheTable = $cacheUsage.next().next().find('table');
+      var size = $cacheTable.find('th').first().find('th').length;
 
-       var index = -1;
-       $cacheTable.find('tr').each(function(){
-          var $tr = $(this);
-          if(index % 3 == 0){
-            //highlight per item
-             $tr.addClass('odd cache')
-             var $td = $tr.find('td').first();
-             $td.attr('colspan',23)
+      var index = -1;
+      $cacheTable.find('tr').each(function(){
+        var $tr = $(this);
+        if(index % 3 == 0){
+          //highlight per item
+           $tr.addClass('odd cache expanded');
 
-            //enhance the title line
-            var $b = $td.find('b:contains("item-descriptor")');
-            var text = $b.html();
+           var $td = $tr.find('td').first();
+           $td.attr('colspan',23)
 
-            var match = BDA.CACHE_STAT_TITLE_REGEXP.exec(text);
-            var itemDesc = match[1];
-            var cacheMode = match[2];
-            var cacheLocality = match[3];
-            var newText = 'item-descriptor=<b>'+itemDesc+'</b> cache-mode=<b>'+cacheMode+'</b> cache-locality=<b>'+cacheLocality+'</b>';
-            $td.html(newText);
-          }
+           //$td.insert($arrow);
 
+          //enhance the title line
+          var $b = $td.find('b:contains("item-descriptor")');
+          var text = $b.html();
 
-          index++;
+          var match = BDA.CACHE_STAT_TITLE_REGEXP.exec(text);
+          var itemDesc = match[1];
+          var cacheMode = match[2];
+          var cacheLocality = match[3];
+          var newText = '<span> item-descriptor=<b>'+itemDesc+'</b> cache-mode=<b>'+cacheMode+'</b> cache-locality=<b>'+cacheLocality+'</b></span>';
+
+          $arrow = $('<span class="cacheArrow"><i class="up fa fa-arrow-down"></i></span>');
+          $td.html($arrow);
+          $td.append(newText);
+
+          //collapse items
+          $tr.bind('click',BDA.toggleCacheLines);
+
+        }
+
+        index++;
        });
+
+       //collapse all button
+       $resetLink =  $cacheUsage.next();
+
+       $expandAll = $('<button></button>',{
+          id : 'cacheExpandAll',
+          class :'cache expand',
+          value : 'expandAll',
+          html: 'Expand All'
+       })
+       .bind('click',function(){
+          $cacheTable.find('tr.odd.cache.collapsed').each(BDA.toggleCacheLines);
+       })
+       .insertAfter($resetLink)
+       ;
+
+       $collapseAll = $('<button></button>',{
+          id : 'collapseAll',
+          class :'cache collapse',
+          value : 'collapseAll',
+          html: 'Collapse All'
+       })
+       .bind('click',function(){
+          $cacheTable.find('tr.odd.cache.expanded').each(BDA.toggleCacheLines);
+       })
+       .insertAfter($resetLink)
+      /* .click()*/ //start all collapsed
+       ;
+
+       var end = new Date().getTime();
+       console.log('setupRepositoryCacheSection took ' + (end - start) + 'ms');
     },
 
     getToggleObj : function ()
