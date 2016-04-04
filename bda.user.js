@@ -1474,8 +1474,8 @@ var BDA = {
       $tr = $(this);
       $tr.toggleClass('collapsed');
       $tr.toggleClass('expanded');
-      $tr.next().slideToggle();
-      $tr.next().next().slideToggle();
+      $tr.next().toggle();
+      $tr.next().next().toggle();
       BDA.rotateArrowQuarter($tr.find('.cacheArrow i'));
     },
 
@@ -1547,7 +1547,7 @@ var BDA = {
           $cacheTable.find('tr.odd.cache.expanded').each(BDA.toggleCacheLines);
        })
        .appendTo($resetLink)
-      /* .click()*/ //start all collapsed
+       .click() //start all collapsed
        ;
 
        var end = new Date().getTime();
