@@ -1345,6 +1345,8 @@ var BDA = {
 
     setupRepositoryCacheSection : function(){
 
+      try{
+
       var start = new Date().getTime();
 
       var $cacheUsage = $(this.cacheUsageSelector);
@@ -1415,6 +1417,10 @@ var BDA = {
 
        var end = new Date().getTime();
        console.log('setupRepositoryCacheSection took ' + (end - start) + 'ms');
+     }catch(err){
+      console.log(err);
+     }
+
     },
 
     getToggleObj : function ()
