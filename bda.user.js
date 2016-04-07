@@ -2252,7 +2252,7 @@ var BDA = {
       this.reloadToolbar();
     },
 
-    storeComponent : function (component, methods, vars)
+    storeComponent : function (component, methods, vars,tags)
     {
       if(this.hasWebStorage)
       {
@@ -2268,6 +2268,7 @@ var BDA = {
 
         compObj.methods = methods;
         compObj.vars = vars;
+        compObj.tags =tags;
         storedComp.push(compObj);
 
         BDA.storeItem('Components', JSON.stringify(storedComp));
@@ -2396,13 +2397,19 @@ var BDA = {
     createToolbar :function ()
     {
         $("<div id='addComponentToolbarPopup' class='popup_block'>"
+        + "<div class='addFavOptionewtagsns'>"
         + "<a href='#' class='close'><i class='fa fa-times'></i></a>"
         + "<h3 class='popup_title'>Add new component</h3>"
+        + "<p>Add tags:</p>"
+        + "<div id='tags'><ul id='existingTags'></ul>"
+        + "<input id='newtags' class='newtags' type='text' placeholder='comma separated'></input>"
+        + "</div>"
         + "<p>Choose methods and/or properties to shortcut : </p>"
         + "<div id='addComponentToolbarPopupContent'>"
         + "<div id='methods'><ul></ul></div>"
         + "<div id='vars'><ul></ul></div></div><br>"
-        + "<div>"
+        + "</div>"
+        + "<div class='addFavSubmit'>"
         + "<button type='button' id='submitComponent'>Add <i class='fa fa-play fa-x'></button></div>"
         + "</div>").insertAfter(this.logoSelector);
 
@@ -2499,9 +2506,15 @@ var BDA = {
                 $('.variable:checked').each(function(index, element){
                     vars.push(element.parentElement.textContent);
                 });
+                var tags = $('#newtags').val().split(',');
+                $('.tag:checked').each(function(index, element){
+                    tags.push(element.parentElement.textContent);
+                });
+
                 console.log("methods : " + methods);
                 console.log("vars : " + vars);
-                BDA.storeComponent(componentPath, methods, vars);
+                console.log("tags : " + tags);
+                BDA.storeComponent(componentPath, methods, vars,tags);
                 BDA.reloadToolbar();
             });
 
@@ -2509,6 +2522,7 @@ var BDA = {
             console.log("Add component");
             var methodsList = $("#methods");
             var varsList = $("#vars");
+            var tagList = $("#tags");
             methodsList.empty();
             varsList.empty();
 
