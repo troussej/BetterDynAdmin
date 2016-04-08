@@ -39,6 +39,22 @@
 // @downloadUrl   https://raw.githubusercontent.com/troussej/BetterDynAdmin/master/bda.user.js
 // ==/UserScript==
 
+//define sort unique method
+
+Array.prototype.unique = function()
+{
+  var n = {},r=[];
+  for(var i = 0; i < this.length; i++) 
+  {
+    if (!n[this[i]]) 
+    {
+      n[this[i]] = true; 
+      r.push(this[i]); 
+    }
+  }
+  return r;
+}
+
 var BDA = {
     componentBrowserPageSelector : "h1:contains('Component Browser')",
     descriptorTableSelector : "table:eq(0)",
@@ -1769,6 +1785,22 @@ var BDA = {
         return BDA.getStoredConfiguration()[name];
     },
 
+//tags
+    getStoredTags : function(){
+        var tags;
+        var tagString = BDA.getConfigurationValue('tags');
+        if(tagString == null){
+          tags = [];
+        }else{
+          tags = JSON.parse(tagString);
+        }
+        return tags;
+    },
+
+    storeTags : function(tags){
+      BDA.storeConfiguration('tags',tags);
+    },
+
 
     getStoredConfiguration : function(){
        if(!this.hasWebStorage)
@@ -2272,6 +2304,17 @@ var BDA = {
         storedComp.push(compObj);
 
         BDA.storeItem('Components', JSON.stringify(storedComp));
+
+        console.log('saving tags');
+        //also save the tags as "known tags"
+        var storedTags = BDA.getStoredTags();
+        console.log('existing tags : ' + storedTags);
+        storedTags = storedTags.concat(tags);
+        console.log('concat tags : ' + storedTags);
+        storedTags = storedTags.unique();
+        console.log('saving tags to config ' + storedTags);
+        BDA.storeTags(storedTags);
+
       }
     },
 
@@ -2489,6 +2532,7 @@ var BDA = {
         var componentPath = this.purgeSlashes(document.location.pathname);
         if (!this.isComponentAlreadyStored(componentPath))
         {
+          console.log('adding fav button');
           $("<div class='newFav'><a href='javascript:void(0)' id='addComponent' title='Add component to toolbar'>+</a></div>")
           .appendTo("#toolbar");
 
