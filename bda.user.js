@@ -1822,7 +1822,7 @@ var BDA = {
     {
       if(this.hasWebStorage)
       {
-        console.log("Try to store config: " + name + ", value : " + value);
+        console.log("Try to store config: " + name + ", value : " + JSON.stringify(value));
         var storedConfig = this.getStoredConfiguration();
         storedConfig[name] = value;
         BDA.storeItem(this.STORED_CONFIG, JSON.stringify(storedConfig));
@@ -2571,6 +2571,13 @@ var BDA = {
       BDA.addFavFilter();
 
       var tags = BDA.getTags();
+      var selectedTags = [];
+      for(var tagName in tags){
+        var tag = tags[tagName];
+        if(tag.selected){
+          selectedTags.push(tagName);
+        }
+      }
 
       for(var i = 0; i != favs.length; i++)
       {
@@ -2578,32 +2585,18 @@ var BDA = {
         var show = false; 
 
         var componentTags = fav.tags;
-        if(tags !=null && Object.keys(tags).length > 0){
+        if(selectedTags !=null && selectedTags.length > 0){
           //check if any tag is selected
-          var allFalse = true;
-          for(var tagName in tags){
-            var tag = tags[tagName];
-            if(tag.selected){
-              allFalse=false;
+
+          var favTagSelectedCount = 0;
+          for (var idx = 0; idx < selectedTags.length;idx++) {
+            var selTag = selectedTags[idx];
+            if(componentTags.indexOf(selTag) > -1){
+              favTagSelectedCount++;
             }
           }
-          console.log('allFalse ' + allFalse);
-          if(allFalse){
-            show = true;
-          }else{
-            console.log(fav.componentName + ' componentTags = ' + componentTags);
-            if( componentTags !== null && componentTags !== undefined){
-              for (var j = 0; j < componentTags.length; j++) {
-                var cTagName = componentTags[i];
-                console.log('considering '+ cTagName);
-                console.log('existing tags: '+ JSON.stringify(tags[cTagName]));
-                if(tags[cTagName] == null || tags[cTagName].selected){
-                  show = true;
-                  break;
-                }
-              }
-            }
-          }
+          show = favTagSelectedCount == selectedTags.length; //if contains all selected tags        
+          
         }else{
           show = true;
         }
