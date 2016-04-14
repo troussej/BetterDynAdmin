@@ -136,6 +136,7 @@ var BDA = {
                    },
     STORED_CONFIG : "BdaConfiguration",
     CACHE_STAT_TITLE_REGEXP : /item-descriptor=(.*) cache-mode=(.*) cache-locality=(.*)/,
+    isLoggingTrace : true,
 
     init : function(){
       var start = new Date().getTime();
@@ -3235,6 +3236,12 @@ var BDA = {
           else
             $('.sticky').css('position','static');
         });
+    },
+
+    logTrace(msg){
+      if(this.isLoggingTrace){
+        console.log(msg);
+      }
     }
 };
 
