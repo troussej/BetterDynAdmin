@@ -2572,15 +2572,6 @@ var BDA = {
 
         var componentTags = fav.tags;
         if(selectedTags !=null && selectedTags.length > 0){
-<<<<<<< HEAD
-          //check if any tag is selected
-
-          var favTagSelectedCount = 0;
-          for (var idx = 0; idx < selectedTags.length;idx++) {
-            var selTag = selectedTags[idx];
-            if(componentTags.indexOf(selTag) > -1){
-              favTagSelectedCount++;
-=======
           console.log(fav.componentName + ' componentTags = ' + componentTags);
           if(componentTags !== null && componentTags !== undefined){
             for (var j = 0; j < componentTags.length; j++) {
@@ -2588,10 +2579,8 @@ var BDA = {
               if($.inArray(cTag,selectedTags) > -1){
                 show = true;
               }
->>>>>>> bookmarks/tags
             }
           }
-          show = favTagSelectedCount == selectedTags.length; //if contains all selected tags        
           
         }else{
           show = true;
