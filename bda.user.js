@@ -2489,7 +2489,7 @@ var BDA = {
           console.log(fav.componentName + ' componentTags = ' + componentTags);
           if(componentTags !== null && componentTags !== undefined){
             for (var j = 0; j < componentTags.length; j++) {
-              var cTag = componentTags[i];
+              var cTag = componentTags[j];
               if($.inArray(cTag,selectedTags) > -1){
                 show = true;
               }
@@ -2519,7 +2519,7 @@ var BDA = {
          
           if(componentTags !== null && componentTags !== undefined){
             for (var k = 0; k < componentTags.length; k++) {
-              var t = componentTags[i];
+              var t = componentTags[k];
               favTags+='#'+t;
               if(k+1 < componentTags.length){
                 favTags+=',';
