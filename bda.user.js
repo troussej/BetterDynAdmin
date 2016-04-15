@@ -2572,6 +2572,7 @@ var BDA = {
 
         var componentTags = fav.tags;
         if(selectedTags !=null && selectedTags.length > 0){
+          //check if any tag is selected
           console.log(fav.componentName + ' componentTags = ' + componentTags);
           if(componentTags !== null && componentTags !== undefined){
             for (var j = 0; j < componentTags.length; j++) {
@@ -2786,7 +2787,7 @@ var BDA = {
 
       var tags = this.getTags();
       if(tags !=null && Object.keys(tags).length> 0){
-        $("<div class='toolbar-elem favFilter'><a href='javascript:void(0)' id='favFilter' title='Filter'><i class='fa fa-chevron-down'></i></a></div>")
+        $("<div class='toolbar-elem favFilter'><a href='javascript:void(0)' id='favFilter' title='Filter'><i class='fa fa-chevron-down fav-chevron'></i></a></div>")
             .on('click',function () {
                 var open = BDA.getConfigurationValue('filterOpen');
                 if(open == null || open == undefined || !open){
