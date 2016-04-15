@@ -2787,7 +2787,7 @@ var BDA = {
 
       var tags = this.getTags();
       if(tags !=null && Object.keys(tags).length> 0){
-        $("<div class='toolbar-elem favFilter'><a href='javascript:void(0)' id='favFilter' title='Filter'><i class='fa fa-chevron-down'></i></a></div>")
+        $("<div class='toolbar-elem favFilter'><a href='javascript:void(0)' id='favFilter' title='Filter'><i class='fa fa-chevron-down fav-chevron'></i></a></div>")
             .on('click',function () {
                 var open = BDA.getConfigurationValue('filterOpen');
                 if(open == null || open == undefined || !open){

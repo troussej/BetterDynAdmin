@@ -403,6 +403,10 @@ a {
   margin-top: 15px;
 }
 
+.fav-chevron{
+  line-height: 48px;
+}
+
 #favTagList{
   clear: left;
   margin-left: 5px;
