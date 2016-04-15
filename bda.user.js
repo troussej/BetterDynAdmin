@@ -2812,8 +2812,11 @@ var BDA = {
         $list = $('<ul></ul>');
         for (var tagName in tags) {
           var tag = tags[tagName];
+          var tagColor = this.stringToColour(tagName);
 
-          $('<label>'+tagName+'</label>',{
+
+
+          $('<label>#'+tagName+'</label>',{
             for:tagName
             }
           )
@@ -2837,7 +2840,10 @@ var BDA = {
               BDA.reloadToolbar();
            })
            .appendTo(
-             $('<li></li>').appendTo($list)
+             $('<li class="tag-filter" ></li>')
+             .css("background-color", this.colorToCss(tagColor))
+             .css("border", "1px solid " + this.getBorderColor(tagColor))
+             .appendTo($list)
            )
           );
 
