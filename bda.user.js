@@ -39,21 +39,6 @@
 // @downloadUrl   https://raw.githubusercontent.com/troussej/BetterDynAdmin/master/bda.user.js
 // ==/UserScript==
 
-//define sort unique method
-
-Array.prototype.unique = function()
-{
-  var n = {},r=[];
-  for(var i = 0; i < this.length; i++) 
-  {
-    if (!n[this[i]]) 
-    {
-      n[this[i]] = true; 
-      r.push(this[i]); 
-    }
-  }
-  return r;
-}
 
 var BDA = {
     componentBrowserPageSelector : "h1:contains('Component Browser')",
@@ -1803,7 +1788,7 @@ var BDA = {
       }else{
         storedArray = array;
       }
-      storedArray = storedArray.unique()
+      storedArray = BDA.unique(storedArray);
       BDA.storeConfiguration(name,storedArray);
     },
 
@@ -3238,11 +3223,27 @@ var BDA = {
         });
     },
 
+    //UTILS
+
     logTrace(msg){
       if(this.isLoggingTrace){
         console.log(msg);
       }
+    },
+
+    unique(array){
+      var n = {},r=[];
+      for(var i = 0; i < array.length; i++) 
+      {
+        if (!n[array[i]]) 
+        {
+          n[array[i]] = true; 
+          r.push(array[i]); 
+        }
+      }
+      return r;
     }
+
 };
 
 
