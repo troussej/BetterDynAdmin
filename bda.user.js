@@ -39,21 +39,6 @@
 // @downloadUrl   https://raw.githubusercontent.com/troussej/BetterDynAdmin/master/bda.user.js
 // ==/UserScript==
 
-//define sort unique method
-
-Array.prototype.unique = function()
-{
-  var n = {},r=[];
-  for(var i = 0; i < this.length; i++) 
-  {
-    if (!n[this[i]]) 
-    {
-      n[this[i]] = true; 
-      r.push(this[i]); 
-    }
-  }
-  return r;
-}
 
 var BDA = {
     componentBrowserPageSelector : "h1:contains('Component Browser')",
@@ -136,6 +121,7 @@ var BDA = {
                    },
     STORED_CONFIG : "BdaConfiguration",
     CACHE_STAT_TITLE_REGEXP : /item-descriptor=(.*) cache-mode=(.*) cache-locality=(.*)/,
+    isLoggingTrace : true,
 
     init : function(){
       var start = new Date().getTime();
@@ -1802,7 +1788,7 @@ var BDA = {
       }else{
         storedArray = array;
       }
-      storedArray = storedArray.unique()
+      storedArray = BDA.unique(storedArray);
       BDA.storeConfiguration(name,storedArray);
     },
 
@@ -2586,6 +2572,7 @@ var BDA = {
 
         var componentTags = fav.tags;
         if(selectedTags !=null && selectedTags.length > 0){
+<<<<<<< HEAD
           //check if any tag is selected
 
           var favTagSelectedCount = 0;
@@ -2593,6 +2580,15 @@ var BDA = {
             var selTag = selectedTags[idx];
             if(componentTags.indexOf(selTag) > -1){
               favTagSelectedCount++;
+=======
+          console.log(fav.componentName + ' componentTags = ' + componentTags);
+          if(componentTags !== null && componentTags !== undefined){
+            for (var j = 0; j < componentTags.length; j++) {
+              var cTag = componentTags[j];
+              if($.inArray(cTag,selectedTags) > -1){
+                show = true;
+              }
+>>>>>>> bookmarks/tags
             }
           }
           show = favTagSelectedCount == selectedTags.length; //if contains all selected tags        
@@ -2621,7 +2617,7 @@ var BDA = {
          
           if(componentTags !== null && componentTags !== undefined){
             for (var k = 0; k < componentTags.length; k++) {
-              var t = componentTags[i];
+              var t = componentTags[k];
               favTags+='#'+t;
               if(k+1 < componentTags.length){
                 favTags+=',';
@@ -3322,7 +3318,29 @@ var BDA = {
           else
             $('.sticky').css('position','static');
         });
+    },
+
+    //UTILS
+
+    logTrace(msg){
+      if(this.isLoggingTrace){
+        console.log(msg);
+      }
+    },
+
+    unique(array){
+      var n = {},r=[];
+      for(var i = 0; i < array.length; i++) 
+      {
+        if (!n[array[i]]) 
+        {
+          n[array[i]] = true; 
+          r.push(array[i]); 
+        }
+      }
+      return r;
     }
+
 };
 
 
