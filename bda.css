@@ -518,6 +518,12 @@ a {
   cursor: pointer;
 }
 
+.fav-button{
+ cursor: pointer;
+ margin-right: 5px;
+}
+
+
 .favLogDebug form {
   margin: 0;
 }
