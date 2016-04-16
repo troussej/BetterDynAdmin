@@ -1843,7 +1843,7 @@ var BDA = {
     },
 
     buildTagsFromString(tagString,defaultValue){
-        tagNames = BDA.buildArray(tagString).unique();
+        tagNames = BDA.unique(BDA.buildArray(tagString));
         return BDA.buildTagsFromArray(tagNames,defaultValue);
     },
 
@@ -2698,7 +2698,7 @@ var BDA = {
                     tags.push(element.parentElement.textContent);
                 });
                 //remove dupes
-                tags=tags.unique();
+                tags=BDA.unique(tags);
 
                 console.log("methods : " + methods);
                 console.log("vars : " + vars);
