@@ -2535,7 +2535,8 @@ var BDA = {
       $("<div id='addComponentToolbarPopup' class='popup_block'>"
         + "<div class='addFavOptions'>"
           + "<a href='#' class='close'><i class='fa fa-times'></i></a>"
-          + "<h3 class='popup_title'>Add new component</h3>"
+          + "<h3 class='popup_title' id='favPopinTitle-add'>Add new component</h3>"
+          + "<h3 class='popup_title' id='favPopinTitle-edit'>Edit component <span id='favPopinName'></span></h3>"
           + "<p>Choose methods and/or properties to shortcut : </p>"
           + "<div id='addComponentToolbarPopupContent'>"
             + "<div id='methods'><ul></ul></div>"
@@ -2676,7 +2677,17 @@ var BDA = {
       $(".favEdit").click(function() {
         var editName = $(this).attr('data-component');
         console.log("Click on edit " + editName);
-        BDA.openFavPopin('edit',$('#fav-'+editName));
+        var $curFav = $('#fav-'+editName);
+        var savedComp = BDA.getComponent(editName);
+
+        $.ajax({
+        type: "POST",
+        url: savedComp.componentPath,
+        success: function(result, status, jqXHR) {
+            BDA.openFavPopin('edit',savedComp,$('<div></div>').html(result));//hackish...
+          }
+        });
+
       });      
 
       $(".logdebug").click(function() {
@@ -2688,49 +2699,50 @@ var BDA = {
         $("#logDebugForm" + componentName).submit();
       });
 
+      var componentPath = this.purgeSlashes(document.location.pathname);
+
+      $('.close').click(function() {
+          $('.popup_block').fadeOut();
+      }); 
+
+      $('#submitComponent').click(function(){
+          BDA.logTrace('submit component');
+          $('.popup_block').fadeOut();
+          var methods = [];
+          var vars = [];
+          $('.method:checked').each(function(index, element){
+              methods.push(element.parentElement.textContent);
+          });
+          $('.variable:checked').each(function(index, element){
+              vars.push(element.parentElement.textContent);
+          });
+          BDA.logTrace('methods : ' + methods);
+          BDA.logTrace('vars : ' + vars);
+          // filter out empty values
+          var tags = BDA.buildArray($('#newtags').val());
+          //add selected tags
+          $('.tag:checked').each(function(index, element){
+              tags.push(element.parentElement.textContent);
+          });
+          BDA.logTrace('tags : ' + tags);
+          //remove dupes
+          tags=BDA.unique(tags);
+
+          console.log("methods : " + methods);
+          console.log("vars : " + vars);
+          console.log("tags : " + tags);
+          BDA.storeComponent(componentPath, methods, vars,tags);
+          BDA.reloadToolbar();
+      });
 
       if (this.isComponentPage)
       {
-        var componentPath = this.purgeSlashes(document.location.pathname);
+       
         if (!this.isComponentAlreadyStored(componentPath))
         {
           console.log('adding fav button');
           $("<div class='toolbar-elem newFav'><a href='javascript:void(0)' id='addComponent' title='Add component to toolbar'>+</a></div>")
           .appendTo("#toolbar");
-
-            $('.close').click(function() {
-                $('.popup_block').fadeOut();
-            });
-
-            $('#submitComponent').click(function(){
-                BDA.logTrace('submit component');
-                $('.popup_block').fadeOut();
-                var methods = [];
-                var vars = [];
-                $('.method:checked').each(function(index, element){
-                    methods.push(element.parentElement.textContent);
-                });
-                $('.variable:checked').each(function(index, element){
-                    vars.push(element.parentElement.textContent);
-                });
-                BDA.logTrace('methods : ' + methods);
-                BDA.logTrace('vars : ' + vars);
-                // filter out empty values
-                var tags = BDA.buildArray($('#newtags').val());
-                //add selected tags
-                $('.tag:checked').each(function(index, element){
-                    tags.push(element.parentElement.textContent);
-                });
-                BDA.logTrace('tags : ' + tags);
-                //remove dupes
-                tags=BDA.unique(tags);
-
-                console.log("methods : " + methods);
-                console.log("vars : " + vars);
-                console.log("tags : " + tags);
-                BDA.storeComponent(componentPath, methods, vars,tags);
-                BDA.reloadToolbar();
-            });
 
           $(".newFav").click(function() {
             BDA.openFavPopin('add');
@@ -2741,7 +2753,7 @@ var BDA = {
        BDA.addFavTagList();
     },
 
-    openFavPopin(mode, currentFav){
+    openFavPopin : function(mode, savedComp, $compPage){
       console.log("Add component : " + mode);
       var methodsList = $("#methods");
       var varsList = $("#vars");
@@ -2749,22 +2761,28 @@ var BDA = {
       methodsList.empty();
       varsList.empty();
 
-      var tableMethods, tablevars, defMethods, defProperties;
-
-      if(mode =='add'){
+      var tableMethods, tablevars, defMethods, defProperties, defTags;
+      
+      if(mode == 'edit' && savedComp != null && $compPage){
+        BDA.logTrace('$compPage : ' + $compPage.html());
+        tableMethods = $compPage.find('h1:contains("Methods")').next();
+        tablevars = $compPage.find('h1:contains("Properties")').next();
+        defMethods = savedComp.methods;
+        defProperties = savedComp.vars;
+        defTags = savedComp.tags;
+      } else { //add mode
         tableMethods = $('h1:contains("Methods")').next();
         tablevars = $('h1:contains("Properties")').next();
         defMethods = BDA.getConfigurationValue('default_methods');
         defProperties = BDA.getConfigurationValue('default_properties');
-      }else if(mode == 'edit' && currentFav != null){
-        tableMethods = $('<div></div>');
-        tablevars = $('<div></div>');
-
-        var savedComp = getComponent(currentFav.attr('data-component'));
-        defMethods = [];
-        defProperties = [];
-
+        defTags = [];
       }
+
+      BDA.logTrace('tableMethods : ' +tableMethods.html());
+      BDA.logTrace('tablevars : ' +  tablevars.html());
+      BDA.logTrace('defMethods : ' + defMethods);
+      BDA.logTrace('defProperties : ' + defProperties);
+      BDA.logTrace('defTags : ' + defTags);
 
 
       tableMethods.find('tr').each(function(index, element){
@@ -2778,7 +2796,6 @@ var BDA = {
 
       //handle default methods
      
-      console.log('savedMethods: ' + defMethods);
       if(defMethods != null){
           defMethods.forEach(function(methodName){
           console.log('setting default method: ' + methodName);
@@ -2795,7 +2812,6 @@ var BDA = {
         }
       });
 
-      console.log('savedProperties: ' + defProperties);
       if(defProperties != null){
         defProperties.forEach(function(name){
           console.log('setting default properties: ' + name);
@@ -2803,10 +2819,20 @@ var BDA = {
         });
       }
 
+      if(defTags != null){
+        defTags.forEach(function(name){
+          console.log('setting default tags: ' + name);
+          $('#tag_'+name).attr('checked',true);
+        });
+      }
+
+      $('.popup_title').css('display','none');
+      $('#favPopinTitle-'+mode).css('display','block');
+
       $('#addComponentToolbarPopup').fadeIn();
     },
 
-    addExistingTagsToToolbarPopup(){
+    addExistingTagsToToolbarPopup : function(){
         //add tags to the addFav popup
       var tags = this.getTags();
       $tagList = $('#existingTags');
@@ -2817,6 +2843,7 @@ var BDA = {
           for:tagValue
         }).insertAfter(
           $('<input/>',{
+            id:'tag_'+tagValue,
             type:'checkbox',
             name:tagValue
           })
@@ -2827,7 +2854,7 @@ var BDA = {
       }
     },
 
-    addFavFilter :function(){
+    addFavFilter : function(){
 
       var tags = this.getTags();
       if(tags !=null && Object.keys(tags).length> 0){
@@ -2839,7 +2866,7 @@ var BDA = {
                 }
                 BDA.storeConfiguration('filterOpen',!open);
 
-                $('#favTagList').toggle(50);
+                $('#favTagList').toggle(100);
             })
             .appendTo("#toolbar");
       }
@@ -2857,8 +2884,6 @@ var BDA = {
         for (var tagName in tags) {
           var tag = tags[tagName];
           var tagColor = this.stringToColour(tagName);
-
-
 
           $('<label>#'+tagName+'</label>',{
             for:tagName
