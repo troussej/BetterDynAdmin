@@ -2406,6 +2406,30 @@ var BDA = {
       }
     },
 
+    replaceComponent : function (componentName, methods, vars,tags)
+    {
+      if(this.hasWebStorage)
+      {
+        console.log("Try to edit : " + componentName);
+        var components = this.getStoredComponents();
+        for(var i = 0; i != components.length; i++)
+        {
+          if (components[i].componentName == componentName)
+          {
+            var compObj = components[i];
+            compObj.methods = methods;
+            compObj.vars = vars;
+            compObj.tags =tags;
+          }
+        }
+
+        BDA.storeItem('Components', JSON.stringify(components));
+        var tagMap = BDA.buildTagsFromArray(tags,false);
+        BDA.addTags(tagMap);
+
+      }
+    },
+
     storeItem : function(itemName, itemValue)
     {
       //console.log("Storing item : " + itemName + " : " + itemValue);
@@ -2532,7 +2556,7 @@ var BDA = {
       //get existing tags
 
 
-      $("<div id='addComponentToolbarPopup' class='popup_block' data-mode=''>"
+      $("<div id='addComponentToolbarPopup' class='popup_block' data-mode='' data-component='' data-component-path=''>"
         + "<div class='addFavOptions'>"
           + "<a href='#' class='close'><i class='fa fa-times'></i></a>"
           + "<h3 class='popup_title' id='favPopinTitle-add'>Add new component</h3>"
@@ -2629,7 +2653,7 @@ var BDA = {
             }
           }
 
-          $("<div id='fav-"+fav.componentName+"' class='toolbar-elem fav' data-component='"+fav.componentName+"'></div>")
+          $("<div id='fav-"+fav.componentName+"' class='toolbar-elem fav' data-component='"+fav.componentName+"' data-component-path='"+fav.componentPath+"'></div>")
           .css("background-color", this.colorToCss(colors))
           .css("border", "1px solid " + this.getBorderColor(colors))
           .html("<div class='favLink'>"
@@ -2736,6 +2760,39 @@ var BDA = {
           BDA.reloadToolbar();
       });
 
+      $('#submitEditComponent').click(function(){
+
+          $this = $(this);
+          $popin = $('#addComponentToolbarPopup');
+
+          BDA.logTrace('submit component');
+          $('.popup_block').fadeOut();
+          var methods = [];
+          var vars = [];
+          $('.method:checked').each(function(index, element){
+              methods.push(element.parentElement.textContent);
+          });
+          $('.variable:checked').each(function(index, element){
+              vars.push(element.parentElement.textContent);
+          });
+          // filter out empty values
+          var tags = BDA.buildArray($('#newtags').val());
+          //add selected tags
+          $('#existingTags input:checkbox:checked').each(function(index, element){
+              tags.push(element.parentElement.textContent);
+          });
+          //remove dupes
+          tags=BDA.unique(tags.sort());
+
+          console.log("methods : " + methods);
+          console.log("vars : " + vars);
+          console.log("tags : " + tags);
+
+          var editComponentName = $popin.attr('data-component');
+          BDA.replaceComponent(editComponentName, methods, vars,tags);
+          BDA.reloadToolbar();
+      });
+
       if (this.isComponentPage)
       {
        
@@ -2762,7 +2819,7 @@ var BDA = {
       methodsList.empty();
       varsList.empty();
 
-      var tableMethods, tablevars, defMethods, defProperties, defTags;
+      var tableMethods, tablevars, defMethods, defProperties, defTags, componentName, componentPath;
       
       if(mode == 'edit' && savedComp != null && $compPage){
         tableMethods = $compPage.find('h1:contains("Methods")').next();
@@ -2770,12 +2827,16 @@ var BDA = {
         defMethods = savedComp.methods;
         defProperties = savedComp.vars;
         defTags = savedComp.tags;
+        componentName = savedComp.componentName;
+        componentPath = savedComp.componentPath;
       } else { //add mode
         tableMethods = $('h1:contains("Methods")').next();
         tablevars = $('h1:contains("Properties")').next();
         defMethods = BDA.getConfigurationValue('default_methods');
         defProperties = BDA.getConfigurationValue('default_properties');
         defTags = [];
+        componentName = "";
+        componentPath = "";
       }
 
       BDA.logTrace('defMethods : ' + defMethods);
@@ -2836,6 +2897,8 @@ var BDA = {
 
       $('#addComponentToolbarPopup')
         .attr('data-mode',mode)
+        .attr('data-component',componentName)
+        .attr('data-component-path',componentPath)
         .fadeIn();
     },
 
