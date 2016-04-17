@@ -640,6 +640,11 @@ table.tablesorter tr.alt-row:hover td {
   color : black;
 }
 
+.fav-submit-button {
+  float: right;
+  color : black; 
+}
+
 #methods, #vars {
   float:left; 
   width: 50%;

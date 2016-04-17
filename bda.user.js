@@ -1788,7 +1788,7 @@ var BDA = {
       }else{
         storedArray = array;
       }
-      storedArray = BDA.unique(storedArray);
+      storedArray = BDA.unique(storedArray.sort());
       BDA.storeConfiguration(name,storedArray);
     },
 
@@ -2400,7 +2400,7 @@ var BDA = {
         storedComp.push(compObj);
 
         BDA.storeItem('Components', JSON.stringify(storedComp));
-        var tagMap = BDA.buildTagsFromArray(tags,true);
+        var tagMap = BDA.buildTagsFromArray(tags,false);
         BDA.addTags(tagMap);
 
       }
@@ -2532,7 +2532,7 @@ var BDA = {
       //get existing tags
 
 
-      $("<div id='addComponentToolbarPopup' class='popup_block'>"
+      $("<div id='addComponentToolbarPopup' class='popup_block' data-mode=''>"
         + "<div class='addFavOptions'>"
           + "<a href='#' class='close'><i class='fa fa-times'></i></a>"
           + "<h3 class='popup_title' id='favPopinTitle-add'>Add new component</h3>"
@@ -2553,7 +2553,8 @@ var BDA = {
            + "</div>"
           + "</div>"
           + "<div class='addFavSubmit'>"
-            + "<button type='button' id='submitComponent'>Add <i class='fa fa-play fa-x'></button>"
+            + "<button type='button' id='submitComponent' class='fav-submit-button fav-add'>Add <i class='fa fa-play fa-x'/></button>"
+            + "<button type='button' id='submitEditComponent' class='fav-submit-button fav-edit'>Save <i class='fa fa-play fa-x'/></button>" 
           + "</div>"
         + "</div>"
       + "</div>").insertAfter(this.logoSelector);
@@ -2721,12 +2722,12 @@ var BDA = {
           // filter out empty values
           var tags = BDA.buildArray($('#newtags').val());
           //add selected tags
-          $('.tag:checked').each(function(index, element){
+          $('#existingTags input:checkbox:checked').each(function(index, element){
               tags.push(element.parentElement.textContent);
           });
           BDA.logTrace('tags : ' + tags);
           //remove dupes
-          tags=BDA.unique(tags);
+          tags=BDA.unique(tags.sort());
 
           console.log("methods : " + methods);
           console.log("vars : " + vars);
@@ -2764,7 +2765,6 @@ var BDA = {
       var tableMethods, tablevars, defMethods, defProperties, defTags;
       
       if(mode == 'edit' && savedComp != null && $compPage){
-        BDA.logTrace('$compPage : ' + $compPage.html());
         tableMethods = $compPage.find('h1:contains("Methods")').next();
         tablevars = $compPage.find('h1:contains("Properties")').next();
         defMethods = savedComp.methods;
@@ -2778,8 +2778,6 @@ var BDA = {
         defTags = [];
       }
 
-      BDA.logTrace('tableMethods : ' +tableMethods.html());
-      BDA.logTrace('tablevars : ' +  tablevars.html());
       BDA.logTrace('defMethods : ' + defMethods);
       BDA.logTrace('defProperties : ' + defProperties);
       BDA.logTrace('defTags : ' + defTags);
@@ -2795,7 +2793,6 @@ var BDA = {
       });
 
       //handle default methods
-     
       if(defMethods != null){
           defMethods.forEach(function(methodName){
           console.log('setting default method: ' + methodName);
@@ -2826,10 +2823,20 @@ var BDA = {
         });
       }
 
+      //show edit/add title
       $('.popup_title').css('display','none');
       $('#favPopinTitle-'+mode).css('display','block');
 
-      $('#addComponentToolbarPopup').fadeIn();
+      $('.fav-submit-button').css('display','none');
+      $('.fav-'+mode).css('display','block');
+
+      if(mode == 'edit'){
+        $('#favPopinName').html(savedComp.componentName);
+      }
+
+      $('#addComponentToolbarPopup')
+        .attr('data-mode',mode)
+        .fadeIn();
     },
 
     addExistingTagsToToolbarPopup : function(){
@@ -2874,52 +2881,68 @@ var BDA = {
     },
 
     addFavTagList : function(){
-       console.log('addfavTagList');
-       var tags = this.getTags();
+      console.log('addfavTagList');
+      var tags = this.getTags();
 
+      $tagList = $('<div id="favTagList" class="favline">').appendTo('#toolbar');
 
-       $tagList = $('<div id="favTagList" class="favline">').appendTo('#toolbar');
+      $list = $('<ul></ul>');
+      for (var tagName in tags) {
+        var tag = tags[tagName];
+        var tagColor = this.stringToColour(tagName);
 
-        $list = $('<ul></ul>');
-        for (var tagName in tags) {
-          var tag = tags[tagName];
-          var tagColor = this.stringToColour(tagName);
-
-          $('<label>#'+tagName+'</label>',{
-            for:tagName
+        $('<label>#'+tagName+'</label>',{
+          for:tagName
+          }
+        )
+        .insertAfter(
+          $('<input/>',{
+            type:'checkbox',
+            name:tagName,
+            class:'favFilterTag',
+            checked: tag.selected
+          }
+         )
+         .on('change',function(){
+            var name = $(this).attr('name');
+            console.log('applyFavFilter : '+ name);
+            var tags = BDA.getTags();
+            var tag = tags[name];
+            if(tag !=null){
+              tag.selected=$(this).prop('checked');
             }
-          )
-          .insertAfter(
-            $('<input/>',{
-              type:'checkbox',
-              name:tagName,
-              class:'favFilterTag',
-              checked: tag.selected
-            }
-           )
-           .on('change',function(){
-              var name = $(this).attr('name');
-              console.log('applyFavFilter : '+ name);
-              var tags = BDA.getTags();
-              var tag = tags[name];
-              if(tag !=null){
-                tag.selected=$(this).prop('checked');
-              }
-              BDA.saveTags(tags);
-              BDA.reloadToolbar();
-           })
-           .appendTo(
-             $('<li class="tag-filter" ></li>')
-             .css("background-color", this.colorToCss(tagColor))
-             .css("border", "1px solid " + this.getBorderColor(tagColor))
-             .appendTo($list)
-           )
-          );
+            BDA.saveTags(tags);
+            BDA.reloadToolbar();
+         })
+         .appendTo(
+           $('<li class="tag-filter" ></li>')
+           .css("background-color", this.colorToCss(tagColor))
+           .css("border", "1px solid " + this.getBorderColor(tagColor))
+           .appendTo($list)
+         )
+        );
 
-          $('<li></li>')
+        $('<li></li>')
+      }
+      $list.appendTo($tagList);
+
+      $elems = $list.children('li');
+
+      $elems.sort(function(a,b){
+        var an = $(a).find('label').html();
+        var bn = $(b).find('label').html();
+
+        if(an > bn) {
+          return 1;
         }
-        $list.appendTo($tagList);
+        if(an < bn) {
+          return -1;
+        }
+        return 0;
+      });
 
+      $elems.detach().appendTo($list);  
+      
 
       var open = BDA.getConfigurationValue('filterOpen');
       if(open == null || open == undefined || !open){
