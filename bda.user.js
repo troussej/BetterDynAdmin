@@ -1843,7 +1843,7 @@ var BDA = {
     },
 
     buildTagsFromString(tagString,defaultValue){
-        tagNames = BDA.buildArray(tagString).unique();
+        tagNames = BDA.unique(BDA.buildArray(tagString));
         return BDA.buildTagsFromArray(tagNames,defaultValue);
     },
 
@@ -2388,7 +2388,7 @@ var BDA = {
         storedComp.push(compObj);
 
         BDA.storeItem('Components', JSON.stringify(storedComp));
-        var tagMap = BDA.buildTagsFromArray(tags,true);
+        var tagMap = BDA.buildTagsFromArray(tags,false);
         BDA.addTags(tagMap);
 
       }
@@ -2698,7 +2698,7 @@ var BDA = {
                     tags.push(element.parentElement.textContent);
                 });
                 //remove dupes
-                tags=tags.unique();
+                tags=BDA.unique(tags);
 
                 console.log("methods : " + methods);
                 console.log("vars : " + vars);
@@ -2770,11 +2770,13 @@ var BDA = {
       for (var name in tags) {
         var tagValue = name;
         $('<label>'+tagValue+'</label>',{
-          for:tagValue
+          for:'tag_'+tagValue
         }).insertAfter(
           $('<input/>',{
             type:'checkbox',
-            name:tagValue
+            name:tagValue,
+            class:'tag',
+            id:'tag_'+tagValue
           })
          .appendTo(
            $('<li></li>').appendTo($tagList)
@@ -2816,14 +2818,12 @@ var BDA = {
 
 
 
-          $('<label>#'+tagName+'</label>',{
-            for:tagName
-            }
-          )
+          $('<label for=tag_'+tagName+'>#'+tagName+'</label>')
           .insertAfter(
             $('<input/>',{
               type:'checkbox',
               name:tagName,
+              id:'tag_'+tagName,
               class:'favFilterTag',
               checked: tag.selected
             }
