@@ -1286,7 +1286,7 @@ var BDA = {
 
       //cache section
 
-      BDA.setupRepositoryCacheSection();
+      //BDA.setupRepositoryCacheSection();
 
       // Hide other sections
       var toggleObj = BDA.getToggleObj();
