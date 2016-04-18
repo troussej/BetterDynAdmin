@@ -2808,9 +2808,11 @@ var BDA = {
         }
       }
 
-       BDA.addFavTagList();
-    },
+                tags=BDA.unique(tags);
+       			BDA.addFavTagList();
+    
 
+	},
     openFavPopin : function(mode, savedComp, $compPage){
       console.log("Add component : " + mode);
       var methodsList = $("#methods");
@@ -2910,12 +2912,14 @@ var BDA = {
       for (var name in tags) {
         var tagValue = name;
         $('<label>'+tagValue+'</label>',{
-          for:tagValue
+          for:'tag_'+tagValue
         }).insertAfter(
           $('<input/>',{
             id:'tag_'+tagValue,
             type:'checkbox',
-            name:tagValue
+            name:tagValue,
+            class:'tag',
+            id:'tag_'+tagValue
           })
          .appendTo(
            $('<li></li>').appendTo($tagList)
@@ -2991,6 +2995,34 @@ var BDA = {
 
       $elems = $list.children('li');
 
+           $('<label for=tag_'+tagName+'>#'+tagName+'</label>')
+          .insertAfter(
+            $('<input/>',{
+              type:'checkbox',
+              name:tagName,
+              id:'tag_'+tagName,
+              class:'favFilterTag',
+              checked: tag.selected
+            }
+           )
+           .on('change',function(){
+              var name = $(this).attr('name');
+              console.log('applyFavFilter : '+ name);
+              var tags = BDA.getTags();
+              var tag = tags[name];
+              if(tag !=null){
+                tag.selected=$(this).prop('checked');
+              }
+              BDA.saveTags(tags);
+              BDA.reloadToolbar();
+           })
+           .appendTo(
+             $('<li class="tag-filter" ></li>')
+             .css("background-color", this.colorToCss(tagColor))
+             .css("border", "1px solid " + this.getBorderColor(tagColor))
+             .appendTo($list)
+           )
+          );
       $elems.sort(function(a,b){
         var an = $(a).find('label').html();
         var bn = $(b).find('label').html();
