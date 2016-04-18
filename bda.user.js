@@ -16,8 +16,8 @@
 // @grant GM_deleteValue
 //
 // ------ write version on bdaCSS TOO ! ------ 
-// @version 1.14.jtro.11
-// @resource bdaCSS https://raw.githubusercontent.com/troussej/BetterDynAdmin/master/bda.css?version=1.14.jtro.11
+// @version 1.14.jtro.12
+// @resource bdaCSS https://raw.githubusercontent.com/troussej/BetterDynAdmin/master/bda.css?version=1.14.jtro.12
 //
 // @require https://code.jquery.com/jquery-1.11.1.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.21.5/js/jquery.tablesorter.min.js
