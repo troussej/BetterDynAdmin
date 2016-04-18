@@ -2911,15 +2911,13 @@ var BDA = {
 
       for (var name in tags) {
         var tagValue = name;
-        $('<label>'+tagValue+'</label>',{
-          for:'tag_'+tagValue
-        }).insertAfter(
+        $('<label for="tag_'+tagValue+'">'+tagValue+'</label>')
+          .insertAfter(
           $('<input/>',{
             id:'tag_'+tagValue,
             type:'checkbox',
             name:tagValue,
             class:'tag',
-            id:'tag_'+tagValue
           })
          .appendTo(
            $('<li></li>').appendTo($tagList)
@@ -2958,14 +2956,15 @@ var BDA = {
         var tag = tags[tagName];
         var tagColor = this.stringToColour(tagName);
 
-        $('<label>#'+tagName+'</label>',{
-          for:tagName
+        $('<label for="favFilter'+tagName+'">#'+tagName+'</label>',{
+          attr:{for:tagName}
           }
         )
         .insertAfter(
           $('<input/>',{
             type:'checkbox',
             name:tagName,
+            id:'favFilter'+tagName,
             class:'favFilterTag',
             checked: tag.selected
           }
@@ -2994,35 +2993,7 @@ var BDA = {
       $list.appendTo($tagList);
 
       $elems = $list.children('li');
-
-           $('<label for=tag_'+tagName+'>#'+tagName+'</label>')
-          .insertAfter(
-            $('<input/>',{
-              type:'checkbox',
-              name:tagName,
-              id:'tag_'+tagName,
-              class:'favFilterTag',
-              checked: tag.selected
-            }
-           )
-           .on('change',function(){
-              var name = $(this).attr('name');
-              console.log('applyFavFilter : '+ name);
-              var tags = BDA.getTags();
-              var tag = tags[name];
-              if(tag !=null){
-                tag.selected=$(this).prop('checked');
-              }
-              BDA.saveTags(tags);
-              BDA.reloadToolbar();
-           })
-           .appendTo(
-             $('<li class="tag-filter" ></li>')
-             .css("background-color", this.colorToCss(tagColor))
-             .css("border", "1px solid " + this.getBorderColor(tagColor))
-             .appendTo($list)
-           )
-          );
+          
       $elems.sort(function(a,b){
         var an = $(a).find('label').html();
         var bn = $(b).find('label').html();
