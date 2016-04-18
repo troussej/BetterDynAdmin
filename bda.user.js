@@ -1808,7 +1808,7 @@ var BDA = {
     {
       if(this.hasWebStorage)
       {
-        console.log("Try to store config: " + name + ", value : " + value);
+        console.log("Try to store config: " + name + ", value : " + JSON.stringify(value));
         var storedConfig = this.getStoredConfiguration();
         storedConfig[name] = value;
         BDA.storeItem(this.STORED_CONFIG, JSON.stringify(storedConfig));
@@ -1817,19 +1817,72 @@ var BDA = {
 
     // -- TAGS
 
+    buildArray(stringIn){
+      var cleaned = stringIn.replace(/[ \t]/g,'').replace(/,,+/g,',');
+      var array;
+      if(cleaned !=""){
+        array=cleaned.split(',');
+      }else{
+        array=[];
+      }
+      return array;
+    },
+
+    buildTagsFromArray(tagNames,defaultValue){
+       var value = defaultValue != null?defaultValue:false;
+       var tags = {};
+       for (var i = 0; i < tagNames.length; i++) {
+        var tagName = tagNames[i];
+        var tag = {};
+        tag.selected=value;
+        tag.name=tagName;
+        tags[tagName] = tag;
+      }
+      console.log('buildTagsFromArray ' + JSON.stringify(tags));
+      return tags;
+    },
+
+    buildTagsFromString(tagString,defaultValue){
+        tagNames = BDA.buildArray(tagString).unique();
+        return BDA.buildTagsFromArray(tagNames,defaultValue);
+    },
+
+    editTags(newTags){
+      console.log('editTags + ' + JSON.stringify(newTags));
+       var existingTags = BDA.getTags();
+       for (var name in existingTags) {
+        if(newTags[name] !=null){
+          var oldTag = existingTags[name];
+          newTags[name].selected=oldTag.selected;
+        }
+      }
+      BDA.saveTags(newTags);
+    },
+
+    addTags(newTags){
+      console.log('add tags:');
+      var existingTags = BDA.getTags();
+      console.log('existingTags = ' + JSON.stringify(existingTags));
+      for (var name in newTags) {
+        console.log('name : ' + name);
+        var newTag = newTags[name];
+        console.log('newTag = ' + JSON.stringify(newTag));
+        existingTags[newTag.name] = newTag;
+      }
+      console.log('existingTags = ' + JSON.stringify(existingTags));
+      BDA.saveTags(existingTags);
+    },
+
       //tags
-    getStoredTags : function(){
-        return BDA.getStoredArray('tags');
+    getTags : function(){
+        var tags = BDA.getConfigurationValue('tags');
+        if(tags == null || tags == undefined){
+          tags = {};
+        }
+        return tags;
     },
-    storeTags : function(tags){
-       BDA.storeUniqueArray('tags',tags,true);
-    },
-    getStoredSelectedTags : function(){
-        return BDA.getStoredArray('selectedTags');
-    },
-    storeSelectedTags : function(tags){
-       console.log('storeSelectedTags : ' + tags);
-       BDA.storeUniqueArray('selectedTags',tags,false);
+    saveTags : function(tags){
+      BDA.storeConfiguration('tags',tags);
     },
 
 
@@ -2201,14 +2254,12 @@ var BDA = {
             var methods=$('#config-methods-data').val().trim();
             var methodsArray=methods.replace(/ /g,'').split(",");
             console.log('storing methods : ' + methodsArray);
-            BDA.storeConfiguration("default_methods",methodsArray)
+            BDA.storeConfiguration("default_methods",methodsArray);
           }
        )
        ;
        $config.append($submitMethods);
        
-
-
       // Default properties
 
       var savedProperties = this.getConfigurationValue('default_properties');
@@ -2230,6 +2281,33 @@ var BDA = {
           }
         );
       $config.append($submitProperties);
+
+      var savedTags = this.getTags();
+      var tagAsString = "";
+      var index=0;
+      var tagsSize = Object.keys(savedTags).length;
+      for (var key in savedTags) {
+        tagAsString+=key;
+        if(index < tagsSize){
+          tagAsString+=','
+        }
+        index++;
+      }
+       $config.append(
+        "<p>Edit tags:</p>"
+        + "<textarea id='config-tags-data' class='' placeholder='List of tags, comma separated'>"+tagAsString+"</textarea>"
+        );
+
+       $submitTags  = $('<button id="config-tags-submit">Save</button>')
+        .bind('click', function(){
+            var tagString=$('#config-tags-data').val();
+            var tags = BDA.buildTagsFromString(tagString,false);
+            console.log('storing tags : ' + JSON.stringify(tags));
+            BDA.editTags(tags);
+            BDA.reloadToolbar();
+          }
+        );
+      $config.append($submitTags);
 
     },
 
@@ -2310,7 +2388,8 @@ var BDA = {
         storedComp.push(compObj);
 
         BDA.storeItem('Components', JSON.stringify(storedComp));
-        BDA.storeTags(tags);
+        var tagMap = BDA.buildTagsFromArray(tags,true);
+        BDA.addTags(tagMap);
 
       }
     },
@@ -2477,7 +2556,14 @@ var BDA = {
         //add tags filter
       BDA.addFavFilter();
 
-      var selectedTags = BDA.getStoredSelectedTags();
+      var tags = BDA.getTags();
+      var selectedTags = [];
+      for(var tagName in tags){
+        var tag = tags[tagName];
+        if(tag.selected){
+          selectedTags.push(tagName);
+        }
+      }
 
       for(var i = 0; i != favs.length; i++)
       {
@@ -2486,6 +2572,7 @@ var BDA = {
 
         var componentTags = fav.tags;
         if(selectedTags !=null && selectedTags.length > 0){
+          //check if any tag is selected
           console.log(fav.componentName + ' componentTags = ' + componentTags);
           if(componentTags !== null && componentTags !== undefined){
             for (var j = 0; j < componentTags.length; j++) {
@@ -2495,6 +2582,7 @@ var BDA = {
               }
             }
           }
+          
         }else{
           show = true;
         }
@@ -2604,18 +2692,13 @@ var BDA = {
                     vars.push(element.parentElement.textContent);
                 });
                 // filter out empty values
-                var stags = $('#newtags').val().split(',');
-                var tags = [];
-                for (var i = 0; i < stags.length; i++) {
-                  var tag = stags[i];
-                  if(tag !== null && tag !== ""){
-                    tags.push(tag);
-                  }
-                }
-
+                var tags = BDA.buildArray($('#newtags').val());
+                //add selected tags
                 $('.tag:checked').each(function(index, element){
                     tags.push(element.parentElement.textContent);
                 });
+                //remove dupes
+                tags=tags.unique();
 
                 console.log("methods : " + methods);
                 console.log("vars : " + vars);
@@ -2681,11 +2764,11 @@ var BDA = {
 
     addExistingTagsToToolbarPopup(){
         //add tags to the addFav popup
-      var tags = this.getStoredTags();
+      var tags = this.getTags();
       $tagList = $('#existingTags');
 
-      for (var i = 0; i < tags.length; i++) {
-        var tagValue = tags[i];
+      for (var name in tags) {
+        var tagValue = name;
         $('<label>'+tagValue+'</label>',{
           for:tagValue
         }).insertAfter(
@@ -2702,9 +2785,9 @@ var BDA = {
 
     addFavFilter :function(){
 
-      var tags = this.getStoredTags();
-      if(tags !=null && tags.length > 0){
-        $("<div class='toolbar-elem favFilter'><a href='javascript:void(0)' id='favFilter' title='Filter'><i class='fa fa-chevron-down'></i></a></div>")
+      var tags = this.getTags();
+      if(tags !=null && Object.keys(tags).length> 0){
+        $("<div class='toolbar-elem favFilter'><a href='javascript:void(0)' id='favFilter' title='Filter'><i class='fa fa-chevron-down fav-chevron'></i></a></div>")
             .on('click',function () {
                 var open = BDA.getConfigurationValue('filterOpen');
                 if(open == null || open == undefined || !open){
@@ -2721,31 +2804,46 @@ var BDA = {
 
     addFavTagList : function(){
        console.log('addfavTagList');
-       var tags = this.getStoredTags();
-       var selectedTags = this.getStoredSelectedTags();
+       var tags = this.getTags();
 
 
        $tagList = $('<div id="favTagList" class="favline">').appendTo('#toolbar');
 
         $list = $('<ul></ul>');
-        for (var i = 0; i < tags.length; i++) {
-          var tag = tags[i];
+        for (var tagName in tags) {
+          var tag = tags[tagName];
+          var tagColor = this.stringToColour(tagName);
 
-          $('<label>'+tag+'</label>',{
-            for:tag
+
+
+          $('<label>#'+tagName+'</label>',{
+            for:tagName
             }
           )
           .insertAfter(
             $('<input/>',{
               type:'checkbox',
-              name:tag,
+              name:tagName,
               class:'favFilterTag',
-              checked: $.inArray(tag,selectedTags) > -1
+              checked: tag.selected
             }
            )
-           .on('change',BDA.applyFavFilter)
+           .on('change',function(){
+              var name = $(this).attr('name');
+              console.log('applyFavFilter : '+ name);
+              var tags = BDA.getTags();
+              var tag = tags[name];
+              if(tag !=null){
+                tag.selected=$(this).prop('checked');
+              }
+              BDA.saveTags(tags);
+              BDA.reloadToolbar();
+           })
            .appendTo(
-             $('<li></li>').appendTo($list)
+             $('<li class="tag-filter" ></li>')
+             .css("background-color", this.colorToCss(tagColor))
+             .css("border", "1px solid " + this.getBorderColor(tagColor))
+             .appendTo($list)
            )
           );
 
@@ -2761,14 +2859,9 @@ var BDA = {
 
     },
 
-    applyFavFilter :function(){
+    applyFavFilter :function(tagName){
       //save tags
-      var selectedTags = [];
-      $('#favTagList input:checkbox:checked.favFilterTag').each(function(){
-          selectedTags.push($(this).attr('name'));
-      })
-      BDA.storeSelectedTags(selectedTags);
-      BDA.reloadToolbar();
+
     },
 
     createActorCaller : function()
