@@ -1867,7 +1867,9 @@ var BDA = {
         console.log('name : ' + name);
         var newTag = newTags[name];
         console.log('newTag = ' + JSON.stringify(newTag));
-        existingTags[newTag.name] = newTag;
+        if(existingTags[newTag.name] === null || existingTags[newTag.name] === undefined){
+          existingTags[newTag.name] = newTag;
+        } 
       }
       console.log('existingTags = ' + JSON.stringify(existingTags));
       BDA.saveTags(existingTags);
@@ -1885,6 +1887,18 @@ var BDA = {
       BDA.storeConfiguration('tags',tags);
     },
 
+    clearTags : function(){
+        console.log('clearTags');
+        var savedtags = BDA.getTags();
+          for (var sTagName in savedtags) {
+             var sTag = savedtags[sTagName];
+             sTag.selected=false;
+          }
+          
+        console.log('savedtags = ' + JSON.stringify(savedtags));
+        BDA.saveTags(savedtags);
+        BDA.reloadToolbar();
+    },
 
     //--- Stored queries functions ------------------------------------------------------------------------
 
@@ -2592,7 +2606,7 @@ var BDA = {
       $("<div id='toolbar'></div>").appendTo("#toolbarContainer");
 
         //add tags filter
-      BDA.addFavFilter();
+      //BDA.addFavFilter();
 
       var tags = BDA.getTags();
       var selectedTags = [];
@@ -2930,6 +2944,8 @@ var BDA = {
 
       var tags = this.getTags();
       if(tags !=null && Object.keys(tags).length> 0){
+
+
         $("<div class='toolbar-elem favFilter'><a href='javascript:void(0)' id='favFilter' title='Filter'><i class='fa fa-chevron-down fav-chevron'></i></a></div>")
             .on('click',function () {
                 var open = BDA.getConfigurationValue('filterOpen');
@@ -2951,14 +2967,24 @@ var BDA = {
 
       $tagList = $('<div id="favTagList" class="favline">').appendTo('#toolbar');
 
-      $list = $('<ul></ul>');
+      var $list = $('<ul></ul>');
+
+      //if at least one filter
+      if(tags !=null && Object.keys(tags).length> 0){
+        $('<button id="clear-filters" class="tag-filter-button" title="Clear"><i class="fa fa-times" aria-hidden="true"></i></button>')
+         .on('click',this.clearTags)
+         .appendTo(
+           $('<li class="" ></li>')
+           .appendTo($list)
+         );
+      }
+
+      
       for (var tagName in tags) {
         var tag = tags[tagName];
         var tagColor = this.stringToColour(tagName);
 
-        $('<label for="favFilter'+tagName+'">#'+tagName+'</label>',{
-          attr:{for:tagName}
-          }
+        $('<label for="favFilter'+tagName+'">#'+tagName+'</label>'
         )
         .insertAfter(
           $('<input/>',{
@@ -3010,10 +3036,10 @@ var BDA = {
       $elems.detach().appendTo($list);  
       
 
-      var open = BDA.getConfigurationValue('filterOpen');
+      /*var open = BDA.getConfigurationValue('filterOpen');
       if(open == null || open == undefined || !open){
         $tagList.css('display','none');
-      }
+      }*/
 
     },
 
