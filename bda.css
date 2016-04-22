@@ -341,6 +341,7 @@ a {
 
 #bdaSearch input{
    margin-top: 1px;
+   height: 55%;
 }
 
 #whatsnew {
@@ -422,6 +423,18 @@ a {
 #favSetTags {
   margin-bottom: 5px;
 }
+
+.tag-filter-button{
+   color:black;
+    padding: 2px 3px 4px 3px;
+    border: 1px solid #ccc;
+   border-radius: 3px;
+   font-size: 16px;
+}
+
+.tag-filter-elem{
+}
+
 
 .tag-filter{
     padding: 2px 6px 2px 2px;
@@ -516,6 +529,12 @@ a {
 .favDelete {
   cursor: pointer;
 }
+
+.fav-button{
+ cursor: pointer;
+ margin-right: 5px;
+}
+
 
 .favLogDebug form {
   margin: 0;
@@ -631,6 +650,11 @@ table.tablesorter tr.alt-row:hover td {
 .close, #submitComponent {
   float: right;
   color : black;
+}
+
+.fav-submit-button {
+  float: right;
+  color : black; 
 }
 
 #methods, #vars {

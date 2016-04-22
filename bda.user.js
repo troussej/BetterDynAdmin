@@ -1887,6 +1887,18 @@ var BDA = {
       BDA.storeConfiguration('tags',tags);
     },
 
+    clearTags : function(){
+        console.log('clearTags');
+        var savedtags = BDA.getTags();
+          for (var sTagName in savedtags) {
+             var sTag = savedtags[sTagName];
+             sTag.selected=false;
+          }
+          
+        console.log('savedtags = ' + JSON.stringify(savedtags));
+        BDA.saveTags(savedtags);
+        BDA.reloadToolbar();
+    },
 
     //--- Stored queries functions ------------------------------------------------------------------------
 
@@ -2556,7 +2568,7 @@ var BDA = {
       $("<div id='toolbar'></div>").appendTo("#toolbarContainer");
 
         //add tags filter
-      BDA.addFavFilter();
+      //BDA.addFavFilter();
 
       var tags = BDA.getTags();
       var selectedTags = [];
@@ -2789,6 +2801,8 @@ var BDA = {
 
       var tags = this.getTags();
       if(tags !=null && Object.keys(tags).length> 0){
+
+
         $("<div class='toolbar-elem favFilter'><a href='javascript:void(0)' id='favFilter' title='Filter'><i class='fa fa-chevron-down fav-chevron'></i></a></div>")
             .on('click',function () {
                 var open = BDA.getConfigurationValue('filterOpen');
@@ -2805,59 +2819,70 @@ var BDA = {
     },
 
     addFavTagList : function(){
-       console.log('addfavTagList');
-       var tags = this.getTags();
+      console.log('addfavTagList');
+      var tags = this.getTags();
+
+      $tagList = $('<div id="favTagList" class="favline">').appendTo('#toolbar');
+
+      var $list = $('<ul></ul>');
+
+      //if at least one filter
+      if(tags !=null && Object.keys(tags).length> 0){
+        $('<button id="clear-filters" class="tag-filter-button" title="Clear"><i class="fa fa-times" aria-hidden="true"></i></button>')
+         .on('click',this.clearTags)
+         .appendTo(
+           $('<li class="" ></li>')
+           .appendTo($list)
+         );
+      }
+
+      
+      for (var tagName in tags) {
+        var tag = tags[tagName];
+        var tagColor = this.stringToColour(tagName);
 
 
-       $tagList = $('<div id="favTagList" class="favline">').appendTo('#toolbar');
 
-        $list = $('<ul></ul>');
-        for (var tagName in tags) {
-          var tag = tags[tagName];
-          var tagColor = this.stringToColour(tagName);
-
-
-
-          $('<label>#'+tagName+'</label>',{
-            for:tagName
+        $('<label>#'+tagName+'</label>',{
+          for:tagName
+          }
+        )
+        .insertAfter(
+          $('<input/>',{
+            type:'checkbox',
+            name:tagName,
+            class:'favFilterTag',
+            checked: tag.selected
+          }
+         )
+         .on('change',function(){
+            var name = $(this).attr('name');
+            console.log('applyFavFilter : '+ name);
+            var tags = BDA.getTags();
+            var tag = tags[name];
+            if(tag !=null){
+              tag.selected=$(this).prop('checked');
             }
-          )
-          .insertAfter(
-            $('<input/>',{
-              type:'checkbox',
-              name:tagName,
-              class:'favFilterTag',
-              checked: tag.selected
-            }
-           )
-           .on('change',function(){
-              var name = $(this).attr('name');
-              console.log('applyFavFilter : '+ name);
-              var tags = BDA.getTags();
-              var tag = tags[name];
-              if(tag !=null){
-                tag.selected=$(this).prop('checked');
-              }
-              BDA.saveTags(tags);
-              BDA.reloadToolbar();
-           })
-           .appendTo(
-             $('<li class="tag-filter" ></li>')
-             .css("background-color", this.colorToCss(tagColor))
-             .css("border", "1px solid " + this.getBorderColor(tagColor))
-             .appendTo($list)
-           )
-          );
+            BDA.saveTags(tags);
+            BDA.reloadToolbar();
+         })
+         .appendTo(
+           $('<li class="tag-filter" ></li>')
+           .css("background-color", this.colorToCss(tagColor))
+           .css("border", "1px solid " + this.getBorderColor(tagColor))
+           .appendTo($list)
+         )
+        );
 
-          $('<li></li>')
-        }
-        $list.appendTo($tagList);
+        $('<li></li>')
+      }
+      $list.appendTo($tagList);
 
 
-      var open = BDA.getConfigurationValue('filterOpen');
+      /*var open = BDA.getConfigurationValue('filterOpen');
       if(open == null || open == undefined || !open){
         $tagList.css('display','none');
-      }
+      }*/
 
     },
 
