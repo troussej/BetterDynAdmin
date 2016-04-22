@@ -1867,7 +1867,9 @@ var BDA = {
         console.log('name : ' + name);
         var newTag = newTags[name];
         console.log('newTag = ' + JSON.stringify(newTag));
-        existingTags[newTag.name] = newTag;
+        if(existingTags[newTag.name] === null || existingTags[newTag.name] === undefined){
+          existingTags[newTag.name] = newTag;
+        } 
       }
       console.log('existingTags = ' + JSON.stringify(existingTags));
       BDA.saveTags(existingTags);
@@ -2388,7 +2390,7 @@ var BDA = {
         storedComp.push(compObj);
 
         BDA.storeItem('Components', JSON.stringify(storedComp));
-        var tagMap = BDA.buildTagsFromArray(tags,true);
+        var tagMap = BDA.buildTagsFromArray(tags,false);
         BDA.addTags(tagMap);
 
       }
