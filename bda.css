@@ -424,6 +424,23 @@ a {
   margin-bottom: 5px;
 }
 
+.bda-button{
+  color:black;
+  padding: 2px 3px 4px 3px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 16px;
+}
+
+.bda-button-on{
+background-color: white;
+}
+
+.bda-button-off{
+  background-color: black;
+}
+
+
 .tag-filter-button{
    color:black;
     padding: 2px 3px 4px 3px;
