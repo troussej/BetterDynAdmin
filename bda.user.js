@@ -1844,6 +1844,7 @@ $(document).ready(function(){
             var tagName = tagNames[i];
             var tag = {};
             tag.selected=value;
+            tag.state=defaultValue;
             tag.name=tagName;
             tags[tagName] = tag;
           }
@@ -1863,6 +1864,7 @@ $(document).ready(function(){
             if(newTags[name] !=null){
               var oldTag = existingTags[name];
               newTags[name].selected=oldTag.selected;
+              newTags[name].state=oldTag.state;
             }
           }
           BDA.saveTags(newTags);
@@ -1902,6 +1904,7 @@ $(document).ready(function(){
               for (var sTagName in savedtags) {
                  var sTag = savedtags[sTagName];
                  sTag.selected=false;
+                 sTag.state='default';
               }
               
             console.log('savedtags = ' + JSON.stringify(savedtags));
@@ -2837,7 +2840,7 @@ $(document).ready(function(){
 
           //if at least one filter
           if(tags !=null && Object.keys(tags).length> 0){
-            $('<button id="clear-filters" class="tag-filter-button" title="Clear"><i class="fa fa-times" aria-hidden="true"></i></button>')
+            $('<button id="clear-filters" class="bda-button bda-button-icon" title="Clear"><i class="fa fa-times" aria-hidden="true"></i></button>')
              .on('click',this.clearTags)
              .appendTo(
                $('<li class="" ></li>')
@@ -2845,20 +2848,36 @@ $(document).ready(function(){
              );
           }
 
-           $('<button id="test" class="bda-button" title="test">test</button>')
-             .multiStatesButton()
-             .appendTo(
-               $('<li class="" ></li>')
-               .appendTo($list)
-             );
-
-          
-
-          
           for (var tagName in tags) {
             var tag = tags[tagName];
             var tagColor = this.stringToColour(tagName);
 
+            $('<button id="filter-tagName" class="bda-button bda-button-filter" title="{0}" data-tag-name="{0}"><i class="fa" aria-hidden="true"></i>#{0}</button>'.format(tagName))
+             .css("background-color", this.colorToCss(tagColor))
+             .css("border", "1px solid " + this.getBorderColor(tagColor))
+             .multiStatesButton({
+              states:[{
+                  name:'default',
+                  class:'',
+                  icon: ''
+                },{
+                  name:'include',
+                  class:'bda-filter-include',
+                  icon: 'fa-check'
+                },{
+                  name:'exclude',
+                  class:'bda-filter-exclude',
+                  icon:'fa-ban'
+                }
+                ],
+                callback : BDA.applyFavFilter,
+                defaultState : tag.state
+             })
+             .appendTo(
+               $('<li class="" ></li>')
+               .appendTo($list)
+             );
+/*
 
 
             $('<label>#'+tagName+'</label>',{
@@ -2891,8 +2910,7 @@ $(document).ready(function(){
                .appendTo($list)
              )
             );
-
-            $('<li></li>')
+*/
           }
           $list.appendTo($tagList);
 
@@ -2904,8 +2922,24 @@ $(document).ready(function(){
 
         },
 
-        applyFavFilter :function(tagName){
-          //save tags
+        applyFavFilter : function($button,prevState,curState){
+            console.log(curState.name);
+            $button.find('i').each(function(){
+              $i = $(this);
+              $i.addClass(curState.icon).removeClass(prevState.icon);
+            });
+            try{
+              var name = $button.attr('data-tag-name');
+              var tags = BDA.getTags();
+              var tag = tags[name];
+              if(tag !=null){
+                tag.state=curState.name;
+              }
+              BDA.saveTags(tags);
+              BDA.reloadToolbar();
+            }catch(e){
+              console.log(e);
+            }
 
         },
 

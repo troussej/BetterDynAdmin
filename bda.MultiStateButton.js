@@ -14,6 +14,7 @@ jQuery(document).ready(function() {
 				NAME: 'MultiStateButton'
 			};
 			var defaults = {
+				defaultState : 'ON',
 				states: [{
 					name: 'ON',
 					class: 'bda-button-on'
@@ -37,7 +38,6 @@ jQuery(document).ready(function() {
 							var $this = $(this);
 
 							var settings = $.extend({}, defaults, options);
-*/
 							methods._build($this, settings);
 						});
 					},
@@ -48,13 +48,24 @@ jQuery(document).ready(function() {
 					_build: function($button, settings) {
 
 						states = settings['states'];
-
-
 						//no point on binding anything if there are no states
 						if ($button != null && states != null && states.length > 0) {
-							$button
-								.attr(settings.stateIndexAttr, 0)
-								.attr(settings.stateAttr, states[0])
+
+							//find starting index from name
+							var defIndex = null;
+							var defState = settings.defaultState
+							for (var i = states.length - 1; i >= 0 && defIndex ==null ; i--) {
+								var b = states[i];
+								if(b.name == defState){
+									defIndex = i;
+								}
+							}
+							if( defIndex == null){
+								defIndex = 0;
+							}
+							console.log('defIndex = {0}'.format(defIndex));
+							$button.attr(settings.stateIndexAttr, defIndex)
+								.attr(settings.stateAttr, states[defIndex])
 								.on('click', function() {
 									var $this = $(this);
 									var idx = $this.attr(settings.stateIndexAttr);
@@ -67,13 +78,13 @@ jQuery(document).ready(function() {
 									}
 
 									var curState = states[idx];
-									$this.removeClass(prevState.css)
-										.addClass(curState.css)
+									$this.removeClass(prevState.class)
+										.addClass(curState.class)
 										.attr(settings.stateIndexAttr, idx)
 										.attr(settings.stateAttr, curState.name);
 
 									if (settings.callback) {
-										settings.callback();
+										settings.callback($this,prevState,curState);
 									}
 								});
 						}
@@ -81,7 +92,6 @@ jQuery(document).ready(function() {
 
 				}
 				// Plugin entry point
-			console.log('creating plugin MultiStateButton');
 
 			$.fn.multiStatesButton = basePlugin(methods, csts.NAME);
 

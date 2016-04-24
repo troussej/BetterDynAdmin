@@ -424,12 +424,29 @@ a {
   margin-bottom: 5px;
 }
 
+.bda-button-icon{
+  color:black;
+  font-size: 16px;
+  height: 25px;
+  width: 25px;
+}
+
+
 .bda-button{
   color:black;
-  padding: 2px 3px 4px 3px;
   border: 1px solid #ccc;
   border-radius: 3px;
-  font-size: 16px;
+}
+
+.bda-button-filter{
+  color:white;
+  height: 25px;
+  font-size: 14px;
+}
+
+.bda-button-filter i{
+  margin-right:5px;
+  
 }
 
 .bda-button-on{
