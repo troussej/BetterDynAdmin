@@ -1,5 +1,5 @@
 ﻿// ==UserScript==
-// @name         Better Dynamo Administration JTRO
+// @name         Better Dynamo Administration
 // @namespace    BetterDynAdminJTRO
 // @include      */dyn/admin/*
 // @author       Jean-Charles Manoury
@@ -27,11 +27,6 @@
 // @require https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.2/select2.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/vis/4.15.0/vis.min.js
-
-// require other BDA scripts
-// @require bda.common.js?version=1.14.jtro.6
-// @require bda.MultiStateButton.js?version=1.14.jtro.6
-
 // @resource cmCSS https://cdnjs.cloudflare.com/ajax/libs/codemirror/3.20.0/codemirror.css
 // @resource tablesorterCSS https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.21.5/css/theme.blue.min.css
 // @resource hljsThemeCSS https://raw.githubusercontent.com/jc7447/BetterDynAdmin/master/lib/highlight.js/github_custom.css
@@ -2871,7 +2866,7 @@ $(document).ready(function(){
                 BDA.reloadToolbar();
              })
              .appendTo(
-               $('<li class="tag-filter" ></li>')
+               $('<li class="bda-button tag-filter" ></li>')
                .css("background-color", this.colorToCss(tagColor))
                .css("border", "1px solid " + this.getBorderColor(tagColor))
                .appendTo($list)
