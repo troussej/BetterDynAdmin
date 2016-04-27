@@ -1,6 +1,6 @@
 ﻿// ==UserScript==
 // @name         Better Dynamo Administration
-// @namespace    BetterDynAdminJTRO
+// @namespace    BetterDynAdmin
 // @include      */dyn/admin/*
 // @author       Jean-Charles Manoury
 // @contributor  Benjamin Descamps
