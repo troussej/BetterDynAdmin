@@ -1,6 +1,6 @@
 ﻿// ==UserScript==
-// @name         Better Dynamo Administration
-// @namespace    BetterDynAdmin
+// @name         Better Dynamo Administration JTRO
+// @namespace    BetterDynAdminJTRO
 // @include      */dyn/admin/*
 // @author       Jean-Charles Manoury
 // @contributor  Benjamin Descamps
@@ -2574,32 +2574,32 @@ $(document).ready(function(){
           //get existing tags
 
 
-      $("<div id='addComponentToolbarPopup' class='popup_block' data-mode='' data-component='' data-component-path=''>"
-            + "<div class='addFavOptions'>"
-              + "<a href='#' class='close'><i class='fa fa-times'></i></a>"
-          + "<h3 class='popup_title' id='favPopinTitle-add'>Add new component</h3>"
-          + "<h3 class='popup_title' id='favPopinTitle-edit'>Edit component <span id='favPopinName'></span></h3>"
-              + "<p>Choose methods and/or properties to shortcut : </p>"
-              + "<div id='addComponentToolbarPopupContent'>"
-                + "<div id='methods'><ul></ul></div>"
-                + "<div id='vars'><ul></ul></div>"
-              + "</div><br>"
-              + "<div id='favSetTags'>"
-                + "<div class='favline'>"
-                  + "<div>Add tags:</div>"
-                  + "<div><ul id='existingTags'></ul></div>"
+          $("<div id='addComponentToolbarPopup' class='popup_block' data-mode='' data-component='' data-component-path=''>"
+                + "<div class='addFavOptions'>"
+                  + "<a href='#' class='close'><i class='fa fa-times'></i></a>"
+              + "<h3 class='popup_title' id='favPopinTitle-add'>Add new component</h3>"
+              + "<h3 class='popup_title' id='favPopinTitle-edit'>Edit component <span id='favPopinName'></span></h3>"
+                  + "<p>Choose methods and/or properties to shortcut : </p>"
+                  + "<div id='addComponentToolbarPopupContent'>"
+                    + "<div id='methods'><ul></ul></div>"
+                    + "<div id='vars'><ul></ul></div>"
+                  + "</div><br>"
+                  + "<div id='favSetTags'>"
+                    + "<div class='favline'>"
+                      + "<div>Add tags:</div>"
+                      + "<div><ul id='existingTags'></ul></div>"
+                    + "</div>"
+                    + "<div class='favline'>"
+                    + "<div>New tags:</div>"
+                     + "<div><input id='newtags' class='newtags' type='text' placeholder='comma separated'></input></div>"
+                   + "</div>"
+                  + "</div>"
+                  + "<div class='addFavSubmit'>"
+                + "<button type='button' id='submitComponent' class='fav-submit-button fav-add'>Add <i class='fa fa-play fa-x'/></button>"
+                + "<button type='button' id='submitEditComponent' class='fav-submit-button fav-edit'>Save <i class='fa fa-play fa-x'/></button>" 
+                  + "</div>"
                 + "</div>"
-                + "<div class='favline'>"
-                + "<div>New tags:</div>"
-                 + "<div><input id='newtags' class='newtags' type='text' placeholder='comma separated'></input></div>"
-               + "</div>"
-              + "</div>"
-              + "<div class='addFavSubmit'>"
-            + "<button type='button' id='submitComponent' class='fav-submit-button fav-add'>Add <i class='fa fa-play fa-x'/></button>"
-            + "<button type='button' id='submitEditComponent' class='fav-submit-button fav-edit'>Save <i class='fa fa-play fa-x'/></button>" 
-              + "</div>"
-            + "</div>"
-          + "</div>").insertAfter(this.logoSelector);
+              + "</div>").insertAfter(this.logoSelector);
 
           BDA.addExistingTagsToToolbarPopup();
 
@@ -2618,8 +2618,7 @@ $(document).ready(function(){
             }
           }
 
-          for(var i = 0; i != favs.length; i++)
-          {
+          for(var i = 0; i != favs.length; i++){
             var fav = favs[i];
             var show = false; 
 
@@ -2635,7 +2634,6 @@ $(document).ready(function(){
                   }
                 }
               }
-              
             }else{
               show = true;
             }
@@ -2657,7 +2655,7 @@ $(document).ready(function(){
               callableHTML += "</div>";
 
               var favTags = '';
-             
+               
               if(componentTags !== null && componentTags !== undefined){
                 for (var k = 0; k < componentTags.length; k++) {
                   var t = componentTags[k];
@@ -2668,93 +2666,84 @@ $(document).ready(function(){
                 }
               }
 
-          $("<div id='fav-"+fav.componentName+"' class='toolbar-elem fav' data-component='"+fav.componentName+"' data-component-path='"+fav.componentPath+"'></div>")
-              .css("background-color", this.colorToCss(colors))
-              .css("border", "1px solid " + this.getBorderColor(colors))
-              .html("<div class='favLink'>"
-                  + "<a href='" + fav.componentPath + "' title='" + fav.componentName + "' >"
-                  + "<div class='favTitle'>" +  shortName + "</div>"
-                  + "<div class='favName'>" + fav.componentName + "</div>"
-                  +"</a></div>"
-                  + "<div class='favArrow' id='favArrow" + fav.id + "'><i class=' up fa fa-arrow-down'></i></div>"
-                  + "<div class='favMoreInfo' id='favMoreInfo" + fav.id + "'>"
-                  + "<div class='favLogDebug'>"
-                  + " <form method='POST' action='" + fav.componentPath + "' id='logDebugForm" + fav.componentName + "'>"
-                  + "<input type='hidden' value='loggingDebug' name='propertyName'>"
-                  + "<input type='hidden' value='' name='newValue'>"
-                  + "logDebug : "
-                  + "<a href='javascript:void(0)' class='logdebug' id ='logDebug" + fav.componentName + "'>true</a>"
-                  + "&nbsp; | &nbsp;"
-                  + "<a href='javascript:void(0)' class='logdebug' id ='logDebug" + fav.componentName + "'>false</a>"
-                  +"</div>"
-                  + callableHTML
-              + "<div class='favline'>"
-                + "<div class='favDelete fav-button' id='delete" + fav.componentName + "'><i class='fa fa-trash-o'></i> Delete</div>"
-                + "<div class='favEdit fav-button' id='edit" + fav.componentName + "' data-component='"+ fav.componentName  +"'><i class='fa fa-pencil-square-o'></i> Edit</div>" 
-              + "</div>"
-                  + '<div class="fav-tags">'+ favTags + '</div>'
-                  + "</div>")
+              $("<div id='fav-"+fav.componentName+"' data-component='"+fav.componentName+"' data-component-path='"+fav.componentPath+"'></div>")
+                  .addClass('toolbar-elem fav')
+                  .css("background-color", this.colorToCss(colors))
+                  .css("border", "1px solid " + this.getBorderColor(colors))
+                  .html("<div class='favLink'>"
+                    + "<a href='" + fav.componentPath + "' title='" + fav.componentName + "' >"
+                    + "<div class='favTitle'>" +  shortName + "</div>"
+                    + "<div class='favName'>" + fav.componentName + "</div>"
+                    +"</a></div>"
+                    + "<div class='favArrow' id='favArrow" + fav.id + "'><i class=' up fa fa-arrow-down'></i></div>"
+                    + "<div class='favMoreInfo' id='favMoreInfo" + fav.id + "'>"
+                    + "<div class='favLogDebug'>"
+                    + " <form method='POST' action='" + fav.componentPath + "' id='logDebugForm" + fav.componentName + "'>"
+                    + "<input type='hidden' value='loggingDebug' name='propertyName'>"
+                    + "<input type='hidden' value='' name='newValue'>"
+                    + "logDebug : "
+                    + "<a href='javascript:void(0)' class='logdebug' id ='logDebug" + fav.componentName + "'>true</a>"
+                    + "&nbsp; | &nbsp;"
+                    + "<a href='javascript:void(0)' class='logdebug' id ='logDebug" + fav.componentName + "'>false</a>"
+                    +"</div>"
+                    + callableHTML
+                    + "<div class='favline'>"
+                    + "<div class='favDelete fav-button' id='delete" + fav.componentName + "'><i class='fa fa-trash-o'></i> Delete</div>"
+                    + "<div class='favEdit fav-button' id='edit" + fav.componentName + "' data-component='"+ fav.componentName  +"'><i class='fa fa-pencil-square-o'></i> Edit</div>" 
+                    + "</div>"
+                    + '<div class="fav-tags">'+ favTags + '</div>'
+                    + "</div>")
                   .appendTo("#toolbar");
+                }
             }
-          }
 
 
-          $(".favArrow").click(function() {
-            console.log("Click on arrow");
-            var id = this.id;
-            var idToExpand = "#" + id.replace("favArrow", "favMoreInfo");
-            $(idToExpand).slideToggle();
-            BDA.rotateArrow($("#" + id + " i"));
+            $(".favArrow").click(function() {
+              console.log("Click on arrow");
+              var id = this.id;
+              var idToExpand = "#" + id.replace("favArrow", "favMoreInfo");
+              $(idToExpand).slideToggle();
+              BDA.rotateArrow($("#" + id + " i"));
 
-          });
-
-          $(".favDelete").click(function() {
-            console.log("Click on delete");
-            var componentToDelete = this.id.replace("delete", "");
-            BDA.deleteComponent(componentToDelete);
-          });
-
-      $(".favEdit").click(function() {
-        var editName = $(this).attr('data-component');
-        console.log("Click on edit " + editName);
-        var $curFav = $('#fav-'+editName);
-        var savedComp = BDA.getComponent(editName);
-
-        $.ajax({
-        type: "POST",
-        url: savedComp.componentPath,
-        success: function(result, status, jqXHR) {
-            BDA.openFavPopin('edit',savedComp,$('<div></div>').html(result));//hackish...
-          }
-        });
-
-      });      
-
-          $(".logdebug").click(function() {
-            console.log("Click on logdebug");
-            var componentName = this.id.replace("logDebug", "");
-            var logDebugState = this.innerHTML;
-            console.log("component : " + componentName + ", logDebugState : " + logDebugState);
-            $("#logDebugForm" + componentName + " input[name=newValue]").val(logDebugState);
-            $("#logDebugForm" + componentName).submit();
-          });
-
-
-      if (this.isComponentPage)
-      {
-        var componentPath = this.purgeSlashes(document.location.pathname);
-        if (!this.isComponentAlreadyStored(componentPath))
-        {
-          console.log('adding fav button');
-          $("<div class='toolbar-elem newFav'><a href='javascript:void(0)' id='addComponent' title='Add component to toolbar'>+</a></div>")
-          .appendTo("#toolbar");
-
-            $('.close').click(function() {
-                $('.popup_block').fadeOut();
             });
 
-            $('#submitComponent').click(function(){
-          BDA.logTrace('submit component');
+            $(".favDelete").click(function() {
+              console.log("Click on delete");
+              var componentToDelete = this.id.replace("delete", "");
+              BDA.deleteComponent(componentToDelete);
+            });
+
+            $(".favEdit").click(function() {
+              var editName = $(this).attr('data-component');
+              console.log("Click on edit " + editName);
+              var $curFav = $('#fav-'+editName);
+              var savedComp = BDA.getComponent(editName);
+
+              $.ajax({
+                type: "POST",
+                url: savedComp.componentPath,
+                success: function(result, status, jqXHR) {
+                    BDA.openFavPopin('edit',savedComp,$('<div></div>').html(result));//hackish...
+                  }
+              });
+
+            });      
+
+            $(".logdebug").click(function() {
+              console.log("Click on logdebug");
+              var componentName = this.id.replace("logDebug", "");
+              var logDebugState = this.innerHTML;
+              console.log("component : " + componentName + ", logDebugState : " + logDebugState);
+              $("#logDebugForm" + componentName + " input[name=newValue]").val(logDebugState);
+              $("#logDebugForm" + componentName).submit();
+            });
+
+            $('#submitEditComponent').click(function(){
+
+                $this = $(this);
+                $popin = $('#addComponentToolbarPopup');
+
+                BDA.logTrace('submit component');
                 $('.popup_block').fadeOut();
                 var methods = [];
                 var vars = [];
@@ -2764,85 +2753,48 @@ $(document).ready(function(){
                 $('.variable:checked').each(function(index, element){
                     vars.push(element.parentElement.textContent);
                 });
-          BDA.logTrace('methods : ' + methods);
-          BDA.logTrace('vars : ' + vars);
                 // filter out empty values
                 var tags = BDA.buildArray($('#newtags').val());
                 //add selected tags
-          $('#existingTags input:checkbox:checked').each(function(index, element){
+                $('#existingTags input:checkbox:checked').each(function(index, element){
                     tags.push(element.parentElement.textContent);
                 });
-          BDA.logTrace('tags : ' + tags);
                 //remove dupes
-          tags=BDA.unique(tags.sort());
+                tags=BDA.unique(tags.sort());
 
                 console.log("methods : " + methods);
                 console.log("vars : " + vars);
                 console.log("tags : " + tags);
-                BDA.storeComponent(componentPath, methods, vars,tags);
+
+                var editComponentName = $popin.attr('data-component');
+                BDA.replaceComponent(editComponentName, methods, vars,tags);
                 BDA.reloadToolbar();
             });
 
-      $('#submitEditComponent').click(function(){
-
-          $this = $(this);
-          $popin = $('#addComponentToolbarPopup');
-
-          BDA.logTrace('submit component');
-          $('.popup_block').fadeOut();
-          var methods = [];
-          var vars = [];
-          $('.method:checked').each(function(index, element){
-              methods.push(element.parentElement.textContent);
-          });
-          $('.variable:checked').each(function(index, element){
-              vars.push(element.parentElement.textContent);
-          });
-          // filter out empty values
-          var tags = BDA.buildArray($('#newtags').val());
-          //add selected tags
-          $('#existingTags input:checkbox:checked').each(function(index, element){
-              tags.push(element.parentElement.textContent);
-          });
-          //remove dupes
-          tags=BDA.unique(tags.sort());
-
-          console.log("methods : " + methods);
-          console.log("vars : " + vars);
-          console.log("tags : " + tags);
-
-          var editComponentName = $popin.attr('data-component');
-          BDA.replaceComponent(editComponentName, methods, vars,tags);
-          BDA.reloadToolbar();
-      });
-
       if (this.isComponentPage)
       {
-       
+        var componentPath = this.getCurrentComponentPath();
         if (!this.isComponentAlreadyStored(componentPath))
         {
           console.log('adding fav button');
           $("<div class='toolbar-elem newFav'><a href='javascript:void(0)' id='addComponent' title='Add component to toolbar'>+</a></div>")
           .appendTo("#toolbar");
 
-              $(".newFav").click(function() {
+          $(".newFav").click(function() {
             BDA.openFavPopin('add');
           });
         }
       }
+ 			BDA.addFavTagList();
+	  },
 
-                tags=BDA.unique(tags);
-       			BDA.addFavTagList();
-    
-
-	},
     openFavPopin : function(mode, savedComp, $compPage){
       console.log("Add component : " + mode);
-            var methodsList = $("#methods");
-            var varsList = $("#vars");
-            var tagList = $("#tags");
-            methodsList.empty();
-            varsList.empty();
+      var methodsList = $("#methods");
+      var varsList = $("#vars");
+      var tagList = $("#tags");
+      methodsList.empty();
+      varsList.empty();
 
       var tableMethods, tablevars, defMethods, defProperties, defTags, componentName, componentPath;
       
@@ -2868,16 +2820,15 @@ $(document).ready(function(){
       BDA.logTrace('defProperties : ' + defProperties);
       BDA.logTrace('defTags : ' + defTags);
 
-
-            tableMethods.find('tr').each(function(index, element){
-              if(index > 0)
-              {
-                 var linkMethod = $(element).find('a').first();
-                 var methodName = $(linkMethod).attr("href").split('=')[1];
-                 methodsList.append('<li><input type="checkbox" class="method" id="method_' + methodName + '"><label for="method_' + methodName + '">' + methodName + '</label></li>');
-              }
-            });
-            //handle default methods
+      tableMethods.find('tr').each(function(index, element){
+        if(index > 0)
+        {
+           var linkMethod = $(element).find('a').first();
+           var methodName = $(linkMethod).attr("href").split('=')[1];
+           methodsList.append('<li><input type="checkbox" class="method" id="method_' + methodName + '"><label for="method_' + methodName + '">' + methodName + '</label></li>');
+        }
+      });
+      //handle default methods
       if(defMethods != null){
           defMethods.forEach(function(methodName){
           console.log('setting default method: ' + methodName);
@@ -2924,28 +2875,29 @@ $(document).ready(function(){
         .attr('data-component',componentName)
         .attr('data-component-path',componentPath)
         .fadeIn();
-        },
+
+    },
 
     addExistingTagsToToolbarPopup : function(){
-            //add tags to the addFav popup
-          var tags = this.getTags();
-          $tagList = $('#existingTags');
+      //add tags to the addFav popup
+      var tags = this.getTags();
+      $tagList = $('#existingTags');
 
-          for (var name in tags) {
-            var tagValue = name;
-        $('<label for="tag_'+tagValue+'">'+tagValue+'</label>')
-          .insertAfter(
-              $('<input/>',{
-            id:'tag_'+tagValue,
-                type:'checkbox',
-                name:tagValue
-              })
-             .appendTo(
-               $('<li></li>').appendTo($tagList)
-             )
-            );
-          }
-        },
+      for (var name in tags) {
+        var tagValue = name;
+       $('<label for="tag_'+tagValue+'">'+tagValue+'</label>')
+        .insertAfter(
+            $('<input/>',{
+          id:'tag_'+tagValue,
+              type:'checkbox',
+              name:tagValue
+            })
+           .appendTo(
+             $('<li></li>').appendTo($tagList)
+           )
+          );
+        }
+    },
 
     addFavFilter : function(){
 
