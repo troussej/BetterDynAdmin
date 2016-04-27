@@ -16,8 +16,8 @@
 // @grant GM_deleteValue
 //
 // ------ write version on bdaCSS TOO ! ------ 
-// @version 1.14.jtro.14
-// @resource bdaCSS bda.css?version=1.14.jtro.14
+// @version 1.14.jtro.15
+// @resource bdaCSS bda.css?version=1.14.jtro.15
 
 // @require https://code.jquery.com/jquery-1.11.1.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.21.5/js/jquery.tablesorter.min.js
