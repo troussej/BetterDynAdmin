@@ -1,6 +1,6 @@
 ﻿// ==UserScript==
-// @name         Better Dynamo Administration
-// @namespace    BetterDynAdmin
+// @name         Better Dynamo Administration JTRO
+// @namespace    BetterDynAdminJTRO
 // @include      */dyn/admin/*
 // @author       Jean-Charles Manoury
 // @contributor  Benjamin Descamps
@@ -2839,7 +2839,9 @@ $(document).ready(function(){
           for (var tagName in tags) {
             sortedTags.push(tagName);
           }
-          sortedTags=sortedTags.sort();
+          sortedTags=sortedTags.sort(function(a,b) {
+                return a - b;
+          });
 
           for (var i = 0; i < sortedTags.length; i++) {
             var tagName = sortedTags[i]
