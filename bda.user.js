@@ -17,7 +17,7 @@
 //
 // ------ write version on bdaCSS TOO ! ------ 
 // @version 1.14.jtro.6
-// @resource bdaCSS https://raw.githubusercontent.com/troussej/BetterDynAdmin/master/bda.css?version=1.14.jtro.6
+// @resource bdaCSS bda.css?version=1.14.jtro.6
 
 // @require https://code.jquery.com/jquery-1.11.1.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.21.5/js/jquery.tablesorter.min.js
@@ -125,7 +125,7 @@ $(document).ready(function(){
                        },
         STORED_CONFIG : "BdaConfiguration",
         CACHE_STAT_TITLE_REGEXP : /item-descriptor=(.*) cache-mode=(.*) cache-locality=(.*)/,
-        isLoggingTrace : true,
+        isLoggingTrace : false,
 
         init : function(){
           var start = new Date().getTime();
@@ -2571,9 +2571,6 @@ $(document).ready(function(){
           $("<div id='toolbarContainer'></div>").insertAfter(this.logoSelector);
           $("<div id='toolbar'></div>").appendTo("#toolbarContainer");
 
-            //add tags filter
-          //BDA.addFavFilter();
-
           var tags = BDA.getTags();
           var selectedTags = [];
           for(var tagName in tags){
@@ -2591,7 +2588,7 @@ $(document).ready(function(){
             var componentTags = fav.tags;
             if(selectedTags !=null && selectedTags.length > 0){
               //check if any tag is selected
-              console.log(fav.componentName + ' componentTags = ' + componentTags);
+              this.logTrace(fav.componentName + ' = ' + componentTags);
               if(componentTags !== null && componentTags !== undefined){
                 for (var j = 0; j < componentTags.length; j++) {
                   var cTag = componentTags[j];
@@ -2824,21 +2821,28 @@ $(document).ready(function(){
           console.log('addfavTagList');
           var tags = this.getTags();
 
-          $tagList = $('<div id="favTagList" class="favline">').appendTo('#toolbar');
+          $favline = $('<div id="favTagList" class="favline">').appendTo('#toolbar');
 
           var $list = $('<ul></ul>');
 
           //if at least one filter
           if(tags !=null && Object.keys(tags).length> 0){
-            $('<button id="clear-filters" class="tag-filter-button" title="Clear"><i class="fa fa-times" aria-hidden="true"></i></button>')
+            $('<button id="clear-filters" class="bda-button bda-button-icon" title="Clear"><i class="fa fa-times" aria-hidden="true"></i></button>')
              .on('click',this.clearTags)
              .appendTo(
-               $('<li class="" ></li>')
+                $('<li class="tag-filter" ></li>')
                .appendTo($list)
              );
           }
 
+          var sortedTags=[];
           for (var tagName in tags) {
+            sortedTags.push(tagName);
+          }
+          sortedTags=sortedTags.sort();
+
+          for (var i = 0; i < sortedTags.length; i++) {
+            var tagName = sortedTags[i]
             var tag = tags[tagName];
             var tagColor = this.stringToColour(tagName);
 
@@ -2873,9 +2877,8 @@ $(document).ready(function(){
              )
             );
 
-            $('<li></li>')
           }
-          $list.appendTo($tagList);
+          $list.appendTo($favline);
 
 
           /*var open = BDA.getConfigurationValue('filterOpen');
