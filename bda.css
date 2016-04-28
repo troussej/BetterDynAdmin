@@ -1,3 +1,8 @@
+
+tr.even td {
+  background-color: #FFF;
+}
+
 #itemTreeId{
   width: 100px;
 }
@@ -67,7 +72,10 @@ a {
 .dataTable {
   font-size: 80%;
   margin: 5px;
-  border: 1px solid #CCCCCC
+  border: 1px solid #CCCCCC;
+  z-index: 10;
+  position: relative;
+  background-color: #FFF;
 }
 
 .prop_name {
@@ -255,6 +263,7 @@ a {
 
 
 
+
 .menuArrow {
   text-align: center;
   cursor: pointer;
@@ -295,12 +304,12 @@ a {
 .menuPanel {
   position: absolute;
   top: 34px;
-  right: 30px;
+  right: 33px;
+  width: 296px;
   font-size: 11px;
   color: white;
-  border: 1px solid #8F0000;
+  border : 1px solid #00486c;
   border-top: none;
-  background-color: #CC0000;
   padding: 3px;
   display: none;
 }
@@ -319,19 +328,15 @@ a {
 }
 
 #bdaBugPanel {
-  width: 250px;
   background-color: #007bb8;
 }
 
-
 #bdaBackup {
-  width: 60px;
-  background-color: #CC0000;
+  background-color: #007bb8;
 }
 
 #bdaBackupPanel {
-  width: 285px;
-  background-color: #CC0000;
+  background-color: #007bb8;
 }
 
 #bdaSearch {
@@ -343,27 +348,23 @@ a {
    margin-top: 1px;
    height: 55%;
 }
-
 #whatsnew {
-  font-size: 11px;
-  background-color: #CC0000;
+  background-color: #62A03E;
+  border-color : #44702B;
 }
 
 #whatsnewPanel {
-  width: 285px;
-  background-color: #CC0000;
+  border-color : #44702B;
+  background-color: #62A03E;
 }
 
 #bdaConfig {
-  font-size: 11px;
-  background-color: #CC0000;
+  background-color: #007bb8;
 }
 
 #bdaConfigPanel {
-  width: 285px;
-  background-color: #CC0000;
+  background-color: #007bb8;
 }
-
 
 #history {
   clear: both;
@@ -669,7 +670,7 @@ table.tablesorter tr.alt-row:hover td {
 }
 
 #methods, #vars {
-  float:left; 
+  float:left;
   width: 50%;
 }
 
@@ -678,7 +679,7 @@ table.tablesorter tr.alt-row:hover td {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  
+
 }
 
 #speedbar {
@@ -725,6 +726,11 @@ table.tablesorter tr.alt-row:hover td {
 tr.odd.cache {
   background-color: #EEEEFF;
   border: 1px solid #EEEEFF;
+}
+
+.clickable_property {
+  text-decoration : underline;
+  cursor: pointer;
 }
 
 .cacheArrow {
