@@ -2848,12 +2848,11 @@ $(document).ready(function(){
             var tag = tags[tagName];
             var tagColor = this.stringToColour(tagName);
 
-            $('<label>#'+tagName+'</label>',{
-              for:tagName
-              }
-            )
+            $('<label >#'+tagName+'</label>')
+            .attr('for','favFilter_'+tagName)            
             .insertAfter(
               $('<input/>',{
+                id:'favFilter_'+tagName,
                 type:'checkbox',
                 name:tagName,
                 class:'favFilterTag',
