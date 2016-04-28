@@ -2781,12 +2781,19 @@ $(document).ready(function(){
           var tags = this.getTags();
           $tagList = $('#existingTags');
 
-          for (var name in tags) {
-            var tagValue = name;
-            $('<label>'+tagValue+'</label>',{
-              for:tagValue
-            }).insertAfter(
+          var sortedTags=[];
+          for (var tagName in tags) {
+            sortedTags.push(tagName);
+          }
+          sortedTags = BDA.sort(sortedTags);
+
+          for (var i = 0; i < sortedTags.length; i++) {
+            var tagValue = sortedTags[i]
+            $('<label>'+tagValue+'</label>')
+            .attr('for','tagSelector_'+tagValue)
+            .insertAfter(
               $('<input/>',{
+                id:'tagSelector_'+tagValue,
                 type:'checkbox',
                 name:tagValue
               })
@@ -2839,9 +2846,7 @@ $(document).ready(function(){
           for (var tagName in tags) {
             sortedTags.push(tagName);
           }
-          sortedTags=sortedTags.sort(function(a,b) {
-                return a - b;
-          });
+          sortedTags=BDA.sort(sortedTags);
 
           for (var i = 0; i < sortedTags.length; i++) {
             var tagName = sortedTags[i]
@@ -3348,13 +3353,13 @@ $(document).ready(function(){
 
         //UTILS
 
-        logTrace(msg){
+        logTrace : function (msg){
           if(this.isLoggingTrace){
             console.log(msg);
           }
         },
 
-        unique(array){
+        unique : function (array){
           var n = {},r=[];
           for(var i = 0; i < array.length; i++) 
           {
@@ -3365,6 +3370,21 @@ $(document).ready(function(){
             }
           }
           return r;
+        },
+
+        sort : function (array){
+          BDA.logTrace('beforeSort : ' + array)
+          var sorted=array.sort(function(a,b) {
+                if(a !=null){
+                  return a.localeCompare(b, 'en', { caseFirst: 'upper' })
+                }else if( b!=null){
+                  return -1;
+                }else{
+                  return 0;
+                }
+          });
+          BDA.logTrace('after sort : ' + sorted)
+          return sorted;
         }
 
     };
