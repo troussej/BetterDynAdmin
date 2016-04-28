@@ -450,10 +450,12 @@ a {
 
 
 .tag-filter{
+  cursor: pointer;
 }
 
 .tag-filter label{
   margin-left:5px;
+  cursor: pointer;
 }
 
 .favline{
