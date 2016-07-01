@@ -731,15 +731,18 @@ table.tablesorter tr.alt-row:hover td {
 
 }
 
+#dashModal .modal-content{
+}
+
 #dashInput{
    font-family: monospace;
 }
 
 #dashScreen {
   font-family: monospace;
-  height: 300px;
-  max-height: 300px;
   overflow-y:scroll; 
+  max-height: 500px;
+  height: 500px;
 }
 
 #dashScreen .alert{
@@ -758,3 +761,4 @@ table.tablesorter tr.alt-row:hover td {
 .typeahead.dropdown-menu{
   text-align: left;
 }
+

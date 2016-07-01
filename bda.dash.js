@@ -22,7 +22,7 @@ var BDA_DASH = {
   templates: {
     consoleModal: '<div class="twbs">' +
       '<div id="dashModal" class="modal fade" tabindex="-1" role="dialog">' +
-      '<div class="modal-dialog modal-lg">' +
+      '<div id="dashModalDialog" class="modal-dialog modal-lg">' +
       '<div class="modal-content">' +
       '<div class="modal-header">' +
       '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
@@ -45,7 +45,7 @@ var BDA_DASH = {
       '</div>' +
       '</div>' +
       '</div>',
-    screenLine: '<div class="dash_screen_line alert {3} alert-dismissible" role="alert">' +
+    screenLine: '<div class="dash_screen_line alert {3} alert-dismissible" role="alert" data-command="{0}">' +
       '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
       '<button type="button" class="close"  aria-label="Save"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>' +
       '<button type="button" class="close dash_redo"  aria-label="Redo"><i class="fa fa-repeat" aria-hidden="true"></i></button>' +
@@ -70,6 +70,8 @@ var BDA_DASH = {
 
   HIST: [],
   typeahead_base: [],
+  //to sync multiple methods
+  QUEUE : [],
   //references to components
   COMP_REFS:{},
   //variables
@@ -225,7 +227,7 @@ var BDA_DASH = {
 
     BDA_DASH.$input.typeahead({
       source: BDA_DASH.typeahead,
-      autoSelect: true
+      autoSelect: false
     });
     for (var funcName in BDA_DASH.FCT) {
       BDA_DASH.typeahead_base.push(funcName);
@@ -250,31 +252,38 @@ var BDA_DASH = {
     BDA_DASH.initCompRefs();
 
     BDA_DASH.$modal.on("click", ".dash_redo", function(event){
-        BDA_DASH.redo($(this));
+        BDA_DASH.redo($(this).parent().attr('data-command'));
     });
-    //todo add menu button
-    // BDA_DASH.openDash();//just put on for now
   },
+
 
   openDash: function() {
     BDA_DASH.$modal.modal('show');
   },
 
-  handleInput: function() {
+  handleInput: function(input) {
     try {
-      var input = BDA_DASH.$input.val();
+      if(isNull(input)){
+        input = BDA_DASH.$input.val();
+      }
       input = $.trim(input);
-      var commands = input.split("\n");
+      var commands = input.split(/\n|;/);
       logTrace('input: {0}'.format(input));
+
+      BDA_DASH.QUEUE = [];//clear
 
       try {
         for (var i = 0; i < commands.length; i++) {
           var stringCmd = commands[i];
           stringCmd = $.trim(stringCmd);
-          var command = BDA_DASH.parse(stringCmd);
-
-          BDA_DASH.handleCommand(stringCmd, command);
+          if(!isNull(stringCmd) && stringCmd.length > 0){
+            var command = BDA_DASH.parse(stringCmd);  
+            BDA_DASH.QUEUE.push([stringCmd,command]);
+          }
         }
+
+        //start handling the queue
+        BDA_DASH.handleNextQueuedElem();
 
       } catch (e) {
         BDA_DASH.handleError(input, e);
@@ -283,6 +292,13 @@ var BDA_DASH = {
       BDA_DASH.$input.val('');
     } catch (e) {
       console.log(e);
+    }
+  },
+
+  handleNextQueuedElem : function(){
+    var cmd = BDA_DASH.QUEUE.shift();
+    if(!isNull(cmd)){
+      BDA_DASH.handleCommand(cmd[0], cmd[1]);
     }
   },
 
@@ -296,7 +312,7 @@ var BDA_DASH = {
     } else {
       throw {
         name: "Unknown function",
-        message: "This command does not exist."
+        message: "The {0} function does not exist.".format(fct)
       }
     }
 
@@ -322,6 +338,7 @@ var BDA_DASH = {
     //next step is persist the history
     BDA_DASH.HIST.push(val);
     BDA_DASH.$screen.scrollTop(BDA_DASH.$screen[0].scrollHeight);
+    BDA_DASH.handleNextQueuedElem();
     return $entry;
   },
 
@@ -335,6 +352,11 @@ var BDA_DASH = {
   goToComponent: function(component) {
     var url = "/dyn/admin/nucleus" + component;
     window.location = url;
+  },
+
+  redo : function(input){
+      console.log("redo : " + input);
+      BDA_DASH.handleInput(input);
   },
 
   getVarValue: function(name) {
