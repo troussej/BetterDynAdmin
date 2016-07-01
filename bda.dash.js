@@ -225,13 +225,24 @@ var BDA_DASH = {
       BDA_DASH.$input.focus();
     })
 
-    BDA_DASH.$input.typeahead({
-      source: BDA_DASH.typeahead,
-      autoSelect: false
-    });
+
     for (var funcName in BDA_DASH.FCT) {
       BDA_DASH.typeahead_base.push(funcName);
     }
+
+    BDA_DASH.suggestionEngine = new Bloodhound({
+      initialize: true,
+      local: BDA_DASH.typeahead_base,
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      datumTokenizer: Bloodhound.tokenizers.whitespace
+    });
+
+    BDA_DASH.$input.typeahead({
+      autoSelect: false
+    },{
+      name: 'dash',
+      source:  BDA_DASH.suggestionEngine
+    });
 
     BDA_DASH.$input.keypress(function(e) {
 
@@ -336,18 +347,35 @@ var BDA_DASH = {
 
     //add to history after the command is done - not rly clean but will do for now
     //next step is persist the history
-    BDA_DASH.HIST.push(val);
+    BDA_DASH.saveHistory(val);
     BDA_DASH.$screen.scrollTop(BDA_DASH.$screen[0].scrollHeight);
     BDA_DASH.handleNextQueuedElem();
     return $entry;
   },
 
-  //source of typeahead
-  //adds current history to the list of functions
-  typeahead: function(query, processCallback) {
-    var suggestions = unique(sort(BDA_DASH.typeahead_base.concat(BDA_DASH.HIST)));
-    processCallback(suggestions);
+  saveHistory : function(val){
+     BDA_DASH.HIST.push(val);
+     if(!isNull(BDA_DASH.suggestionEngine)){
+      BDA_DASH.suggestionEngine.add([val]);
+     }
+     //persist history
   },
+
+/*  //source of typeahead
+  //adds current history to the list of functions
+  typeahead: function(query, syncResults,asynResults) {
+    var suggestions = unique(sort(BDA_DASH.typeahead_base.concat(BDA_DASH.HIST)));
+    syncResults(suggestions);
+  },
+
+  bhSource: function(query, syncResults,asynResults) {
+    var suggestions = unique(sort(BDA_DASH.typeahead_base.concat(BDA_DASH.HIST)));
+/*    var src = [];
+    for (var i = 0; i < suggestions.length; i++) {
+      src.push({val:suggestions[i]});
+    }*/
+/*    return suggestions;
+  },*/
 
   goToComponent: function(component) {
     var url = "/dyn/admin/nucleus" + component;

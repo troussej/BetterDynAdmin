@@ -738,6 +738,15 @@ table.tablesorter tr.alt-row:hover td {
    font-family: monospace;
 }
 
+#dashForm{
+   font-family: monospace;
+}
+
+#dashForm .tt-hint{
+  color : #ccc;
+
+}
+
 #dashScreen {
   font-family: monospace;
   overflow-y:scroll; 
