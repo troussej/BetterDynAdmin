@@ -361,9 +361,9 @@ BDA_DASH_PARSER = (function() {
     function peg$parseparam() {
       var s0;
 
-      s0 = peg$parsethis();
+      s0 = peg$parsecomponentProperty();
       if (s0 === peg$FAILED) {
-        s0 = peg$parsecomponentProperty();
+        s0 = peg$parsethisRef();
         if (s0 === peg$FAILED) {
           s0 = peg$parsecomponentPath();
           if (s0 === peg$FAILED) {
@@ -384,7 +384,7 @@ BDA_DASH_PARSER = (function() {
       return s0;
     }
 
-    function peg$parsethis() {
+    function peg$parsethisRef() {
       var s0, s1;
 
       s0 = peg$currPos;
@@ -480,9 +480,12 @@ BDA_DASH_PARSER = (function() {
       var s0, s1, s2, s3;
 
       s0 = peg$currPos;
-      s1 = peg$parsecomponentPath();
+      s1 = peg$parsethisRef();
       if (s1 === peg$FAILED) {
-        s1 = peg$parsecomponentRef();
+        s1 = peg$parsecomponentPath();
+        if (s1 === peg$FAILED) {
+          s1 = peg$parsecomponentRef();
+        }
       }
       if (s1 !== peg$FAILED) {
         if (input.charCodeAt(peg$currPos) === 46) {

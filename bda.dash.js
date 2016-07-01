@@ -15,9 +15,10 @@ var BDA_DASH = {
   styles: {
     success: "alert-success",
     error: "alert-danger",
-    warning: "alert-warning"
+    warning: "alert-warning",
+    hidden : "hidden"
   },
-
+  keyword_this :"this",
   templates: {
     consoleModal: '<div class="twbs">' +
       '<div id="dashModal" class="modal fade" tabindex="-1" role="dialog">' +
@@ -47,18 +48,22 @@ var BDA_DASH = {
     screenLine: '<div class="dash_screen_line alert {3} alert-dismissible" role="alert">' +
       '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
       '<button type="button" class="close"  aria-label="Save"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>' +
-      '<button type="button" class="close"  aria-label="Redo"><i class="fa fa-repeat" aria-hidden="true"></i></button>' +
+      '<button type="button" class="close dash_redo"  aria-label="Redo"><i class="fa fa-repeat" aria-hidden="true"></i></button>' +
       '<p class="dash_feeback_line">$&gt;&nbsp;{0}</p>' +
       '<p class="dash_debug_line">{1}</p>' +
       '<p class="dash_return_line">{2}</p>' +
       '</div>',
     not_implemented: 'This command is not implemented yet.',
+    helpMain:
+      '<div>References:<ul>'+
+      '<li>Reference to variable : $varName</li>'+
+      '<li>Reference to component : @FAV - where FAV is the shortname of a bookmarked component, ex @OR : OrderRepository.</li>'+
+      '</ul></div>',
     help: {
       help: 'prints this help',
       get: 'get /some/Component.property [>variable]',
       set: 'set /some/Component.property newvalue',
-      go: 'go /to/some/Component - redirects to the component page'
-
+      go: 'go /to/some/Component - redirects to the component page',
     },
     errMsg: '<strong>{0}</strong> : {1}<br/> Type <em>help</em> for more information.'
   },
@@ -176,6 +181,7 @@ var BDA_DASH = {
 
       var values = [];
       var msg;
+      values.push('Available Function:')
       values.push('<ul>');
       for (var funcName in BDA_DASH.FCT) {
         msg = BDA_DASH.templates.help[funcName];
@@ -185,6 +191,7 @@ var BDA_DASH = {
         values.push('<li><strong>{0}</strong> : {1}</li>'.format(funcName, msg))
       }
       values.push('</ul>');
+      values.push( BDA_DASH.templates.helpMain);
       msg = values.join('');
       BDA_DASH.writeResponse(cmdString, params, msg, "success");
     }
@@ -239,19 +246,12 @@ var BDA_DASH = {
         BDA_DASH.openDash();
      }
     });
-/*
-    $(document).keypress(function(e) {
-      console.log(e.which + " " + e.ctrlKey + " " + e.altKey);
-      var char = String.fromCharCode(e.which).toLowerCase();
-      var chrome = ( e.altKey && e.which == 84 );
-      var moz = ( char === 't' && e.ctrlKey  && e.altKey );
-      if (moz || chrome) {
-        e.preventDefault();
-        BDA_DASH.openDash();
-      }
-    });*/
 
     BDA_DASH.initCompRefs();
+
+    BDA_DASH.$modal.on("click", ".dash_redo", function(event){
+        BDA_DASH.redo($(this));
+    });
     //todo add menu button
     // BDA_DASH.openDash();//just put on for now
   },
@@ -423,6 +423,7 @@ var BDA_DASH = {
         break;
       case "componentRef":
       case "componentPath":
+      case "this":
         res = BDA_DASH.getComponent(param);
         break;
       default:
@@ -454,16 +455,20 @@ var BDA_DASH = {
     console.log('componentParam : ' + JSON.stringify(componentParam));
     var path = "";
     switch (componentParam.type) {
+      case "this":
+        path = getCurrentComponentPath();
+        break;
       case "componentPath":
         path = componentParam.path;
         break;
       case "componentRef":
-        var ref = BDA_DASH.COMP_REFS[componentParam.name];
+        var shortname = componentParam.name;
+        var ref = BDA_DASH.COMP_REFS[shortname];
         var idx = componentParam.index;
         if(isNull(ref)){
           throw {
             name: "Invalid Name",
-            message: "No such component {0}".format(componentParam.name)
+            message: "No such component {0}".format(shortname)
           }
         }
         if(ref.length == 1){
@@ -473,7 +478,7 @@ var BDA_DASH = {
            if( idx >= ref.length){
             throw {
               name: "Index out of bound",
-              message: "Index {0}#{1} is out of bound : <br/> <pre>{2}</pre>".format(componentParam.name,idx,JSON.stringify(ref,null,2))
+              message: "Index {0}#{1} is out of bound : <br/> <pre>{2}</pre>".format(shortname,idx,JSON.stringify(ref,null,2))
             }
            }
            path = ref[idx];

@@ -11,15 +11,15 @@ command=
         return res;
     }
 param=
-    this
-    /   componentProperty
+        componentProperty
+    /   thisRef
     /   componentPath
     /   componentRef
     /   value
     /   output
     /   varRef
 
-this=
+thisRef=
     "@this"
     {
         return {
@@ -57,7 +57,7 @@ output=
     }
     
 componentProperty=
-    component:(componentPath / componentRef )  "." property:litteral
+    component:(thisRef / componentPath / componentRef  )  "." property:litteral
     {
          return {
             type : 'componentProperty',
