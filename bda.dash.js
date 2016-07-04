@@ -20,30 +20,45 @@ var BDA_DASH = {
   },
   keyword_this :"this",
   templates: {
-    consoleModal: '<div class="twbs">' +
-      '<div id="dashModal" class="modal fade" tabindex="-1" role="dialog">' +
-      '<div id="dashModalDialog" class="modal-dialog modal-lg">' +
-      '<div class="modal-content">' +
-      '<div class="modal-header">' +
-      '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
-      '<h4 class="modal-title">DASH - DynAdmin SHell</h4>' +
-      '</div>' +
-      '<div id="dashScreen" class="modal-body">' +
-      '</div>' +
-      '<div class="modal-footer">' +
-      '<form id="dashForm" class="">' +
-      '<div class="form-group">' +
-      '<div class="input-group">' +
-      '<div class="input-group-addon">$</div>' +
-      '<input type="text" class="form-control" id="dashInput" placeholder="" name="cmd" data-provide="typeahead" autocomplete="off">' +
-    //  '<textarea  class="form-control" id="dashInput" placeholder="" name="cmd" data-provide="typeahead" autocomplete="off"></textarea>' +
-      '</div>' +
-      '</div>' +
-      '</form>' +
-      '</div>' +
-      '</div>' +
-      '</div>' +
-      '</div>' +
+    consoleModal: 
+      '<div class="twbs">'+
+      '<div id="dashModal" class="modal fade" tabindex="-1" role="dialog">'+
+      '<div id="dashModalDialog" class="modal-dialog modal-lg">'+
+      '<div class="modal-content">'+
+      '<div class="modal-header">'+
+      '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+      '<h4 class="modal-title">DASH - DynAdmin SHell</h4>'+
+      '</div>'+
+      '<div id="dashScreen" class="modal-body">'+
+      '</div>'+
+      '<div class="modal-footer">'+
+      ''+
+      '<div class="tab-content">'+
+      '<div role="tabpanel" class="tab-pane fade in  active" id="dash-console-tab">'+
+      '<form id="dashForm" class="">'+
+      '<div class="form-group">'+
+      '<div class="input-group">'+
+      '<div class="input-group-addon">$</div>'+
+      '<input type="text" class="form-control dash-input" id="dashInput" placeholder="" name="cmd" data-provide="typeahead" autocomplete="off">'+
+      '</div>'+
+      '</div>'+
+      '</form>'+
+      '</div>'+
+      '<div role="tabpanel" class="tab-pane fade" id="dash-editor-tab">'+
+      '<form id="dashEditorForm" class="">'+
+      '<textarea id="dashEditor" class="form-control dash-input" rows="5" placeholder="Not implemented yet..."></textarea>'+
+      '</form>'+
+      '</div>'+
+      '</div>'+
+      '<div>&nbsp;</div>'+
+      '<ul class="nav nav-pills">'+
+      '<li role="presentation" class="active"><a href="#dash-console-tab" aria-controls="console" role="tab" data-toggle="tab">Console</a></li>'+
+      '<li role="presentation"><a href="#dash-editor-tab" aria-controls="editor" role="tab" data-toggle="tab">Editor</a></li>'+
+      '</ul>'+
+      '</div>'+
+      '</div>'+
+      '</div>'+
+      '</div>'+
       '</div>',
     screenLine: '<div class="dash_screen_line alert {3} alert-dismissible" role="alert" data-command="{0}">' +
       '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
@@ -335,7 +350,7 @@ var BDA_DASH = {
     BDA_DASH.writeResponse(val, null, errMsg, "error");
   },
 
-
+  //end method, should be always called at the end of a command
   writeResponse: function(val, command, result, level) {
     var debug = "";
     if (BDA_DASH.debugMode && command != null) {
@@ -360,22 +375,6 @@ var BDA_DASH = {
      }
      //persist history
   },
-
-/*  //source of typeahead
-  //adds current history to the list of functions
-  typeahead: function(query, syncResults,asynResults) {
-    var suggestions = unique(sort(BDA_DASH.typeahead_base.concat(BDA_DASH.HIST)));
-    syncResults(suggestions);
-  },
-
-  bhSource: function(query, syncResults,asynResults) {
-    var suggestions = unique(sort(BDA_DASH.typeahead_base.concat(BDA_DASH.HIST)));
-/*    var src = [];
-    for (var i = 0; i < suggestions.length; i++) {
-      src.push({val:suggestions[i]});
-    }*/
-/*    return suggestions;
-  },*/
 
   goToComponent: function(component) {
     var url = "/dyn/admin/nucleus" + component;

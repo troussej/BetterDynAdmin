@@ -740,6 +740,7 @@ table.tablesorter tr.alt-row:hover td {
 
 #dashForm{
    font-family: monospace;
+   margin-bottom: 0;
 }
 
 #dashForm .tt-hint{
@@ -747,11 +748,15 @@ table.tablesorter tr.alt-row:hover td {
 
 }
 
+#dashForm .form-group{
+  margin-bottom: 0;
+}
+
 #dashScreen {
   font-family: monospace;
   overflow-y:scroll; 
-  max-height: 500px;
-  height: 500px;
+  max-height: 400px;
+  height: 400px;
 }
 
 #dashScreen .alert{
@@ -769,5 +774,9 @@ table.tablesorter tr.alt-row:hover td {
 
 .typeahead.dropdown-menu{
   text-align: left;
+}
+
+#dashModal textarea.form-control{
+  height: inherit;
 }
 
