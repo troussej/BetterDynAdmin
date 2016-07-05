@@ -12,6 +12,9 @@ var BDA_DASH = {
   $input: null,
   $modal: null,
 
+  //
+  initialized : false,
+
   styles: {
     success: "alert-success",
     error: "alert-danger",
@@ -267,7 +270,10 @@ var BDA_DASH = {
     }
   },
   build: function() {
-    //toto
+    logTrace('actually initialize dash');
+
+    BDA_DASH.initialized=true;
+
     var consoleHtml;
 
     if (BDA_DASH.devMode) {
@@ -321,12 +327,6 @@ var BDA_DASH = {
       }
     });
 
-    $(document).keydown(function(e){
-     if(e.ctrlKey && e.altKey &&  e.which == 84){
-         e.preventDefault();
-        BDA_DASH.openDash();
-     }
-    });
 
     BDA_DASH.initCompRefs();
 
@@ -337,6 +337,10 @@ var BDA_DASH = {
 
 
   openDash: function() {
+    if(!BDA_DASH.initialized){
+      BDA_DASH.build();
+    }
+
     BDA_DASH.$modal.modal('show');
   },
 
@@ -370,7 +374,7 @@ var BDA_DASH = {
 
       BDA_DASH.$input.val('');
     } catch (e) {
-      console.log(e);
+      logTrace(e);
     }
   },
 
@@ -435,7 +439,7 @@ var BDA_DASH = {
   },
 
   redo : function(input){
-      console.log("redo : " + input);
+      logTrace("redo : " + input);
       BDA_DASH.handleInput(input);
   },
 
@@ -503,13 +507,13 @@ var BDA_DASH = {
           message: "invalid parameter type"
         }
     }
-    console.log("getParamValue : " + res);
+    logTrace("getParamValue : " + res);
     return res;
   },
 
 
   getValue: function(param) {
-    console.log('getValue : param : ' + JSON.stringify(param));
+    logTrace('getValue : param : ' + JSON.stringify(param));
     var res = "";
     switch (param.type) {
       case "value":
@@ -555,7 +559,7 @@ var BDA_DASH = {
   },
 
   getComponent: function(componentParam) {
-    console.log('componentParam : ' + JSON.stringify(componentParam));
+    logTrace('componentParam : ' + JSON.stringify(componentParam));
     var path = "";
     switch (componentParam.type) {
       case "this":
@@ -629,11 +633,18 @@ try {
     (function($) {
       logTrace('bda.dash.js start');
       var settings;
+
+      $(document).keydown(function(e){
+       if(e.ctrlKey && e.altKey &&  e.which == 84){
+           e.preventDefault();
+          BDA_DASH.openDash();
+       }
+      });
+
       $.fn.initDASH = function(pBDA, options) {
         logTrace('Init plugin {0}'.format('DASH'));
         BDA = pBDA;
         BDA_STORAGE = $.fn.bdaStorage.getBdaStorage();
-        BDA_DASH.build();
         return this;
       }
 
@@ -648,5 +659,5 @@ try {
   logTrace('bda.dash.js end');
 
 } catch (e) {
-  console.log(e);
+  logTrace(e);
 }
