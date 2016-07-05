@@ -41,7 +41,7 @@ var BDA_DASH = {
       '<form id="dashForm" class="">'+
       '<div class="form-group">'+
       '<div class="input-group">'+
-      '<div class="input-group-addon">$</div>'+
+      '<div class="input-group-addon"><span id="dash_dollar">$</span><i class="fa fa-spinner fa-spin" id="dash_spinner" style="display: none;"></i></div>'+
       '<input type="text" class="form-control dash-input" id="dashInput" placeholder="" name="cmd" data-provide="typeahead" autocomplete="off">'+
       '</div>'+
       '</div>'+
@@ -243,6 +243,7 @@ var BDA_DASH = {
       //BDA_DASH.$screen.find('.alert').each(function(){$(this).alert('close')});
       BDA_DASH.$screen.find('.alert').alert('close');
       BDA_DASH.HIST.push(cmdString);
+      BDA_DASH.handleNextQueuedElem();
     },
 
     history: function(cmdString, params) {
@@ -346,6 +347,10 @@ var BDA_DASH = {
 
   handleInput: function(input) {
     try {
+
+      $('#dash_dollar').hide();
+      $('#dash_spinner').show();
+
       if(isNull(input)){
         input = BDA_DASH.$input.val();
       }
@@ -382,6 +387,9 @@ var BDA_DASH = {
     var cmd = BDA_DASH.QUEUE.shift();
     if(!isNull(cmd)){
       BDA_DASH.handleCommand(cmd[0], cmd[1]);
+    }else{
+      $('#dash_dollar').show();
+      $('#dash_spinner').hide();
     }
   },
 
