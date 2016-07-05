@@ -93,7 +93,7 @@ componentName=
      $("/"litteral)+
 
 litteral=
-    $[a-zA-Z-:]+
+    $[a-zA-Z0-9\-:]+
 
 Integer "integer"
   = [0-9]+ { return parseInt(text(), 10); }

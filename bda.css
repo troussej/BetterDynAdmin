@@ -780,3 +780,20 @@ table.tablesorter tr.alt-row:hover td {
   height: inherit;
 }
 
+#dashModal panel{
+  background-color: white;
+}
+
+table.table{
+  background-color: white;
+}
+
+/* Override dyn/admin style */
+.table th{
+  background-color: inherit;
+  border-style: inherit;
+}
+
+.printItem{
+  margin-top: 15px;
+}

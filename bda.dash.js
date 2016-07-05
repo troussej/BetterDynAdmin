@@ -73,14 +73,22 @@ var BDA_DASH = {
       '<div>References:<ul>'+
       '<li>Reference to variable : $varName</li>'+
       '<li>Reference to component : @FAV - where FAV is the shortname of a bookmarked component, ex @OR : OrderRepository.</li>'+
+      '<li>Reference to current component : @this</li>'+
       '</ul></div>',
     help: {
       help: 'prints this help',
       get: 'get /some/Component.property [>variable]',
       set: 'set /some/Component.property newvalue',
       go: 'go /to/some/Component - redirects to the component page',
+      print: 'print /some/Repository itemDesc id',
+      comprefs  : 'lists all the available component references',
+      vars : 'lists all the available variables'
+
     },
-    errMsg: '<strong>{0}</strong> : {1}<br/> Type <em>help</em> for more information.'
+    errMsg: '<strong>{0}</strong> : {1}<br/> Type <em>help</em> for more information.',
+    tableTemplate: '<table class="table"><tr><th>{0}</th><th>{1}</th></tr>{2}</table>',
+    rowTemplate : '<tr><td>{0}</td><td>{1}</td></tr>',
+    printItemTemplate : '<div class="panel panel-default printItem"><div class="panel-heading">Printing item with id: {0}</div>{1}</div>'
   },
 
   HIST: [],
@@ -169,6 +177,51 @@ var BDA_DASH = {
       BDA_DASH.writeResponse(cmdString, params, value, "success");
     },
 
+   //print @OR order p92133231
+    print: function(cmdString, params) {
+      var parsedParams = BDA_DASH.parseParams(
+        [
+          {
+            name: "repo",
+            type: "component"
+          },
+          {
+            name: "itemDesc",
+            type: "value"
+          },
+          {
+            name: "id",
+            type: "value"
+          }
+        ],
+        params);
+      $().executePrintItem(
+        parsedParams.itemDesc,
+        parsedParams.id,
+        parsedParams.repo,
+        function($xmlDoc) {
+          try{
+            var res  ="";
+            if(!isNull($xmlDoc)){
+              $xmlDoc.find('add-item').each(function(){
+                var $itemXml = $(this);
+                res += BDA_DASH.templates.printItemTemplate.format($itemXml.attr('id'),buildSimpleTable($itemXml,BDA_DASH.templates.tableTemplate,BDA_DASH.templates.rowTemplate));
+              })
+              BDA_DASH.writeResponse(cmdString, params, res, "success");
+            }else{
+               throw {
+                  name: "Not Found",
+                  message: "No value"
+               }
+            }
+          }catch(e){
+            BDA_DASH.handleError(cmdString, e);
+          }
+        }
+      );
+    },
+
+
     vars: function(cmdString, params) {
 
       var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.VARS,null,2));
@@ -198,7 +251,7 @@ var BDA_DASH = {
 
       var values = [];
       var msg;
-      values.push('Available Function:')
+      values.push('Available Functions:')
       values.push('<ul>');
       for (var funcName in BDA_DASH.FCT) {
         msg = BDA_DASH.templates.help[funcName];
@@ -409,6 +462,7 @@ var BDA_DASH = {
       logTrace('inParam = ' + JSON.stringify(inParam));
 
       if (isNull(inParam)) {
+
         if (exp.required) {
           throw {
             name: "Missing argument",
