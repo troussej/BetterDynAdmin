@@ -13,70 +13,89 @@ var BDA_DASH = {
   $modal: null,
 
   //
-  initialized : false,
+  initialized: false,
 
   styles: {
     success: "alert-success",
     error: "alert-danger",
     warning: "alert-warning",
-    hidden : "hidden"
+    hidden: "hidden"
   },
-  keyword_this :"this",
+  keyword_this: "this",
   templates: {
     consoleModal: 
-      '<div class="twbs">'+
-      '<div id="dashModal" class="modal fade" tabindex="-1" role="dialog">'+
-      '<div id="dashModalDialog" class="modal-dialog modal-lg">'+
-      '<div class="modal-content">'+
-      '<div class="modal-header">'+
-      '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
-      '<h4 class="modal-title">DASH - DynAdmin SHell</h4>'+
+      '<div class="twbs"> '+
+      '<div id="dashModal" class="modal fade" tabindex="-1" role="dialog"> '+
+      '<div id="dashModalDialog" class="modal-dialog modal-lg"> '+
+      '<div class="modal-content"> '+
+      '<div class="modal-header"> '+
+      '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> '+
+      '<h4 class="modal-title">DASH - DynAdmin SHell</h4> '+
+      '</div> '+
+      '<div id="dashScreen" class="modal-body"> '+
+      '</div> '+
+      '<div class="modal-footer"> '+
+      '<div class="tab-content"> '+
+      '<div role="tabpanel" class="tab-pane fade in  active" id="dash-console-tab"> '+
+      '<form id="dashForm" class=""> '+
+      '<div class="form-group"> '+
+      '<div class="input-group"> '+
+      '<div class="input-group-addon"><span id="dash_dollar">$</span><i class="fa fa-spinner fa-spin" id="dash_spinner" style="display: none;"></i></div> '+
+      '<input type="text" class="form-control dash-input" id="dashInput" placeholder="" name="cmd" data-provide="typeahead" autocomplete="off"/> '+
+      '</div> '+
+      '</div> '+
+      '</form> '+
+      '</div> '+
+      '<div role="tabpanel" class="tab-pane fade" id="dash-editor-tab"> '+
+      '<form id="dashEditorForm" class=""> '+
+      '<textarea id="dashEditor" class="form-control dash-input" rows="5" placeholder="Not implemented yet..."></textarea> '+
+      '</form> '+
+      '</div> '+
+      '<div role="tabpanel" class="tab-pane fade" id="dash-save-tab"> '+
+      '<div class="panel">'+
+      '<form id="dashSaveForm" class="form-inline">'+
+      '<div class="row">'+
+      '<div class="col-md-10">'+
+      '<input type="text" class="form-control dash-input" id="dashSaveScriptName" placeholder="Name" name="save" autocomplete="off"></input>'+
       '</div>'+
-      '<div id="dashScreen" class="modal-body">'+
-      '</div>'+
-      '<div class="modal-footer">'+
-      ''+
-      '<div class="tab-content">'+
-      '<div role="tabpanel" class="tab-pane fade in  active" id="dash-console-tab">'+
-      '<form id="dashForm" class="">'+
-      '<div class="form-group">'+
-      '<div class="input-group">'+
-      '<div class="input-group-addon"><span id="dash_dollar">$</span><i class="fa fa-spinner fa-spin" id="dash_spinner" style="display: none;"></i></div>'+
-      '<input type="text" class="form-control dash-input" id="dashInput" placeholder="" name="cmd" data-provide="typeahead" autocomplete="off">'+
-      '</div>'+
+      '<div class="col-md-2">'+
+      '<button type="button" id="bdaSaveButton" class="btn btn-primary">'+
+      '<i class="fa fa-floppy-o" aria-hidden="true"/>&nbsp;'+
+      '</i>'+
+      '</button>'+
       '</div>'+
       '</form>'+
       '</div>'+
-      '<div role="tabpanel" class="tab-pane fade" id="dash-editor-tab">'+
-      '<form id="dashEditorForm" class="">'+
-      '<textarea id="dashEditor" class="form-control dash-input" rows="5" placeholder="Not implemented yet..."></textarea>'+
-      '</form>'+
-      '</div>'+
-      '</div>'+
-      '<div>&nbsp;</div>'+
-      '<ul class="nav nav-pills">'+
-      '<li role="presentation" class="active"><a href="#dash-console-tab" aria-controls="console" role="tab" data-toggle="tab">Console</a></li>'+
-      '<li role="presentation"><a href="#dash-editor-tab" aria-controls="editor" role="tab" data-toggle="tab">Editor</a></li>'+
-      '</ul>'+
-      '</div>'+
-      '</div>'+
-      '</div>'+
-      '</div>'+
-      '</div>',
+      '</div> '+
+      '</div> '+
+      '<div>&nbsp;</div> '+
+      '<ul class="nav nav-pills"> '+
+      '<li role="presentation" class="active"><a href="#dash-console-tab" aria-controls="console" role="tab" data-toggle="tab">Console</a></li> '+
+      '<li role="presentation"><a id="dashSaveButton" href="#dash-save-tab" aria-controls="save" role="tab" data-toggle="tab">Save</a></li> '+
+      '<li role="presentation"><a href="#dash-editor-tab" aria-controls="editor" role="tab" data-toggle="tab">Editor</a></li> '+
+      '</ul> '+
+      '</div> '+
+      '</div> '+
+      '</div> '+
+      '</div> '+
+      '</div>'
+      ,
     screenLine: '<div class="dash_screen_line alert {3} alert-dismissible" role="alert" data-command="{0}">' +
-      '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
-      '<button type="button" class="close"  aria-label="Save"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>' +
+      '<button type="button" class="close dash_close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+      '<button type="button" class="btn btn-default dash_save" aria-label="Save" aria-pressed="false" style="display:none;" >'+
+      '<i class="fa fa-floppy-o" aria-hidden="true"></i>'+
+      '<input type="checkbox" class="hidden"/>'+
+      '</button>' +
       '<button type="button" class="close dash_redo"  aria-label="Redo"><i class="fa fa-repeat" aria-hidden="true"></i></button>' +
       '<p class="dash_feeback_line">$&gt;&nbsp;{0}</p>' +
       '<p class="dash_debug_line">{1}</p>' +
       '<p class="dash_return_line">{2}</p>' +
       '</div>',
     not_implemented: 'This command is not implemented yet.',
-    helpMain:
-      '<div>References:<ul>'+
-      '<li>Reference to variable : $varName</li>'+
-      '<li>Reference to component : @FAV - where FAV is the shortname of a bookmarked component, ex @OR : OrderRepository.</li>'+
-      '<li>Reference to current component : @this</li>'+
+    helpMain: '<div>References:<ul>' +
+      '<li>Reference to variable : $varName</li>' +
+      '<li>Reference to component : @FAV - where FAV is the shortname of a bookmarked component, ex @OR : OrderRepository.</li>' +
+      '<li>Reference to current component : @this</li>' +
       '</ul></div>',
     help: {
       help: 'prints this help',
@@ -84,22 +103,22 @@ var BDA_DASH = {
       set: 'set /some/Component.property newvalue',
       go: 'go /to/some/Component - redirects to the component page',
       print: 'print /some/Repository itemDesc id',
-      comprefs  : 'lists all the available component references',
-      vars : 'lists all the available variables'
+      comprefs: 'lists all the available component references',
+      vars: 'lists all the available variables'
 
     },
     errMsg: '<strong>{0}</strong> : {1}<br/> Type <em>help</em> for more information.',
     tableTemplate: '<table class="table"><tr><th>{0}</th><th>{1}</th></tr>{2}</table>',
-    rowTemplate : '<tr><td>{0}</td><td>{1}</td></tr>',
-    printItemTemplate : '<div class="panel panel-default printItem"><div class="panel-heading">Printing item with id: {0}</div>{1}</div>'
+    rowTemplate: '<tr><td>{0}</td><td>{1}</td></tr>',
+    printItemTemplate: '<div class="panel panel-default printItem"><div class="panel-heading">Printing item with id: {0}</div>{1}</div>'
   },
 
   HIST: [],
   typeahead_base: [],
   //to sync multiple methods
-  QUEUE : [],
+  QUEUE: [],
   //references to components
-  COMP_REFS:{},
+  COMP_REFS: {},
   //variables
   VARS: {},
   //shell fonctions
@@ -180,44 +199,40 @@ var BDA_DASH = {
       BDA_DASH.writeResponse(cmdString, params, value, "success");
     },
 
-   //print @OR order p92133231
+    //print @OR order p92133231
     print: function(cmdString, params) {
       var parsedParams = BDA_DASH.parseParams(
-        [
-          {
-            name: "repo",
-            type: "component"
-          },
-          {
-            name: "itemDesc",
-            type: "value"
-          },
-          {
-            name: "id",
-            type: "value"
-          }
-        ],
+        [{
+          name: "repo",
+          type: "component"
+        }, {
+          name: "itemDesc",
+          type: "value"
+        }, {
+          name: "id",
+          type: "value"
+        }],
         params);
       $().executePrintItem(
         parsedParams.itemDesc,
         parsedParams.id,
         parsedParams.repo,
         function($xmlDoc) {
-          try{
-            var res  ="";
-            if(!isNull($xmlDoc)){
-              $xmlDoc.find('add-item').each(function(){
+          try {
+            var res = "";
+            if (!isNull($xmlDoc)) {
+              $xmlDoc.find('add-item').each(function() {
                 var $itemXml = $(this);
-                res += BDA_DASH.templates.printItemTemplate.format($itemXml.attr('id'),buildSimpleTable($itemXml,BDA_DASH.templates.tableTemplate,BDA_DASH.templates.rowTemplate));
+                res += BDA_DASH.templates.printItemTemplate.format($itemXml.attr('id'), buildSimpleTable($itemXml, BDA_DASH.templates.tableTemplate, BDA_DASH.templates.rowTemplate));
               })
               BDA_DASH.writeResponse(cmdString, params, res, "success");
-            }else{
-               throw {
-                  name: "Not Found",
-                  message: "No value"
-               }
+            } else {
+              throw {
+                name: "Not Found",
+                message: "No value"
+              }
             }
-          }catch(e){
+          } catch (e) {
             BDA_DASH.handleError(cmdString, e);
           }
         }
@@ -227,14 +242,14 @@ var BDA_DASH = {
 
     vars: function(cmdString, params) {
 
-      var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.VARS,null,2));
+      var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.VARS, null, 2));
       BDA_DASH.writeResponse(cmdString, params, value, "success");
 
     },
 
     comprefs: function(cmdString, params) {
 
-      var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.COMP_REFS,null,2));
+      var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.COMP_REFS, null, 2));
       BDA_DASH.writeResponse(cmdString, params, value, "success");
 
     },
@@ -265,7 +280,7 @@ var BDA_DASH = {
         values.push('<li><strong>{0}</strong> : {1}</li>'.format(funcName, msg))
       }
       values.push('</ul>');
-      values.push( BDA_DASH.templates.helpMain);
+      values.push(BDA_DASH.templates.helpMain);
       msg = values.join('');
       BDA_DASH.writeResponse(cmdString, params, msg, "success");
     }
@@ -273,7 +288,7 @@ var BDA_DASH = {
   build: function() {
     logTrace('actually initialize dash');
 
-    BDA_DASH.initialized=true;
+    BDA_DASH.initialized = true;
 
     var consoleHtml;
 
@@ -314,15 +329,15 @@ var BDA_DASH = {
 
     BDA_DASH.$input.typeahead({
       autoSelect: false
-    },{
+    }, {
       name: 'dash',
-      source:  BDA_DASH.suggestionEngine
+      source: BDA_DASH.suggestionEngine
     });
 
     BDA_DASH.$input.keypress(function(e) {
 
-      if (e.which == 13 && !e.altKey  && !e.shiftKey) {
-        e.preventDefault(); 
+      if (e.which == 13 && !e.altKey && !e.shiftKey) {
+        e.preventDefault();
         BDA_DASH.handleInput()
         return false;
       }
@@ -331,14 +346,78 @@ var BDA_DASH = {
 
     BDA_DASH.initCompRefs();
 
-    BDA_DASH.$modal.on("click", ".dash_redo", function(event){
-        BDA_DASH.redo($(this).parent().attr('data-command'));
+    BDA_DASH.initSaveMode();
+
+    BDA_DASH.$modal.on("click", ".dash_redo", function(event) {
+      BDA_DASH.redo($(this).parent().attr('data-command'));
     });
   },
 
+  initSaveMode: function() {
+
+    $('#dashSaveButton').on('show.bs.tab', function(event) {
+      //show/hide buttons
+      $('#dashScreen .dash_save').show();
+      $('#dashScreen .dash_close').hide();
+      $('#dashScreen .dash_redo').hide();
+      BDA_DASH.resetSaveState(); //shoudn't be usefull but who knows..
+      
+    });
+
+    $('#dashSaveButton').on('hide.bs.tab', function(event) {
+      $('#dashScreen .dash_save').hide();
+      $('#dashScreen .dash_close').show();
+      $('#dashScreen .dash_redo').show();
+      BDA_DASH.resetSaveState();
+    });
+
+    $('#dashScreen').on('click','.dash_save',function(){
+      try{
+
+      var $this = $(this);
+      var $checkbox = $this.children('input:checkbox:first');
+      $this.toggleClass('btn-success');
+      $checkbox.prop('checked',! $checkbox.prop('checked'));
+       console.log('save value: ' +  $checkbox.prop('checked'));
+    }catch(e){
+      log(e);
+    }
+    });
+
+    $('#bdaSaveButton').on('click',function(){
+      BDA_DASH.saveScript();
+    });
+  },
+
+  //reset save mode
+  resetSaveState : function(){
+    $('#dashScreen .dash_save').each(function(){
+      var $this = $(this);
+      $this.removeClass('btn-success');
+      var $checkbox = $this.children('input:checkbox:first');
+      $checkbox.prop('checked',false);
+    });
+  },
+
+  saveScript : function(){
+
+    try{
+      var scriptName = $('#dashSaveScriptName').val();
+      if(isNull(scriptName) ||scriptName.length ==0){
+        throw {
+          name : "Missing Script Name",
+          message : "Cannot save script with empty name"
+        }
+      }
+      
+    }catch(e){
+      BDA_DASH.handleError("", e);
+    }
+
+  },
 
   openDash: function() {
-    if(!BDA_DASH.initialized){
+    if (!BDA_DASH.initialized) {
       BDA_DASH.build();
     }
 
@@ -351,22 +430,22 @@ var BDA_DASH = {
       $('#dash_dollar').hide();
       $('#dash_spinner').show();
 
-      if(isNull(input)){
+      if (isNull(input)) {
         input = BDA_DASH.$input.val();
       }
       input = $.trim(input);
       var commands = input.split(/\n|;/);
       logTrace('input: {0}'.format(input));
 
-      BDA_DASH.QUEUE = [];//clear
+      BDA_DASH.QUEUE = []; //clear
 
       try {
         for (var i = 0; i < commands.length; i++) {
           var stringCmd = commands[i];
           stringCmd = $.trim(stringCmd);
-          if(!isNull(stringCmd) && stringCmd.length > 0){
-            var command = BDA_DASH.parse(stringCmd);  
-            BDA_DASH.QUEUE.push([stringCmd,command]);
+          if (!isNull(stringCmd) && stringCmd.length > 0) {
+            var command = BDA_DASH.parse(stringCmd);
+            BDA_DASH.QUEUE.push([stringCmd, command]);
           }
         }
 
@@ -383,11 +462,11 @@ var BDA_DASH = {
     }
   },
 
-  handleNextQueuedElem : function(){
+  handleNextQueuedElem: function() {
     var cmd = BDA_DASH.QUEUE.shift();
-    if(!isNull(cmd)){
+    if (!isNull(cmd)) {
       BDA_DASH.handleCommand(cmd[0], cmd[1]);
-    }else{
+    } else {
       $('#dash_dollar').show();
       $('#dash_spinner').hide();
     }
@@ -419,7 +498,7 @@ var BDA_DASH = {
   writeResponse: function(val, command, result, level) {
     var debug = "";
     if (BDA_DASH.debugMode && command != null) {
-      debug = JSON.stringify(command,null,2);
+      debug = JSON.stringify(command, null, 2);
     }
     var msgClass = BDA_DASH.styles[level];
     var $entry = $(BDA_DASH.templates.screenLine.format(val, debug, result, msgClass));
@@ -433,12 +512,12 @@ var BDA_DASH = {
     return $entry;
   },
 
-  saveHistory : function(val){
-     BDA_DASH.HIST.push(val);
-     if(!isNull(BDA_DASH.suggestionEngine)){
+  saveHistory: function(val) {
+    BDA_DASH.HIST.push(val);
+    if (!isNull(BDA_DASH.suggestionEngine)) {
       BDA_DASH.suggestionEngine.add([val]);
-     }
-     //persist history
+    }
+    //persist history
   },
 
   goToComponent: function(component) {
@@ -446,9 +525,9 @@ var BDA_DASH = {
     window.location = url;
   },
 
-  redo : function(input){
-      logTrace("redo : " + input);
-      BDA_DASH.handleInput(input);
+  redo: function(input) {
+    logTrace("redo : " + input);
+    BDA_DASH.handleInput(input);
   },
 
   getVarValue: function(name) {
@@ -580,27 +659,26 @@ var BDA_DASH = {
         var shortname = componentParam.name;
         var ref = BDA_DASH.COMP_REFS[shortname];
         var idx = componentParam.index;
-        if(isNull(ref)){
+        if (isNull(ref)) {
           throw {
             name: "Invalid Name",
             message: "No such component {0}".format(shortname)
           }
         }
-        if(ref.length == 1){
+        if (ref.length == 1) {
           path = ref[0];
-        }
-        else if(!isNull(idx)){
-           if( idx >= ref.length){
+        } else if (!isNull(idx)) {
+          if (idx >= ref.length) {
             throw {
               name: "Index out of bound",
-              message: "Index {0}#{1} is out of bound : <br/> <pre>{2}</pre>".format(shortname,idx,JSON.stringify(ref,null,2))
+              message: "Index {0}#{1} is out of bound : <br/> <pre>{2}</pre>".format(shortname, idx, JSON.stringify(ref, null, 2))
             }
-           }
-           path = ref[idx];
-        }else{
+          }
+          path = ref[idx];
+        } else {
           throw {
             name: "Ambiguous Reference",
-            message: "Reference {0} is ambiguous. Specify index.<br/> <pre>{1}</pre>".format(componentParam.name,JSON.stringify(ref,null,2))
+            message: "Reference {0} is ambiguous. Specify index.<br/> <pre>{1}</pre>".format(componentParam.name, JSON.stringify(ref, null, 2))
           }
         }
         break;
@@ -617,19 +695,19 @@ var BDA_DASH = {
     return BDA_DASH_PARSER.parse(val);
   },
 
-  initCompRefs : function(){
+  initCompRefs: function() {
 
     var comps = BDA_STORAGE.getStoredComponents();
-    var fav,compRefList,key;
+    var fav, compRefList, key;
     for (var i = 0; i < comps.length; i++) {
       fav = comps[i];
       key = getComponentShortName(fav.componentName);
       compRefList = BDA_DASH.COMP_REFS[key];
-      if(isNull(compRefList)){
+      if (isNull(compRefList)) {
         compRefList = [];
       }
       //only keep the nucleus path for consistency
-      compRefList.push(fav.componentPath.replace(/\/dyn\/admin\/nucleus/g,'').replace(/\/$/g,''));
+      compRefList.push(fav.componentPath.replace(/\/dyn\/admin\/nucleus/g, '').replace(/\/$/g, ''));
       BDA_DASH.COMP_REFS[key] = compRefList;
     }
   }
@@ -642,11 +720,11 @@ try {
       logTrace('bda.dash.js start');
       var settings;
 
-      $(document).keydown(function(e){
-       if(e.ctrlKey && e.altKey &&  e.which == 84){
-           e.preventDefault();
+      $(document).keydown(function(e) {
+        if (e.ctrlKey && e.altKey && e.which == 84) {
+          e.preventDefault();
           BDA_DASH.openDash();
-       }
+        }
       });
 
       $.fn.initDASH = function(pBDA, options) {

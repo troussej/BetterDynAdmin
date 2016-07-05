@@ -734,6 +734,11 @@ table.tablesorter tr.alt-row:hover td {
 #dashModal .modal-content{
 }
 
+#dashModal .modal-footer .tab-pane{
+  text-align: left;
+}
+
+
 #dashInput{
    font-family: monospace;
 }
@@ -792,6 +797,10 @@ table.table{
 .table th{
   background-color: inherit;
   border-style: inherit;
+}
+
+button.dash_save{
+  float: right;
 }
 
 .printItem{
