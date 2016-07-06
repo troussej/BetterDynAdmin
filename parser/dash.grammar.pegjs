@@ -12,18 +12,40 @@ command=
     }
 param=
         componentProperty
-    /   thisRef
+    /   keywords
+    /   flags
     /   componentPath
     /   componentRef
     /   value
     /   output
     /   varRef
 
+keywords=
+      thisRef
+    / lastOutput
+
 thisRef=
     "@this"
     {
         return {
             type : 'this'
+        }
+    }
+
+lastOutput=
+    "@#"
+    {
+        return{
+            type : 'lastOutput'
+        }
+    }
+
+flags=
+    "-" flags:[a-zA-Z]+
+    {
+        return {
+            type:'flags',
+            values:flags
         }
     }
 
@@ -99,4 +121,4 @@ Integer "integer"
   = [0-9]+ { return parseInt(text(), 10); }
     
 _ "whitespace"
-  = [ \t]*
+  = [ \t]+

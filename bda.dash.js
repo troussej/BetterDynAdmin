@@ -1,10 +1,13 @@
 // DASH DynAdmin SHell
 "use strict";
+  jQuery(document).ready(function() {
+    (function($) {
+
 var BDA;
 var BDA_STORAGE;
 var BDA_DASH = {
 
-  devMode: false,
+  devMode: true,
   debugMode: false,
 
   // dom elements
@@ -24,59 +27,61 @@ var BDA_DASH = {
   keyword_this: "this",
   templates: {
     consoleModal: 
-      '<div class="twbs"> '+
-      '<div id="dashModal" class="modal fade" tabindex="-1" role="dialog"> '+
-      '<div id="dashModalDialog" class="modal-dialog modal-lg"> '+
-      '<div class="modal-content"> '+
-      '<div class="modal-header"> '+
-      '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> '+
-      '<h4 class="modal-title">DASH - DynAdmin SHell</h4> '+
-      '</div> '+
-      '<div id="dashScreen" class="modal-body"> '+
-      '</div> '+
-      '<div id="dashFooter" class="modal-footer"> '+
-      '<div class="tab-content"> '+
-      '<div role="tabpanel" class="tab-pane fade in  active" id="dash-console-tab"> '+
-      '<form id="dashForm" class=""> '+
-      '<div class="form-group"> '+
-      '<div class="input-group"> '+
-      '<div class="input-group-addon"><span id="dash_dollar">$</span><i class="fa fa-spinner fa-spin" id="dash_spinner" style="display: none;"></i></div> '+
-      '<input type="text" class="form-control dash-input main-input" id="dashInput" placeholder="" name="cmd" data-provide="typeahead" autocomplete="off"/> '+
-      '</div> '+
-      '</div> '+
-      '</form> '+
-      '</div> '+
-      '<div role="tabpanel" class="tab-pane fade" id="dash-editor-tab"> '+
-      '<form id="dashEditorForm" class=""> '+
-      '<textarea id="dashEditor" class="form-control dash-input main-input" rows="5" placeholder="Not implemented yet..."></textarea> '+
-      '</form> '+
-      '</div> '+
-      '<div role="tabpanel" class="tab-pane fade" id="dash-save-tab"> '+
-      '<form id="dashSaveForm" class="form-inline">'+
-      '<div class="row">'+
-      '<div class="col-md-10">'+
-      '<input type="text" class="form-control dash-input main-input" id="dashSaveScriptName" placeholder="Name" name="save" autocomplete="off"></input>'+
-      '</div>'+
-      '<div class="col-md-2">'+
-      '<button type="button" id="bdaSaveButton" class="btn btn-primary">'+
-      '<i class="fa fa-floppy-o" aria-hidden="true"/>&nbsp;'+
-      '</i>'+
-      '</button>'+
-      '</div>'+
-      '</form>'+
-      '</div> '+
-      '</div> '+
-      '<div>&nbsp;</div> '+
-      '<ul class="nav nav-pills"> '+
-      '<li role="presentation" class="active"><a href="#dash-console-tab" aria-controls="console" role="tab" data-toggle="tab">Console</a></li> '+
-      '<li role="presentation"><a id="dashSaveButton" href="#dash-save-tab" aria-controls="save" role="tab" data-toggle="tab">Save</a></li> '+
-      '<li role="presentation"><a href="#dash-editor-tab" aria-controls="editor" role="tab" data-toggle="tab">Editor</a></li> '+
-      '</ul> '+
-      '</div> '+
-      '</div> '+
-      '</div> '+
-      '</div> '+
-      '</div>'
+     '<div class="twbs"> '+
+'<div id="dashModal" class="modal fade" tabindex="-1" role="dialog">'+
+'<div id="dashModalDialog" class="modal-dialog modal-lg">'+
+'<div class="modal-content">'+
+'<div class="modal-header">'+
+'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+'<h4 class="modal-title">DASH - DynAdmin SHell</h4>'+
+'</div>'+
+'<div id="dashScreen" class="modal-body">'+
+'</div>'+
+'<div id="dashFooter" class="modal-footer">'+
+'<div class="tab-content">'+
+'<div role="tabpanel" class="tab-pane fade in  active" id="dash-console-tab">'+
+'<form id="dashForm" class="">'+
+'<div class="form-group">'+
+'<div class="input-group">'+
+'<div class="input-group-addon"><span id="dash_dollar">$</span><i class="fa fa-spinner fa-spin" id="dash_spinner" style="display: none;"></i></div>'+
+'<input type="text" class="form-control dash-input main-input" id="dashInput" placeholder="" name="cmd" data-provide="typeahead" autocomplete="off"/>'+
+'</div>'+
+'</div>'+
+'</form>'+
+'</div>'+
+'<div role="tabpanel" class="tab-pane fade" id="dash-editor-tab">'+
+'<form id="dashEditorForm" class="">'+
+'<textarea id="dashEditor" class="form-control dash-input main-input" rows="5" placeholder="Not implemented yet..."></textarea>'+
+'</form>'+
+'</div>'+
+'<div role="tabpanel" class="tab-pane fade" id="dash-save-tab">'+
+'<form id="dashSaveForm" class="form-inline">'+
+'<div class="col-md-10">'+
+'<input type="text" class="form-control dash-input main-input" id="dashSaveScriptName" placeholder="Name" name="save" autocomplete="off"></input>'+
+'</div>'+
+'<div class="col-md-2">'+
+'<button type="button" id="bdaSaveButton" class="btn btn-primary">'+
+'<i class="fa fa-floppy-o" aria-hidden="true"/>&nbsp;'+
+'</i>'+
+'</button>'+
+'</div>'+
+'</form>'+
+'</div>'+
+'</div>'+
+'<div id="dashScripts">'+
+'<form id="dashSelectScript">'+
+'</form>'+
+'</div>'+
+'<ul class="nav nav-pills">'+
+'<li role="presentation" class="active"><a href="#dash-console-tab" aria-controls="console" role="tab" data-toggle="tab">Console</a></li>'+
+'<li role="presentation"><a id="dashSaveButton" href="#dash-save-tab" aria-controls="save" role="tab" data-toggle="tab">Save</a></li>'+
+'<li role="presentation"><a href="#dash-editor-tab" aria-controls="editor" role="tab" data-toggle="tab">Editor</a></li>'+
+'</ul>'+
+'</div>'+
+'</div>'+
+'</div>'+
+'</div>'+
+'</div>'
       ,
     screenLine: '<div class="dash_screen_line alert {3} alert-dismissible" role="alert" data-command="{0}">' +
       '<button type="button" class="close dash_close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
@@ -112,7 +117,12 @@ var BDA_DASH = {
     errMsg: '<strong>{0}</strong> : {1}<br/> Type <em>help</em> for more information.',
     tableTemplate: '<table class="table"><tr><th>{0}</th><th>{1}</th></tr>{2}</table>',
     rowTemplate: '<tr><td>{0}</td><td>{1}</td></tr>',
-    printItemTemplate: '<div class="panel panel-default printItem"><div class="panel-heading">Printing item with id: {0}</div>{1}</div>'
+    printItemTemplate: '<div class="panel panel-default printItem"><div class="panel-heading">Printing item with id: {0}</div>{1}</div>',
+    editorScriptLine : '<li data-script-name="{0}" data-script-text="{1}">'+
+      '<a href="#" >{0}</a>'+
+      ' <a  class="btn" aria-label="Delete"><i class="fa fa-trash-o"></i></a>'+
+      ' <a  class="btn btn-sm" aria-label="Delete"><i class="fa fa-eye"></i></a>'+
+      '</li>'
   },
 
   HIST: [],
@@ -150,7 +160,7 @@ var BDA_DASH = {
           if (!isNull(parsedParams.output)) {
             BDA_DASH.VARS[parsedParams.output] = value;
           }
-          BDA_DASH.writeResponse(cmdString, params, value, "success");
+          BDA_DASH.handleOutput(cmdString, params, value, "success");
         });
     },
 
@@ -174,7 +184,7 @@ var BDA_DASH = {
         parsedParams.componentProperty.property,
         parsedParams.value,
         function(value) {
-          BDA_DASH.writeResponse(cmdString, params, value, "success");
+          BDA_DASH.handleOutput(cmdString, params, value, "success");
         });
     },
 
@@ -198,7 +208,7 @@ var BDA_DASH = {
         }],
         params);
       var value = parsedParams.value;
-      BDA_DASH.writeResponse(cmdString, params, value, "success");
+      BDA_DASH.handleOutput(cmdString, params, value, "success");
     },
 
     //print @OR order p92133231
@@ -227,7 +237,7 @@ var BDA_DASH = {
                 var $itemXml = $(this);
                 res += BDA_DASH.templates.printItemTemplate.format($itemXml.attr('id'), buildSimpleTable($itemXml, BDA_DASH.templates.tableTemplate, BDA_DASH.templates.rowTemplate));
               })
-              BDA_DASH.writeResponse(cmdString, params, res, "success");
+              BDA_DASH.handleOutput(cmdString, params, res, "success");
             } else {
               throw {
                 name: "Not Found",
@@ -245,14 +255,14 @@ var BDA_DASH = {
     vars: function(cmdString, params) {
 
       var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.VARS, null, 2));
-      BDA_DASH.writeResponse(cmdString, params, value, "success");
+      BDA_DASH.handleOutput(cmdString, params, value, "success");
 
     },
 
     comprefs: function(cmdString, params) {
 
       var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.COMP_REFS, null, 2));
-      BDA_DASH.writeResponse(cmdString, params, value, "success");
+      BDA_DASH.handleOutput(cmdString, params, value, "success");
 
     },
 
@@ -265,7 +275,7 @@ var BDA_DASH = {
 
     history: function(cmdString, params) {
       var value = JSON.stringify(BDA_DASH.HIST);
-      BDA_DASH.writeResponse(cmdString, params, value, "success");
+      BDA_DASH.handleOutput(cmdString, params, value, "success");
     },
 
     help: function(cmdString, params) {
@@ -284,7 +294,7 @@ var BDA_DASH = {
       values.push('</ul>');
       values.push(BDA_DASH.templates.helpMain);
       msg = values.join('');
-      BDA_DASH.writeResponse(cmdString, params, msg, "success");
+      BDA_DASH.handleOutput(cmdString, params, msg, "success");
     }
   },
   build: function() {
@@ -307,7 +317,11 @@ var BDA_DASH = {
       consoleHtml = BDA_DASH.templates.consoleModal;
     }
 
+
     $(consoleHtml).insertAfter(BDA.logoSelector);
+    if (BDA_DASH.devMode) {
+      $('#dashModal .modal-title').html('DEVMODE');
+    }
 
     BDA_DASH.$input = $('#dashInput');
     BDA_DASH.$screen = $('#dashScreen');
@@ -324,6 +338,7 @@ var BDA_DASH = {
       $(tabId).find('.main-input').focus();
     });
 
+    //init type ahead with all the existing functions
     for (var funcName in BDA_DASH.FCT) {
       BDA_DASH.typeahead_base.push(funcName);
     }
@@ -342,6 +357,7 @@ var BDA_DASH = {
       source: BDA_DASH.suggestionEngine
     });
 
+    //bind console input
     BDA_DASH.$input.keypress(function(e) {
 
       if (e.which == 13 && !e.altKey && !e.shiftKey) {
@@ -355,6 +371,8 @@ var BDA_DASH = {
     BDA_DASH.initCompRefs();
 
     BDA_DASH.initSaveMode();
+
+    BDA_DASH.initEditor();
 
     BDA_DASH.$modal.on("click", ".dash_redo", function(event) {
       BDA_DASH.redo($(this).parent().attr('data-command'));
@@ -379,27 +397,35 @@ var BDA_DASH = {
       BDA_DASH.resetSaveState();
     });
 
-    $('#dashScreen').on('click','.dash_save',function(){
-      try{
+    //bind toggle
 
-      var $this = $(this);
-      var $checkbox = $this.children('input:checkbox:first');
-      $this.toggleClass('btn-success');
-      $checkbox.prop('checked',! $checkbox.prop('checked'));
-       console.log('save value: ' +  $checkbox.prop('checked'));
-    }catch(e){
-      log(e);
-    }
+    $('#dashScreen').on('click','.dash_save',function(){
+      BDA_DASH.toggleSaveLine()
+      return false;
     });
 
+    //bind save
+    $('#dashSaveScriptName').keypress(function(e) {
+      if (e.which == 13 && !e.altKey && !e.shiftKey) {
+        e.preventDefault();
+        BDA_DASH.submitSaveScriptForm()
+        return false;
+      }
+    });
+
+
     $('#bdaSaveButton').on('click',function(){
-      var scriptName = $('#dashSaveScriptName').val();
+       BDA_DASH.submitSaveScriptForm()
+    });
+  },
+
+  submitSaveScriptForm : function(){
+     var scriptName = $('#dashSaveScriptName').val();
       var scriptText = BDA_DASH.getScriptTextFromSaveScreen();
       var override = false;
       BDA_DASH.saveScript(scriptName,scriptText,override);
        $('#dashSaveScriptName').val(null);
-    });
-  },
+ },
 
   //reset save mode
   resetSaveState : function(){
@@ -423,6 +449,19 @@ var BDA_DASH = {
 
     })
     return lines.join('\n');
+  },
+
+  toggleSaveLine : function(){
+      try{
+
+      var $this = $(this);
+      var $checkbox = $this.children('input:checkbox:first');
+      $this.toggleClass('btn-success');
+      $checkbox.prop('checked',! $checkbox.prop('checked'));
+       console.log('save value: ' +  $checkbox.prop('checked'));
+    }catch(e){
+      log(e);
+    }
   },
 
   saveScript : function(scriptName,scriptText,override){
@@ -471,11 +510,32 @@ var BDA_DASH = {
 
   },
 
+  initEditor : function(){
+    var savedScripts = BDA_STORAGE.getScripts();
+
+    var lines = [];
+    for (name in savedScripts){
+      var text = savedScripts[name];
+      var line = BDA_DASH.templates.editorScriptLine.format(name,text);
+      lines.push(line);
+    }
+
+    $(lines.join('')).appendTo(
+      $('#dashEditorScriptList')
+    );
+
+
+  },
 
   openDash: function() {
+    try{
+
     if (!BDA_DASH.initialized) {
       BDA_DASH.build();
     }
+  }catch(e){
+    console.log(e);
+  }
 
     BDA_DASH.$modal.modal('show');
   },
@@ -547,7 +607,7 @@ var BDA_DASH = {
   handleError: function(val, err) {
     logTrace(err);
     var errMsg = BDA_DASH.templates.errMsg.format(err.name, err.message);
-    BDA_DASH.writeResponse(val, null, errMsg, "error");
+    BDA_DASH.handleOutput(val, null, errMsg, "error");
   },
 
   handleSysError: function(val, err) {
@@ -557,7 +617,7 @@ var BDA_DASH = {
   },
 
   //end method, should be always called at the end of a shell function
-  writeResponse: function(val, command, result, level) {
+  handleOutput: function(val, command, result, level) {
     var debug = "";
     if (BDA_DASH.debugMode && command != null) {
       debug = JSON.stringify(command, null, 2);
@@ -819,3 +879,7 @@ try {
 } catch (e) {
   logTrace(e);
 }
+
+
+    })(jQuery);
+  });
