@@ -806,3 +806,11 @@ button.dash_save{
 .printItem{
   margin-top: 15px;
 }
+
+#dashModal .modal-footer  .panel{
+  margin-bottom: 0;
+}
+
+#dashSaveForm{
+  margin-bottom: 0;
+}

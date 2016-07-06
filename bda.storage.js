@@ -224,6 +224,19 @@
     BDA_STORAGE.storeConfiguration('tags', tags);
   },
 
+  getScripts : function()
+  {
+      var scripts = BDA_STORAGE.getConfigurationValue('scripts');
+      if(scripts === null || scripts === undefined)
+        scripts = {};
+      return scripts;
+  },
+
+  saveScripts : function(scripts)
+  {
+    BDA_STORAGE.storeConfiguration('scripts', scripts);
+  },
+
 };
 
   var initalized = false;

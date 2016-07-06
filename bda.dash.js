@@ -34,29 +34,28 @@ var BDA_DASH = {
       '</div> '+
       '<div id="dashScreen" class="modal-body"> '+
       '</div> '+
-      '<div class="modal-footer"> '+
+      '<div id="dashFooter" class="modal-footer"> '+
       '<div class="tab-content"> '+
       '<div role="tabpanel" class="tab-pane fade in  active" id="dash-console-tab"> '+
       '<form id="dashForm" class=""> '+
       '<div class="form-group"> '+
       '<div class="input-group"> '+
       '<div class="input-group-addon"><span id="dash_dollar">$</span><i class="fa fa-spinner fa-spin" id="dash_spinner" style="display: none;"></i></div> '+
-      '<input type="text" class="form-control dash-input" id="dashInput" placeholder="" name="cmd" data-provide="typeahead" autocomplete="off"/> '+
+      '<input type="text" class="form-control dash-input main-input" id="dashInput" placeholder="" name="cmd" data-provide="typeahead" autocomplete="off"/> '+
       '</div> '+
       '</div> '+
       '</form> '+
       '</div> '+
       '<div role="tabpanel" class="tab-pane fade" id="dash-editor-tab"> '+
       '<form id="dashEditorForm" class=""> '+
-      '<textarea id="dashEditor" class="form-control dash-input" rows="5" placeholder="Not implemented yet..."></textarea> '+
+      '<textarea id="dashEditor" class="form-control dash-input main-input" rows="5" placeholder="Not implemented yet..."></textarea> '+
       '</form> '+
       '</div> '+
       '<div role="tabpanel" class="tab-pane fade" id="dash-save-tab"> '+
-      '<div class="panel">'+
       '<form id="dashSaveForm" class="form-inline">'+
       '<div class="row">'+
       '<div class="col-md-10">'+
-      '<input type="text" class="form-control dash-input" id="dashSaveScriptName" placeholder="Name" name="save" autocomplete="off"></input>'+
+      '<input type="text" class="form-control dash-input main-input" id="dashSaveScriptName" placeholder="Name" name="save" autocomplete="off"></input>'+
       '</div>'+
       '<div class="col-md-2">'+
       '<button type="button" id="bdaSaveButton" class="btn btn-primary">'+
@@ -65,7 +64,6 @@ var BDA_DASH = {
       '</button>'+
       '</div>'+
       '</form>'+
-      '</div>'+
       '</div> '+
       '</div> '+
       '<div>&nbsp;</div> '+
@@ -84,12 +82,16 @@ var BDA_DASH = {
       '<button type="button" class="close dash_close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
       '<button type="button" class="btn btn-default dash_save" aria-label="Save" aria-pressed="false" style="display:none;" >'+
       '<i class="fa fa-floppy-o" aria-hidden="true"></i>'+
-      '<input type="checkbox" class="hidden"/>'+
+      '<input type="checkbox" class="innerCheckbox hidden"/>'+
       '</button>' +
       '<button type="button" class="close dash_redo"  aria-label="Redo"><i class="fa fa-repeat" aria-hidden="true"></i></button>' +
       '<p class="dash_feeback_line">$&gt;&nbsp;{0}</p>' +
       '<p class="dash_debug_line">{1}</p>' +
       '<p class="dash_return_line">{2}</p>' +
+      '</div>',
+    systemResponse: '<div class="dash_screen_sys_res alert {1} alert-dismissible" role="alert" >' +
+      '<button type="button" class="close dash_close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+      '<p class="dash_return_line">{0}</p>' +
       '</div>',
     not_implemented: 'This command is not implemented yet.',
     helpMain: '<div>References:<ul>' +
@@ -311,10 +313,16 @@ var BDA_DASH = {
     BDA_DASH.$screen = $('#dashScreen');
     BDA_DASH.$modal = $('#dashModal');
 
+    //when modal open, focus current tab main input
     BDA_DASH.$modal.on('shown.bs.modal', function() {
-      BDA_DASH.$input.focus();
+       $('#dashFooter .tab-pane.active .main-input').focus();
     })
 
+    //when tab change, focus the main input
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+      var tabId = $(e.target).attr("href");
+      $(tabId).find('.main-input').focus();
+    });
 
     for (var funcName in BDA_DASH.FCT) {
       BDA_DASH.typeahead_base.push(funcName);
@@ -355,16 +363,16 @@ var BDA_DASH = {
 
   initSaveMode: function() {
 
-    $('#dashSaveButton').on('show.bs.tab', function(event) {
+    $('#dashSaveButton')
+    .on('show.bs.tab', function(event) {
       //show/hide buttons
       $('#dashScreen .dash_save').show();
       $('#dashScreen .dash_close').hide();
       $('#dashScreen .dash_redo').hide();
       BDA_DASH.resetSaveState(); //shoudn't be usefull but who knows..
       
-    });
-
-    $('#dashSaveButton').on('hide.bs.tab', function(event) {
+    })
+    .on('hide.bs.tab', function(event) {
       $('#dashScreen .dash_save').hide();
       $('#dashScreen .dash_close').show();
       $('#dashScreen .dash_redo').show();
@@ -385,7 +393,11 @@ var BDA_DASH = {
     });
 
     $('#bdaSaveButton').on('click',function(){
-      BDA_DASH.saveScript();
+      var scriptName = $('#dashSaveScriptName').val();
+      var scriptText = BDA_DASH.getScriptTextFromSaveScreen();
+      var override = false;
+      BDA_DASH.saveScript(scriptName,scriptText,override);
+       $('#dashSaveScriptName').val(null);
     });
   },
 
@@ -399,22 +411,66 @@ var BDA_DASH = {
     });
   },
 
-  saveScript : function(){
+  getScriptTextFromSaveScreen : function(){
+
+    var lines = [];
+    $('#dashScreen .dash_save .innerCheckbox:checked').each(function(){
+      var cmd = $(this).parent().parent().attr('data-command').trim();
+      console.log(cmd);
+      if(!isNull(cmd) && cmd.length >0 ){
+        lines.push(cmd);
+      }
+
+    })
+    return lines.join('\n');
+  },
+
+  saveScript : function(scriptName,scriptText,override){
 
     try{
-      var scriptName = $('#dashSaveScriptName').val();
+      //validation
       if(isNull(scriptName) ||scriptName.length ==0){
         throw {
           name : "Missing Script Name",
           message : "Cannot save script with empty name"
         }
       }
+
+      if(isNull(scriptText) ||scriptText.length ==0){
+        throw {
+          name : "Empty Script",
+          message : "Cannot save empty script"
+        }
+      }
+      var script = null;
+      var savedScripts = BDA_STORAGE.getScripts();
+      if(!override){
+        script = savedScripts[scriptName];
+        if(!isNull(script)){
+          throw {
+            name : "Existing Script",
+            message : "A script already exists with the same name {0}".format(scriptName)
+          }
+        }
+      }
+
+      script = {
+        name : scriptName,
+        text : scriptText
+      }
+
+      savedScripts[scriptName] = script;
+
+      BDA_STORAGE.saveScripts(savedScripts);
+
+      BDA_DASH.writeSysResponse("Saved script {0}</br><pre>{1}</pre>".format(scriptName,scriptText), "success");
       
     }catch(e){
-      BDA_DASH.handleError("", e);
+      BDA_DASH.handleSysError("", e);
     }
 
   },
+
 
   openDash: function() {
     if (!BDA_DASH.initialized) {
@@ -494,7 +550,13 @@ var BDA_DASH = {
     BDA_DASH.writeResponse(val, null, errMsg, "error");
   },
 
-  //end method, should be always called at the end of a command
+  handleSysError: function(val, err) {
+    logTrace(err);
+    var errMsg = BDA_DASH.templates.errMsg.format(err.name, err.message);
+    BDA_DASH.writeSysResponse(errMsg, "error");
+  },
+
+  //end method, should be always called at the end of a shell function
   writeResponse: function(val, command, result, level) {
     var debug = "";
     if (BDA_DASH.debugMode && command != null) {
@@ -509,6 +571,15 @@ var BDA_DASH = {
     BDA_DASH.saveHistory(val);
     BDA_DASH.$screen.scrollTop(BDA_DASH.$screen[0].scrollHeight);
     BDA_DASH.handleNextQueuedElem();
+    return $entry;
+  },
+
+  //
+  writeSysResponse : function(msg,level){
+    var msgClass = BDA_DASH.styles[level];
+    var $entry = $(BDA_DASH.templates.systemResponse.format(msg, msgClass));
+    $entry.appendTo(BDA_DASH.$screen);
+    BDA_DASH.$screen.scrollTop(BDA_DASH.$screen[0].scrollHeight);
     return $entry;
   },
 
@@ -711,6 +782,7 @@ var BDA_DASH = {
       BDA_DASH.COMP_REFS[key] = compRefList;
     }
   }
+
 
 };
 
