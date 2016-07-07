@@ -20,34 +20,59 @@
                 </div>
               </form>
             </div>
-            <div role="tabpanel" class="tab-pane fade" id="dash-save-tab">
-              <form id="dashSaveForm" class="form-inline">
-                <div class="row">
-                  <div class="col-md-10">
+            <div role="tabpanel" class="tab-pane fade" id="dash-editor-tab">
+              <form id="dashEditorForm" class="form-horizontal">
+                <div class="form-group">
+                  <div class="col-sm-3">
+                    <select id="dashEditorScriptList" class="form-control">
+                    </select>
+                  </div>
+                  <div class="col-sm-2 no-padding">
+                    <div class="btn-group" role="group" >
+                      <button type="button" id="dashLoadScript" class="btn btn-primary">
+                      <i class="fa fa-folder-open" aria-hidden="true"/>&nbsp;
+                      </i>
+                      </button>
+                      <button type="button" id="dashDeleteScript" class="btn btn-primary">
+                      <i class="fa fa-trash-o" aria-hidden="true"/>&nbsp;
+                      </i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-sm-3"></div>
+                  <label for="dashSaveScriptName" class="col-sm-1 control-label">Name</label>
+                  <div class="col-sm-3">
                     <input type="text" class="form-control dash-input main-input" id="dashSaveScriptName" placeholder="Name" name="save" autocomplete="off"></input>
                   </div>
-                  <div class="col-md-2">
-                    <button type="button" id="bdaSaveButton" class="btn btn-primary">
-                    <i class="fa fa-floppy-o" aria-hidden="true"/>&nbsp;
+                </div>
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <textarea id="dashEditor" class="form-control dash-input main-input" rows="5" placeholder=""></textarea>
+                  </div>
+                </div>
+                <div class="form-group">
+                  
+                  <div class="col-sm-1">
+                    <button type="button" id="dashClearEditor" class="btn btn-primary">
+                    <i class="fa fa-ban" aria-hidden="true"/>&nbsp;
                     </i>
                     </button>
                   </div>
-                </div>
-              </form>
-            </div>
-            <div role="tabpanel" class="tab-pane fade" id="dash-editor-tab">
-              <form id="dashEditorForm" class="">
-                <div class="form-group">
-                  <div class="input-group">
-                    <button id="dashEditorScriptListButton" class="btn btn-standard" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Saved scripts&nbsp;
-                      <span class="caret"></span>
-                    </button>
-                    <ul id="dashEditorScriptList" class="dropdown-menu" aria-labelledby="dLabel">
-                    </ul>
+                  <div class="col-sm-9">
+                  </div>
+                  <div class="col-sm-2">
+                    <div class="btn-group pull-right" role="group" >
+                      <button type="button" id="dashRunEditor" class="btn btn-primary">
+                      <i class="fa fa-play" aria-hidden="true"/>&nbsp;
+                      </i>
+                      </button>
+                      <button type="button" id="dashSaveEditor" class="btn btn-primary">
+                      <i class="fa fa-floppy-o" aria-hidden="true"/>&nbsp;
+                      </i>
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <textarea id="dashEditor" class="form-control dash-input main-input" rows="5" placeholder="Not implemented yet..."></textarea>
               </form>
             </div>
           </div>
@@ -56,11 +81,10 @@
           </div>
           <ul class="nav nav-pills">
             <li role="presentation" class="active"><a href="#dash-console-tab" aria-controls="console" role="tab" data-toggle="tab">Console</a></li>
-            <li role="presentation"><a id="dashSaveButton" href="#dash-save-tab" aria-controls="save" role="tab" data-toggle="tab">Save</a></li>
-            <li role="presentation"><a href="#dash-editor-tab" aria-controls="editor" role="tab" data-toggle="tab">Editor</a></li>
+            <li role="presentation"><a id="dashEditorButton"  href="#dash-editor-tab" aria-controls="editor" role="tab" data-toggle="tab">Editor</a></li>
           </ul>
         </div>
       </div>
     </div>
   </div>
-</div>
+</div

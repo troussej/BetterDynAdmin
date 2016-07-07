@@ -16,6 +16,7 @@ param=
     /   flags
     /   componentPath
     /   componentRef
+    /   complexValue
     /   value
     /   output
     /   varRef
@@ -51,6 +52,15 @@ flags=
 
 value=
     value:litteral
+    {
+        return {
+            type:'value',
+            value:value
+        }
+    }
+
+complexValue=
+    value:complexLitteral
     {
         return {
             type:'value',
@@ -116,6 +126,9 @@ componentName=
 
 litteral=
     $[a-zA-Z0-9\-:]+
+
+complexLitteral=
+    $[a-zA-Z0-9\-:/?#._]+    
 
 Integer "integer"
   = [0-9]+ { return parseInt(text(), 10); }

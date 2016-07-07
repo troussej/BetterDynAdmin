@@ -757,6 +757,10 @@ table.tablesorter tr.alt-row:hover td {
   margin-bottom: 0;
 }
 
+#dashEditorForm{
+  font-size: 14px;
+}
+
 #dashScreen {
   font-family: monospace;
   overflow-y:scroll; 
@@ -813,4 +817,8 @@ button.dash_save{
 
 #dashSaveForm{
   margin-bottom: 0;
+}
+
+.no-padding{
+  padding: 0 !important;
 }
