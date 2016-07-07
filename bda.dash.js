@@ -7,7 +7,7 @@ var BDA;
 var BDA_STORAGE;
 var BDA_DASH = {
 
-  devMode: true,
+  devMode: false,
   debugMode: false,
 
   // dom elements
@@ -846,40 +846,29 @@ var BDA_DASH = {
 
 };
 
-try {
-  jQuery(document).ready(function() {
-    (function($) {
-      logTrace('bda.dash.js start');
-      var settings;
+console.log('bda.dash.js start');
+var settings;
 
-      $(document).keydown(function(e) {
-        if (e.ctrlKey && e.altKey && e.which == 84) {
-          e.preventDefault();
-          BDA_DASH.openDash();
-        }
-      });
+$(document).keydown(function(e) {
+  if (e.ctrlKey && e.altKey && e.which == 84) {
+    e.preventDefault();
+    BDA_DASH.openDash();
+  }
+});
 
-      $.fn.initDASH = function(pBDA, options) {
-        logTrace('Init plugin {0}'.format('DASH'));
-        BDA = pBDA;
-        BDA_STORAGE = $.fn.bdaStorage.getBdaStorage();
-        return this;
-      }
-
-      $.fn.openDash = function() {
-        BDA_DASH.openDash();
-      }
-
-
-    })(jQuery);
-  });
-
-  logTrace('bda.dash.js end');
-
-} catch (e) {
-  logTrace(e);
+$.fn.initDASH = function(pBDA, options) {
+  logTrace('Init plugin {0}'.format('DASH'));
+  BDA = pBDA;
+  BDA_STORAGE = $.fn.bdaStorage.getBdaStorage();
+  return this;
 }
 
+$.fn.openDash = function() {
+  BDA_DASH.openDash();
+}
 
-    })(jQuery);
-  });
+console.log('bda.dash.js end');
+
+
+  })(jQuery);
+});
