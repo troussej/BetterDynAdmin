@@ -230,7 +230,7 @@
   getScripts : function()
   {
       var scripts = localStorage.getItem(BDA_STORAGE.scripts);
-      if(isNull(scripts)){
+      if(isNull(scripts) || scripts == "undefined"){
         scripts = {};
       }else{
         scripts = JSON.parse(scripts);
