@@ -5,6 +5,7 @@
     GMValue_MonoInstance: "monoInstance",
     GMValue_Backup:"backup",
     STORED_CONFIG : "BdaConfiguration",
+    scripts : 'DashScripts',
 
   build : function()
   {
@@ -82,6 +83,7 @@
         BDA_STORAGE.storeItem('Components', JSON.stringify(dataObj.components));
         BDA_STORAGE.storeItem('RQLQueries', JSON.stringify(dataObj.queries));
         BDA_STORAGE.storeItem(this.STORED_CONFIG, JSON.stringify(dataObj.configuration));
+        BDA_STORAGE.storeItem(this.scripts, JSON.stringify(dataObj.scripts));
         if (reloadUI)
           this.reloadData();
       }
@@ -98,6 +100,7 @@
     dataObj.components = BDA_STORAGE.getStoredComponents();
     dataObj.queries = BDA_STORAGE.getStoredRQLQueries();
     dataObj.configuration = BDA_STORAGE.getStoredConfiguration();
+    dataObj.scripts  =BDA_STORAGE.getScripts();
     return dataObj;
   },
 
@@ -226,15 +229,18 @@
 
   getScripts : function()
   {
-      var scripts = BDA_STORAGE.getConfigurationValue('scripts');
-      if(scripts === null || scripts === undefined)
+      var scripts = localStorage.getItem(BDA_STORAGE.scripts);
+      if(isNull(scripts)){
         scripts = {};
+      }else{
+        scripts = JSON.parse(scripts);
+      }
       return scripts;
   },
 
   saveScripts : function(scripts)
   {
-    BDA_STORAGE.storeConfiguration('scripts', scripts);
+    BDA_STORAGE.storeItem('DashScripts', JSON.stringify(scripts));
   },
 
 };
@@ -250,7 +256,6 @@
        BDA_STORAGE.build();
        initalized = true;
      }
-     console.log(this);
     return this;
   };
 

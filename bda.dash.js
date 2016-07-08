@@ -364,6 +364,7 @@ jQuery(document).ready(function() {
         })
 
         //when tab change, focus the main input
+        //change the screen size to keep the modal same size
         $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
           var newTabId = $(e.target).attr("href");
           $(newTabId).find('.main-input').focus();
@@ -371,12 +372,10 @@ jQuery(document).ready(function() {
             var oldTabId = $(e.relatedTarget ).attr("href");
             var diff = parseInt($(newTabId).css('height').replace('px','') )- parseInt($(oldTabId).css('height').replace('px',''));
 
-            console.log('diff = ' + diff)
 
             var curHeight = $('#dashScreen').css('height');
             curHeight=parseInt(curHeight.replace('px',''));
             var newHeight = curHeight-diff;
-             console.log('newHeight = ' + newHeight)
             $('#dashScreen').css('height',newHeight+'px');
 
         });
@@ -443,7 +442,6 @@ jQuery(document).ready(function() {
         var lines = [];
         $('#dashScreen .dash_save .innerCheckbox:checked').each(function() {
           var cmd = $(this).parent().parent().attr('data-command').trim();
-          console.log(cmd);
           if (!isNull(cmd) && cmd.length > 0) {
             lines.push(cmd);
           }
@@ -529,8 +527,10 @@ jQuery(document).ready(function() {
          $('#dashEditorScriptList').html('');
 
         var savedScripts = BDA_STORAGE.getScripts();
+        console.log('savedScripts ' + JSON.stringify( savedScripts));
         var lines = [];
-        for (name in savedScripts) {
+        for (var name in savedScripts) {
+          console.log('name ' + name);
           var line = BDA_DASH.templates.editorScriptLine.format(name);
           lines.push(line);
         }

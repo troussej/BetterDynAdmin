@@ -47,17 +47,17 @@
 // @resource whatsnew https://raw.githubusercontent.com/jc7447/BetterDynAdmin/master/WHATSNEW.md
 
 // -- BDA plugins after all the libraries --
-// @require https://raw.githubusercontent.com/jc7447/bda/dev/bda.common.js
-// @require https://raw.githubusercontent.com/jc7447/bda/dev/bda.menu.js
-// @require https://raw.githubusercontent.com/jc7447/bda/dev/bda.toolbar.js
-// @require https://raw.githubusercontent.com/jc7447/bda/dev/bda.repository.js
-// @require https://raw.githubusercontent.com/jc7447/bda/dev/bda.pipeline.js
-// @require https://raw.githubusercontent.com/jc7447/bda/dev/bda.jdbc.js
-// @require https://raw.githubusercontent.com/jc7447/bda/dev/bda.perfmonitor.js
-// @require https://raw.githubusercontent.com/jc7447/bda/dev/bda.actor.js
-// @require https://raw.githubusercontent.com/jc7447/bda/dev/bda.storage.js
-// @require https://raw.githubusercontent.com/jc7447/bda/dev/bda.xmldef.js
-// @require https://raw.githubusercontent.com/jc7447/bda/dev/bda.compconfig.js
+// @require bda.common.js
+// @require bda.menu.js
+// @require bda.toolbar.js
+// @require bda.repository.js
+// @require bda.pipeline.js
+// @require bda.jdbc.js
+// @require bda.perfmonitor.js
+// @require bda.actor.js
+// @require bda.storage.js
+// @require bda.xmldef.js
+// @require bda.compconfig.js
 // @require bda.component.js
 // @require parser/bda.dash.parser.js
 // @require bda.dash.js
