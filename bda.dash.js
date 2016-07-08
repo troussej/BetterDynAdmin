@@ -15,7 +15,7 @@ jQuery(document).ready(function() {
       $input: null,
       $modal: null,
 
-      screenHeight : 300,
+      screenHeight: 300,
       //
       initialized: false,
 
@@ -168,164 +168,167 @@ jQuery(document).ready(function() {
       FCT: {
 
         //get /atg/commerce/order/OrderRepository.repositoryName >toto
-        get: function(cmdString, params) {
+        get: {
+          paramDef: [{
+            name: "componentProperty",
+            type: "componentProperty"
+          }, {
+            name: "output",
+            type: "output",
+            required: false
+          }],
 
-          var parsedParams = BDA_DASH.parseParams(
-            [{
-              name: "componentProperty",
-              type: "componentProperty"
-            }, {
-              name: "output",
-              type: "output",
-              required: false
-            }],
-            params);
-          /*     var outputVar = params[1];*/
+          main: function(cmdString, params) {
 
-          logTrace("parsedParams : " + JSON.stringify(parsedParams));
-
-          BDA_COMPONENT.getProperty(
-            parsedParams.componentProperty.path,
-            parsedParams.componentProperty.property,
-            function(value) {
-              if (!isNull(parsedParams.output)) {
-                BDA_DASH.VARS[parsedParams.output] = value;
-              }
-              BDA_DASH.handleOutput(cmdString, params, value, "success");
-            });
+            BDA_COMPONENT.getProperty(
+              params.componentProperty.path,
+              params.componentProperty.property,
+              function(value) {
+                if (!isNull(params.output)) {
+                  BDA_DASH.VARS[params.output] = value;
+                }
+                BDA_DASH.handleOutput(cmdString, params, value, "success");
+              });
+          }
         },
 
         //set /atg/commerce/order/OrderRepository.loggingError false
-        set: function(cmdString, params) {
-          var parsedParams = BDA_DASH.parseParams(
-            [{
-              name: "componentProperty",
-              type: "componentProperty"
-            }, {
-              name: "value",
-              type: "value"
-            }],
-            params);
-          /*     var outputVar = params[1];*/
+        set: {
+          paramDef: [{
+            name: "componentProperty",
+            type: "componentProperty"
+          }, {
+            name: "value",
+            type: "value"
+          }],
+          main: function(cmdString, params) {
 
-          logTrace("parsedParams : " + JSON.stringify(parsedParams));
-
-          BDA_COMPONENT.setProperty(
-            parsedParams.componentProperty.path,
-            parsedParams.componentProperty.property,
-            parsedParams.value,
-            function(value) {
-              BDA_DASH.handleOutput(cmdString, params, value, "success");
-            });
+            BDA_COMPONENT.setProperty(
+              params.componentProperty.path,
+              params.componentProperty.property,
+              params.value,
+              function(value) {
+                BDA_DASH.handleOutput(cmdString, params, value, "success");
+              });
+          }
         },
 
-        go: function(cmdString, params) {
+        go: {
+          paramDef: [{
+            name: "component",
+            type: "component"
+          }],
+          main: function(cmdString, params) {
 
-          var parsedParams = BDA_DASH.parseParams(
-            [{
-              name: "component",
-              type: "component"
-            }],
-            params);
-
-          BDA_DASH.goToComponent(parsedParams.component);
+            BDA_DASH.goToComponent(params.component);
+          }
         },
 
-        echo: function(cmdString, params) {
-          var parsedParams = BDA_DASH.parseParams(
-            [{
-              name: "value",
-              type: "value"
-            }],
-            params);
-          var value = parsedParams.value;
-          BDA_DASH.handleOutput(cmdString, params, value, "success");
+        echo: {
+          paramDef: [{
+            name: "value",
+            type: "value"
+          }],
+          main: function(cmdString, params) {
+            var value = params.value;
+            BDA_DASH.handleOutput(cmdString, params, value, "success");
+          }
         },
 
         //print @OR order p92133231
-        print: function(cmdString, params) {
-          var parsedParams = BDA_DASH.parseParams(
-            [{
-              name: "repo",
-              type: "component"
-            }, {
-              name: "itemDesc",
-              type: "value"
-            }, {
-              name: "id",
-              type: "value"
-            }],
-            params);
-          $().executePrintItem(
-            parsedParams.itemDesc,
-            parsedParams.id,
-            parsedParams.repo,
-            function($xmlDoc) {
-              try {
-                var res = "";
-                if (!isNull($xmlDoc)) {
-                  $xmlDoc.find('add-item').each(function() {
-                    var $itemXml = $(this);
-                    res += BDA_DASH.templates.printItemTemplate.format($itemXml.attr('id'), buildSimpleTable($itemXml, BDA_DASH.templates.tableTemplate, BDA_DASH.templates.rowTemplate));
-                  })
-                  BDA_DASH.handleOutput(cmdString, params, res, "success");
-                } else {
-                  throw {
-                    name: "Not Found",
-                    message: "No value"
+        print: {
+          paramDef: [{
+            name: "repo",
+            type: "component"
+          }, {
+            name: "itemDesc",
+            type: "value"
+          }, {
+            name: "id",
+            type: "value"
+          }],
+          main: function(cmdString, params) {
+            $().executePrintItem(
+              params.itemDesc,
+              params.id,
+              params.repo,
+              function($xmlDoc) {
+                try {
+                  var res = "";
+                  if (!isNull($xmlDoc)) {
+                    $xmlDoc.find('add-item').each(function() {
+                      var $itemXml = $(this);
+                      res += BDA_DASH.templates.printItemTemplate.format($itemXml.attr('id'), buildSimpleTable($itemXml, BDA_DASH.templates.tableTemplate, BDA_DASH.templates.rowTemplate));
+                    })
+                    BDA_DASH.handleOutput(cmdString, params, res, "success");
+                  } else {
+                    throw {
+                      name: "Not Found",
+                      message: "No value"
+                    }
                   }
+                } catch (e) {
+                  BDA_DASH.handleError(cmdString, e);
                 }
-              } catch (e) {
-                BDA_DASH.handleError(cmdString, e);
               }
-            }
-          );
-        },
-
-
-        vars: function(cmdString, params) {
-
-          var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.VARS, null, 2));
-          BDA_DASH.handleOutput(cmdString, params, value, "success");
-
-        },
-
-        comprefs: function(cmdString, params) {
-
-          var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.COMP_REFS, null, 2));
-          BDA_DASH.handleOutput(cmdString, params, value, "success");
-
-        },
-
-        clear: function(cmdString, params) {
-          //BDA_DASH.$screen.find('.alert').each(function(){$(this).alert('close')});
-          BDA_DASH.$screen.find('.alert').alert('close');
-          BDA_DASH.HIST.push(cmdString);
-          BDA_DASH.handleNextQueuedElem();
-        },
-
-        history: function(cmdString, params) {
-          var value = JSON.stringify(BDA_DASH.HIST);
-          BDA_DASH.handleOutput(cmdString, params, value, "success");
-        },
-
-        help: function(cmdString, params) {
-
-          var values = [];
-          var msg;
-          values.push('Available Functions:')
-          values.push('<ul>');
-          for (var funcName in BDA_DASH.FCT) {
-            msg = BDA_DASH.templates.help[funcName];
-            if (isNull(msg)) {
-              msg = "";
-            }
-            values.push('<li><strong>{0}</strong> : {1}</li>'.format(funcName, msg))
+            );
           }
-          values.push('</ul>');
-          values.push(BDA_DASH.templates.helpMain);
-          msg = values.join('');
-          BDA_DASH.handleOutput(cmdString, params, msg, "success");
+        },
+
+
+        vars: {
+          main: function(cmdString, params) {
+
+            var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.VARS, null, 2));
+            BDA_DASH.handleOutput(cmdString, params, value, "success");
+
+          }
+        },
+
+        comprefs: {
+          main: function(cmdString, params) {
+
+            var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.COMP_REFS, null, 2));
+            BDA_DASH.handleOutput(cmdString, params, value, "success");
+
+          }
+        },
+
+        clear: {
+          main: function(cmdString, params) {
+            //BDA_DASH.$screen.find('.alert').each(function(){$(this).alert('close')});
+            BDA_DASH.$screen.find('.alert').alert('close');
+            BDA_DASH.HIST.push(cmdString);
+            BDA_DASH.handleNextQueuedElem();
+          }
+        },
+
+        history: {
+          main: function(cmdString, params) {
+            var value = JSON.stringify(BDA_DASH.HIST);
+            BDA_DASH.handleOutput(cmdString, params, value, "success");
+          }
+        },
+
+        help: {
+          main: function(cmdString, params) {
+
+            var values = [];
+            var msg;
+            values.push('Available Functions:')
+            values.push('<ul>');
+            for (var funcName in BDA_DASH.FCT) {
+              msg = BDA_DASH.templates.help[funcName];
+              if (isNull(msg)) {
+                msg = "";
+              }
+              values.push('<li><strong>{0}</strong> : {1}</li>'.format(funcName, msg))
+            }
+            values.push('</ul>');
+            values.push(BDA_DASH.templates.helpMain);
+            msg = values.join('');
+            BDA_DASH.handleOutput(cmdString, params, msg, "success");
+          }
         }
       },
       build: function() {
@@ -369,14 +372,14 @@ jQuery(document).ready(function() {
           var newTabId = $(e.target).attr("href");
           $(newTabId).find('.main-input').focus();
 
-            var oldTabId = $(e.relatedTarget ).attr("href");
-            var diff = parseInt($(newTabId).css('height').replace('px','') )- parseInt($(oldTabId).css('height').replace('px',''));
+          var oldTabId = $(e.relatedTarget).attr("href");
+          var diff = parseInt($(newTabId).css('height').replace('px', '')) - parseInt($(oldTabId).css('height').replace('px', ''));
 
 
-            var curHeight = $('#dashScreen').css('height');
-            curHeight=parseInt(curHeight.replace('px',''));
-            var newHeight = curHeight-diff;
-            $('#dashScreen').css('height',newHeight+'px');
+          var curHeight = $('#dashScreen').css('height');
+          curHeight = parseInt(curHeight.replace('px', ''));
+          var newHeight = curHeight - diff;
+          $('#dashScreen').css('height', newHeight + 'px');
 
         });
 
@@ -404,6 +407,8 @@ jQuery(document).ready(function() {
 
           if (e.which == 13 && !e.altKey && !e.shiftKey) {
             e.preventDefault();
+            //close suggestions
+            BDA_DASH.$input.typeahead('close');
             BDA_DASH.handleInput()
             return false;
           }
@@ -509,7 +514,7 @@ jQuery(document).ready(function() {
 
       },
 
-      deleteScript : function(name){
+      deleteScript: function(name) {
         console.log('deleting script {0}'.format(name));
         var savedScripts = BDA_STORAGE.getScripts();
         delete savedScripts[name];
@@ -517,17 +522,17 @@ jQuery(document).ready(function() {
         BDA_DASH.reloadScripts();
       },
 
-      loadScript : function(name){
-          var savedScripts = BDA_STORAGE.getScripts();
-          $('#dashEditor').val(savedScripts[name].text);
-          $('#dashSaveScriptName').val(name);
+      loadScript: function(name) {
+        var savedScripts = BDA_STORAGE.getScripts();
+        $('#dashEditor').val(savedScripts[name].text);
+        $('#dashSaveScriptName').val(name);
       },
 
-      reloadScripts : function(){
-         $('#dashEditorScriptList').html('');
+      reloadScripts: function() {
+        $('#dashEditorScriptList').html('');
 
         var savedScripts = BDA_STORAGE.getScripts();
-        console.log('savedScripts ' + JSON.stringify( savedScripts));
+        console.log('savedScripts ' + JSON.stringify(savedScripts));
         var lines = [];
         for (var name in savedScripts) {
           console.log('name ' + name);
@@ -542,24 +547,24 @@ jQuery(document).ready(function() {
 
       initEditor: function() {
 
-        BDA_DASH.$editor=$('#dashEditor');
+        BDA_DASH.$editor = $('#dashEditor');
 
-         $('#dashEditorButton')
+        $('#dashEditorButton')
           .on('shown.bs.tab', function(e) {
 
-         
+
             //show/hide buttons
- /*           $('#dashScreen .dash_save').show();
-            $('#dashScreen .dash_close').hide();
-            $('#dashScreen .dash_redo').hide();
-            BDA_DASH.resetSaveState(); //shoudn't be usefull but who knows..*/
+            /*           $('#dashScreen .dash_save').show();
+                       $('#dashScreen .dash_close').hide();
+                       $('#dashScreen .dash_redo').hide();
+                       BDA_DASH.resetSaveState(); //shoudn't be usefull but who knows..*/
 
           })
           .on('hidden.bs.tab', function(e) {
-/*            $('#dashScreen .dash_save').hide();
-            $('#dashScreen .dash_close').show();
-            $('#dashScreen .dash_redo').show();
-            BDA_DASH.resetSaveState();*/
+            /*            $('#dashScreen .dash_save').hide();
+                        $('#dashScreen .dash_close').show();
+                        $('#dashScreen .dash_redo').show();
+                        BDA_DASH.resetSaveState();*/
           });
 
         //bind toggle
@@ -571,15 +576,15 @@ jQuery(document).ready(function() {
 
 
         //bind save
-   /*     $('#dashSaveScriptName').keypress(function(e) {
-          if (e.which == 13 && !e.altKey && !e.shiftKey) {
-            e.preventDefault();
-            BDA_DASH.submitSaveScriptForm()
-            return false;
-          }
-        });*/
+        /*     $('#dashSaveScriptName').keypress(function(e) {
+               if (e.which == 13 && !e.altKey && !e.shiftKey) {
+                 e.preventDefault();
+                 BDA_DASH.submitSaveScriptForm()
+                 return false;
+               }
+             });*/
 
-        $('#dashClearEditor').on('click',BDA_DASH.clearEditor);
+        $('#dashClearEditor').on('click', BDA_DASH.clearEditor);
 
 
         $('#dashSaveEditor').on('click', function() {
@@ -588,24 +593,24 @@ jQuery(document).ready(function() {
 
         BDA_DASH.reloadScripts();
 
-        $('#dashDeleteScript').on('click',function(){
+        $('#dashDeleteScript').on('click', function() {
           var name = $('#dashEditorScriptList').val();
           BDA_DASH.deleteScript(name);
         });
 
-        $('#dashLoadScript').on('click',function(){
+        $('#dashLoadScript').on('click', function() {
           var name = $('#dashEditorScriptList').val();
           BDA_DASH.loadScript(name);
         });
 
-        $('#dashRunEditor').on('click',function(){
+        $('#dashRunEditor').on('click', function() {
           var input = $('#dashEditor').val();
           BDA_DASH.handleInput(input);
         });
 
       },
 
-      clearEditor :function(){
+      clearEditor: function() {
         BDA_DASH.$editor.val('');
       },
 
@@ -663,20 +668,24 @@ jQuery(document).ready(function() {
       handleNextQueuedElem: function() {
         var cmd = BDA_DASH.QUEUE.shift();
         if (!isNull(cmd)) {
-          BDA_DASH.handleCommand(cmd[0], cmd[1]);
+          BDA_DASH.executeCommand(cmd[0], cmd[1]);
         } else {
           $('#dash_dollar').show();
           $('#dash_spinner').hide();
         }
       },
 
-      handleCommand: function(val, command) {
-        logTrace('handleCommand:');
+      executeCommand: function(val, command) {
+        logTrace('executeCommand:');
         logTrace(JSON.stringify(command));
 
         var fct = BDA_DASH.FCT[command.funct]
-        if (!isNull(fct)) {
-          fct(val, command.params);
+        if (!isNull(fct) && !isNull(fct.main)) {
+          // 1 extract params
+          var parsedParams = BDA_DASH.parseParams(fct.paramDef, command.params);
+          // 2 exec function
+          fct.main(val, parsedParams);
+
         } else {
           throw {
             name: "Unknown function",
@@ -700,12 +709,8 @@ jQuery(document).ready(function() {
 
       //end method, should be always called at the end of a shell function
       handleOutput: function(val, command, result, level) {
-        var debug = "";
-        if (BDA_DASH.debugMode && command != null) {
-          debug = JSON.stringify(command, null, 2);
-        }
         var msgClass = BDA_DASH.styles[level];
-        var $entry = $(BDA_DASH.templates.screenLine.format(val, debug, result, msgClass));
+        var $entry = $(BDA_DASH.templates.screenLine.format(val, "", result, msgClass));
         $entry.appendTo(BDA_DASH.$screen);
 
         //add to history after the command is done - not rly clean but will do for now
@@ -754,31 +759,29 @@ jQuery(document).ready(function() {
       parseParams: function(expected, params) {
 
         var res = {};
+        if (!isNull(expected)) {
+          for (var i = 0; i < expected.length; i++) {
+            var exp = $.extend({
+              required: true
+            }, expected[i]);;
+            var inParam = params[i];
 
-        for (var i = 0; i < expected.length; i++) {
-          var exp = $.extend({
-            required: true
-          }, expected[i]);;
-          var inParam = params[i];
+            logTrace('parseParams');
+            logTrace('exp = ' + JSON.stringify(exp));
+            logTrace('inParam = ' + JSON.stringify(inParam));
 
-          logTrace('parseParams');
-          logTrace('exp = ' + JSON.stringify(exp));
-          logTrace('inParam = ' + JSON.stringify(inParam));
+            if (isNull(inParam)) {
 
-          if (isNull(inParam)) {
-
-            if (exp.required) {
-              throw {
-                name: "Missing argument",
-                message: "Missing {0} at #{1}".format(exp.name, i + 1)
+              if (exp.required) {
+                throw {
+                  name: "Missing argument",
+                  message: "Missing {0} at #{1}".format(exp.name, i + 1)
+                }
               }
+            } else {
+              res[exp.name] = BDA_DASH.getParamValue(exp, inParam);
             }
-          } else {
-            res[exp.name] = BDA_DASH.getParamValue(exp, inParam);
           }
-
-
-
         }
         return res;
       },
