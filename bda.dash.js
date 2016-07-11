@@ -635,8 +635,13 @@ jQuery(document).ready(function() {
           if (isNull(input)) {
             input = BDA_DASH.$input.val();
           }
-          input = $.trim(input);
-          var commands = input.split(/\n|;/);
+          var commands;
+          if (!isNull(input)) {
+            input = $.trim(input);
+            commands = input.split(/\n|;/);
+          }else{
+            commands=[];
+          }
           logTrace('input: {0}'.format(input));
 
           BDA_DASH.QUEUE = []; //clear
@@ -667,7 +672,12 @@ jQuery(document).ready(function() {
       handleNextQueuedElem: function() {
         var cmd = BDA_DASH.QUEUE.shift();
         if (!isNull(cmd)) {
-          BDA_DASH.executeCommand(cmd[0], cmd[1]);
+          try{
+            BDA_DASH.executeCommand(cmd[0], cmd[1]);
+            
+          }catch(e){
+            BDA_DASH.handleError(input, e);
+          }
         } else {
           $('#dash_dollar').show();
           $('#dash_spinner').hide();
@@ -761,10 +771,10 @@ jQuery(document).ready(function() {
       },
 
       parseParams: function(pExpected, params) {
-        var expected = pExpected.concat(BDA_DASH.defaultParams);
 
         var res = {};
-        if (!isNull(expected)) {
+        if (!isNull(pExpected)) {
+        var expected = pExpected.concat(BDA_DASH.defaultParams);
           for (var i = 0; i < expected.length; i++) {
             var exp = $.extend({
               required: true
