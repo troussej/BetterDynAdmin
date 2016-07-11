@@ -156,6 +156,12 @@ jQuery(document).ready(function() {
           '</option>'
       },
 
+      defaultParams: [{
+            name: "output",
+            type: "output",
+            required: false
+          }],
+
       HIST: [],
       typeahead_base: [],
       //to sync multiple methods
@@ -172,10 +178,6 @@ jQuery(document).ready(function() {
           paramDef: [{
             name: "componentProperty",
             type: "componentProperty"
-          }, {
-            name: "output",
-            type: "output",
-            required: false
           }],
 
           main: function(cmdString, params) {
@@ -184,10 +186,7 @@ jQuery(document).ready(function() {
               params.componentProperty.path,
               params.componentProperty.property,
               function(value) {
-                if (!isNull(params.output)) {
-                  BDA_DASH.VARS[params.output] = value;
-                }
-                BDA_DASH.handleOutput(cmdString, params, value, "success");
+                BDA_DASH.handleOutput(cmdString, params, value, value, "success");
               });
           }
         },
@@ -208,7 +207,7 @@ jQuery(document).ready(function() {
               params.componentProperty.property,
               params.value,
               function(value) {
-                BDA_DASH.handleOutput(cmdString, params, value, "success");
+                BDA_DASH.handleOutput(cmdString, params, value, value, "success");
               });
           }
         },
@@ -231,7 +230,7 @@ jQuery(document).ready(function() {
           }],
           main: function(cmdString, params) {
             var value = params.value;
-            BDA_DASH.handleOutput(cmdString, params, value, "success");
+            BDA_DASH.handleOutput(cmdString, params, value, value, "success");
           }
         },
 
@@ -260,7 +259,7 @@ jQuery(document).ready(function() {
                       var $itemXml = $(this);
                       res += BDA_DASH.templates.printItemTemplate.format($itemXml.attr('id'), buildSimpleTable($itemXml, BDA_DASH.templates.tableTemplate, BDA_DASH.templates.rowTemplate));
                     })
-                    BDA_DASH.handleOutput(cmdString, params, res, "success");
+                    BDA_DASH.handleOutput(cmdString, params, $itemXml, res,  "success");
                   } else {
                     throw {
                       name: "Not Found",
@@ -280,7 +279,7 @@ jQuery(document).ready(function() {
           main: function(cmdString, params) {
 
             var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.VARS, null, 2));
-            BDA_DASH.handleOutput(cmdString, params, value, "success");
+            BDA_DASH.handleOutput(cmdString, params,value, value, "success");
 
           }
         },
@@ -289,7 +288,7 @@ jQuery(document).ready(function() {
           main: function(cmdString, params) {
 
             var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.COMP_REFS, null, 2));
-            BDA_DASH.handleOutput(cmdString, params, value, "success");
+            BDA_DASH.handleOutput(cmdString, params, value, value, "success");
 
           }
         },
@@ -306,7 +305,7 @@ jQuery(document).ready(function() {
         history: {
           main: function(cmdString, params) {
             var value = JSON.stringify(BDA_DASH.HIST);
-            BDA_DASH.handleOutput(cmdString, params, value, "success");
+            BDA_DASH.handleOutput(cmdString, params, value, value, "success");
           }
         },
 
@@ -327,7 +326,7 @@ jQuery(document).ready(function() {
             values.push('</ul>');
             values.push(BDA_DASH.templates.helpMain);
             msg = values.join('');
-            BDA_DASH.handleOutput(cmdString, params, msg, "success");
+            BDA_DASH.handleOutput(cmdString, params, msg, msg, "success");
           }
         }
       },
@@ -708,9 +707,14 @@ jQuery(document).ready(function() {
       },
 
       //end method, should be always called at the end of a shell function
-      handleOutput: function(val, command, result, level) {
+      handleOutput: function(val, params, result, textResult, level) {
+
+        if (!isNull(params) && !isNull(params.output)) {
+          BDA_DASH.VARS[params.output] = result;
+        }
+
         var msgClass = BDA_DASH.styles[level];
-        var $entry = $(BDA_DASH.templates.screenLine.format(val, "", result, msgClass));
+        var $entry = $(BDA_DASH.templates.screenLine.format(val, "", textResult, msgClass));
         $entry.appendTo(BDA_DASH.$screen);
 
         //add to history after the command is done - not rly clean but will do for now
@@ -756,7 +760,8 @@ jQuery(document).ready(function() {
         return val;
       },
 
-      parseParams: function(expected, params) {
+      parseParams: function(pExpected, params) {
+        var expected = pExpected.concat(BDA_DASH.defaultParams);
 
         var res = {};
         if (!isNull(expected)) {
