@@ -255,8 +255,9 @@ jQuery(document).ready(function() {
                 try {
                   var res = "";
                   if (!isNull($xmlDoc)) {
+                    var $itemXml;
                     $xmlDoc.find('add-item').each(function() {
-                      var $itemXml = $(this);
+                      $itemXml = $(this);
                       res += BDA_DASH.templates.printItemTemplate.format($itemXml.attr('id'), buildSimpleTable($itemXml, BDA_DASH.templates.tableTemplate, BDA_DASH.templates.rowTemplate));
                     })
                     BDA_DASH.handleOutput(cmdString, params, $itemXml, res, "success");
@@ -717,7 +718,7 @@ jQuery(document).ready(function() {
       handleError: function(val, err) {
         logTrace(err);
         var errMsg = BDA_DASH.templates.errMsg.format(err.name, err.message);
-        BDA_DASH.handleOutput(val, null, errMsg, "error");
+        BDA_DASH.handleOutput(val, null, null,errMsg, "error");
       },
 
       handleSysError: function(val, err) {
