@@ -275,9 +275,9 @@ jQuery(document).ready(function() {
           }
         },
 
-        call : {
+        call: {
 
-           paramDef: [{
+          paramDef: [{
             name: "component",
             type: "component"
           }, {
@@ -285,15 +285,18 @@ jQuery(document).ready(function() {
             type: "value"
           }],
 
-          main: function(cmdString,params){
+          main: function(cmdString, params) {
             BDA_COMPONENT.call(
               params.component,
               params.method,
               function(value) {
                 BDA_DASH.handleOutput(cmdString, params, value, JSON.stringify(value), "success");
-              });
+              },
+              function(error) {
+                BDA_DASH.handleError(cmdString, error);
+              }
+            );
           }
-
         },
 
 
@@ -624,17 +627,17 @@ jQuery(document).ready(function() {
           BDA_DASH.loadScript(name);
         });
 
-         BDA_DASH.$editor.keypress(function(e) {
+        BDA_DASH.$editor.keypress(function(e) {
           if (e.which == 13 && e.altKey && !e.shiftKey && !e.ctrlKey) {
             e.preventDefault();
-            var input =  BDA_DASH.$editor.val();
+            var input = BDA_DASH.$editor.val();
             BDA_DASH.handleInput(input);
             return false;
           }
         });
 
         $('#dashRunEditor').on('click', function() {
-          var input =  BDA_DASH.$editor.val();
+          var input = BDA_DASH.$editor.val();
           BDA_DASH.handleInput(input);
         });
 
@@ -739,7 +742,7 @@ jQuery(document).ready(function() {
       handleError: function(val, err) {
         logTrace(err);
         var errMsg = BDA_DASH.templates.errMsg.format(err.name, err.message);
-        BDA_DASH.handleOutput(val, null, null,errMsg, "error");
+        BDA_DASH.handleOutput(val, null, null, errMsg, "error");
       },
 
       handleSysError: function(val, err) {

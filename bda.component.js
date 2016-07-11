@@ -31,7 +31,7 @@ BDA_COMPONENT = {
       type: 'GET',
       url: url,
       success: function(result, status, jqXHR) {
-        BDA_COMPONENT.extractValueFromPropertyPage(result, callback);
+        BDA_COMPONENT.extractValueFromPropertyPage(result, callback, errCallback);
       },
       error: errCallback
     })
@@ -47,7 +47,7 @@ BDA_COMPONENT = {
         invokeMethod: method
       },
       success: function(data, status, jqXHR) {
-        BDA_COMPONENT.extractMethodCallReturnValue(data, callback);
+        BDA_COMPONENT.extractMethodCallReturnValue(data, callback, errCallback);
       },
       error: errCallback
     })
@@ -59,17 +59,30 @@ BDA_COMPONENT = {
     callback(newvalue);
   },
 
-  extractMethodCallReturnValue: function(result, callback) {
-    var res = {};
-    var $table = $('<div></div>').html(result).find('h3:contains("Returned Object")').next();
+  extractMethodCallReturnValue: function(result, callback, callbackErr) {
 
-    $table.find('td:first').each(function() {
-      res.value = $(this).text();
-    });
+    var $html = $('<div></div>').html(result);
+    var $errTitle = $html.find('h3:contains("Invocation Failure")');
+    if ($errTitle.length > 0) {
+      var preContent = $errTitle.next().text();
+      var err = preContent.split('\n')[0];
+      callbackErr({
+        name: 'InvocationFailure',
+        message: '{0}'.format(err)
+      });
+    } else {
+      var res = {};
+      var $table = $('<div></div>').html(result).find('h3:contains("Returned Object")').next();
 
-    $table.find('td:last').each(function() {
-      res.class = $(this).text();
-    });
-    callback(res);
+      $table.find('td:first').each(function() {
+        res.value = $(this).text();
+      });
+
+      $table.find('td:last').each(function() {
+        res.class = $(this).text();
+      });
+      callback(res);
+    }
+
   }
 }
