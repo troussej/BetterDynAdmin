@@ -275,6 +275,27 @@ jQuery(document).ready(function() {
           }
         },
 
+        call : {
+
+           paramDef: [{
+            name: "component",
+            type: "component"
+          }, {
+            name: "method",
+            type: "value"
+          }],
+
+          main: function(cmdString,params){
+            BDA_COMPONENT.call(
+              params.component,
+              params.method,
+              function(value) {
+                BDA_DASH.handleOutput(cmdString, params, value, JSON.stringify(value), "success");
+              });
+          }
+
+        },
+
 
         vars: {
           main: function(cmdString, params) {
@@ -729,7 +750,7 @@ jQuery(document).ready(function() {
 
       //end method, should be always called at the end of a shell function
       handleOutput: function(val, params, result, textResult, level) {
-
+        console.log('handleOutput ' + textResult);
         if (!isNull(params) && !isNull(params.output)) {
           BDA_DASH.VARS[params.output] = result;
         }

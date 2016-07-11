@@ -6,43 +6,70 @@ Utility library to access component properties
 
 BDA_COMPONENT = {
 
-  propertiesSelector : 'h1:contains("Properties")',
-  setProperty : function(component,property,value,callback,errCallback){
+  propertiesSelector: 'h1:contains("Properties")',
+  setProperty: function(component, property, value, callback, errCallback) {
     var url = '/dyn/admin/nucleus{0}/'.format(component);
-    
-    $.ajax(
-      {
-        type : 'POST',
-        url : url,
-        data : {
-          propertyName : property,
-          newValue : value
-        },
-        success : function(data,status, jqXHR){
-          BDA_COMPONENT.extractValueFromPropertyPage(data,callback);
-        } ,
-        error : errCallback
-      }
-    )
-  },
-  getProperty : function(component,property,callback,errCallback){
-    console.log('getProperty {0} {1}'.format(component,property));
 
-    var url = '/dyn/admin/nucleus{0}/?propertyName={1}'.format(component,property);
-    $.ajax(
-      {
-        type : 'GET',
-        url : url,
-        success : function(result, status, jqXHR){
-          BDA_COMPONENT.extractValueFromPropertyPage(result,callback);
-        },
-        error : errCallback
-      }
-    )
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: {
+        propertyName: property,
+        newValue: value
+      },
+      success: function(data, status, jqXHR) {
+        BDA_COMPONENT.extractValueFromPropertyPage(data, callback);
+      },
+      error: errCallback
+    })
   },
-  extractValueFromPropertyPage : function(result,callback){
+  getProperty: function(component, property, callback, errCallback) {
+    console.log('getProperty {0} {1}'.format(component, property));
+
+    var url = '/dyn/admin/nucleus{0}/?propertyName={1}'.format(component, property);
+    $.ajax({
+      type: 'GET',
+      url: url,
+      success: function(result, status, jqXHR) {
+        BDA_COMPONENT.extractValueFromPropertyPage(result, callback);
+      },
+      error: errCallback
+    })
+  },
+
+  call: function(component, method, callback, errCallback) {
+    var url = '/dyn/admin/nucleus{0}/'.format(component);
+
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: {
+        invokeMethod: method
+      },
+      success: function(data, status, jqXHR) {
+        BDA_COMPONENT.extractMethodCallReturnValue(data, callback);
+      },
+      error: errCallback
+    })
+  },
+
+  extractValueFromPropertyPage: function(result, callback) {
     var newvalue = $('<div></div>').html(result).find('h3:contains("Value")').next().text()
     console.log(newvalue);
     callback(newvalue);
+  },
+
+  extractMethodCallReturnValue: function(result, callback) {
+    var res = {};
+    var $table = $('<div></div>').html(result).find('h3:contains("Returned Object")').next();
+
+    $table.find('td:first').each(function() {
+      res.value = $(this).text();
+    });
+
+    $table.find('td:last').each(function() {
+      res.class = $(this).text();
+    });
+    callback(res);
   }
 }
