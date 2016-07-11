@@ -157,10 +157,10 @@ jQuery(document).ready(function() {
       },
 
       defaultParams: [{
-            name: "output",
-            type: "output",
-            required: false
-          }],
+        name: "output",
+        type: "output",
+        required: false
+      }],
 
       HIST: [],
       typeahead_base: [],
@@ -259,7 +259,7 @@ jQuery(document).ready(function() {
                       var $itemXml = $(this);
                       res += BDA_DASH.templates.printItemTemplate.format($itemXml.attr('id'), buildSimpleTable($itemXml, BDA_DASH.templates.tableTemplate, BDA_DASH.templates.rowTemplate));
                     })
-                    BDA_DASH.handleOutput(cmdString, params, $itemXml, res,  "success");
+                    BDA_DASH.handleOutput(cmdString, params, $itemXml, res, "success");
                   } else {
                     throw {
                       name: "Not Found",
@@ -279,7 +279,7 @@ jQuery(document).ready(function() {
           main: function(cmdString, params) {
 
             var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.VARS, null, 2));
-            BDA_DASH.handleOutput(cmdString, params,value, value, "success");
+            BDA_DASH.handleOutput(cmdString, params, value, value, "success");
 
           }
         },
@@ -602,14 +602,24 @@ jQuery(document).ready(function() {
           BDA_DASH.loadScript(name);
         });
 
+         BDA_DASH.$editor.keypress(function(e) {
+          if (e.which == 13 && e.altKey && !e.shiftKey && !e.ctrlKey) {
+            e.preventDefault();
+            var input =  BDA_DASH.$editor.val();
+            BDA_DASH.handleInput(input);
+            return false;
+          }
+        });
+
         $('#dashRunEditor').on('click', function() {
-          var input = $('#dashEditor').val();
+          var input =  BDA_DASH.$editor.val();
           BDA_DASH.handleInput(input);
         });
 
       },
 
       clearEditor: function() {
+        $('#dashSaveScriptName').val('');
         BDA_DASH.$editor.val('');
       },
 
@@ -639,8 +649,8 @@ jQuery(document).ready(function() {
           if (!isNull(input)) {
             input = $.trim(input);
             commands = input.split(/\n|;/);
-          }else{
-            commands=[];
+          } else {
+            commands = [];
           }
           logTrace('input: {0}'.format(input));
 
@@ -672,10 +682,10 @@ jQuery(document).ready(function() {
       handleNextQueuedElem: function() {
         var cmd = BDA_DASH.QUEUE.shift();
         if (!isNull(cmd)) {
-          try{
+          try {
             BDA_DASH.executeCommand(cmd[0], cmd[1]);
-            
-          }catch(e){
+
+          } catch (e) {
             BDA_DASH.handleError(input, e);
           }
         } else {
@@ -774,7 +784,7 @@ jQuery(document).ready(function() {
 
         var res = {};
         if (!isNull(pExpected)) {
-        var expected = pExpected.concat(BDA_DASH.defaultParams);
+          var expected = pExpected.concat(BDA_DASH.defaultParams);
           for (var i = 0; i < expected.length; i++) {
             var exp = $.extend({
               required: true
