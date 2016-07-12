@@ -148,7 +148,7 @@ rql=
    
 line=
   end
-  /value:[^{}\n]+ end
+  /value:[^{}\n]+ end?
     {
       return value.join('');
     }

@@ -901,6 +901,9 @@ BDA_DASH_PARSER = (function() {
         }
         if (s1 !== peg$FAILED) {
           s2 = peg$parseend();
+          if (s2 === peg$FAILED) {
+            s2 = null;
+          }
           if (s2 !== peg$FAILED) {
             peg$savedPos = s0;
             s1 = peg$c38(s1);

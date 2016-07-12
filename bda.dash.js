@@ -116,16 +116,15 @@ jQuery(document).ready(function() {
           '</div>' +
           '</div>' +
           '</div>',
-        screenLine: '<div class="dash_screen_line alert {3} alert-dismissible" role="alert" data-command="{0}">' +
+        screenLine: '<div class="dash_screen_line alert {1} alert-dismissible" role="alert" data-command="">' +
           '<button type="button" class="close dash_close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
           '<button type="button" class="btn btn-default dash_save" aria-label="Save" aria-pressed="false" style="display:none;" >' +
           '<i class="fa fa-floppy-o" aria-hidden="true"></i>' +
           '<input type="checkbox" class="innerCheckbox hidden"/>' +
           '</button>' +
           '<button type="button" class="close dash_redo"  aria-label="Redo"><i class="fa fa-repeat" aria-hidden="true"></i></button>' +
-          '<p class="dash_feeback_line">$&gt;&nbsp;{0}</p>' +
-          '<p class="dash_debug_line">{1}</p>' +
-          '<p class="dash_return_line">{2}</p>' +
+          '<p class="dash_feeback_line">$&gt;&nbsp;<span class="cmd"></span></p>' +
+          '<p class="dash_return_line">{0}</p>' +
           '</div>',
         systemResponse: '<div class="dash_screen_sys_res alert {1} alert-dismissible" role="alert" >' +
           '<button type="button" class="close dash_close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
@@ -273,6 +272,45 @@ jQuery(document).ready(function() {
               }
             );
           }
+        },
+
+        rql : {
+           paramDef: [{
+            name: "repo",
+            type: "component"
+          }, {
+            name: "xmlText",
+            type: "value"
+          }],
+
+          main:function(cmdString,params){
+             $().executeRql(
+              params.xmlText,
+              params.repo,
+              function($xmlDoc,head) {
+                try {
+                  var res = head + "\n";
+                  if (!isNull($xmlDoc)) {
+                    var $itemXml;
+                    $xmlDoc.find('add-item').each(function() {
+                      $itemXml = $(this);
+                      res += BDA_DASH.templates.printItemTemplate.format($itemXml.attr('id'), buildSimpleTable($itemXml, BDA_DASH.templates.tableTemplate, BDA_DASH.templates.rowTemplate));
+                    })
+                    BDA_DASH.handleOutput(cmdString, params, $itemXml, res, "success");
+                  } else {
+                    throw {
+                      name: "Not Found",
+                      message: "No value"
+                    }
+                  }
+                } catch (e) {
+                  BDA_DASH.handleError(cmdString, e);
+                }
+              }
+            );
+
+          },
+
         },
 
         call: {
@@ -711,7 +749,7 @@ jQuery(document).ready(function() {
             BDA_DASH.executeCommand(cmd[0], cmd[1]);
 
           } catch (e) {
-            BDA_DASH.handleError(input, e);
+            BDA_DASH.handleError(cmd[0], e);
           }
         } else {
           $('#dash_dollar').show();
@@ -752,19 +790,21 @@ jQuery(document).ready(function() {
       },
 
       //end method, should be always called at the end of a shell function
-      handleOutput: function(val, params, result, textResult, level) {
+      handleOutput: function(cmd, params, result, textResult, level) {
         logTrace('handleOutput ' + textResult);
         if (!isNull(params) && !isNull(params.output)) {
           BDA_DASH.VARS[params.output] = result;
         }
 
         var msgClass = BDA_DASH.styles[level];
-        var $entry = $(BDA_DASH.templates.screenLine.format(val, "", textResult, msgClass));
+        var $entry = $(BDA_DASH.templates.screenLine.format( textResult, msgClass));
+        $entry.find('.cmd').text(cmd);
+        $entry.attr('data-command',cmd);
         $entry.appendTo(BDA_DASH.$screen);
 
         //add to history after the command is done - not rly clean but will do for now
         //next step is persist the history
-        BDA_DASH.saveHistory(val);
+        BDA_DASH.saveHistory(cmd);
         BDA_DASH.$screen.scrollTop(BDA_DASH.$screen[0].scrollHeight);
         BDA_DASH.handleNextQueuedElem();
         return $entry;
@@ -885,6 +925,9 @@ jQuery(document).ready(function() {
           case "componentPath":
           case "this":
             res = BDA_DASH.getComponent(param);
+            break;
+          case "rql":
+            res = param.value;
             break;
           default:
             throw {
