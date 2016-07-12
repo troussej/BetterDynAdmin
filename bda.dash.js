@@ -486,7 +486,7 @@ jQuery(document).ready(function() {
           var $checkbox = $this.children('input:checkbox:first');
           $this.toggleClass('btn-success');
           $checkbox.prop('checked', !$checkbox.prop('checked'));
-          console.log('save value: ' + $checkbox.prop('checked'));
+          logTrace('save value: ' + $checkbox.prop('checked'));
         } catch (e) {
           log(e);
         }
@@ -539,7 +539,7 @@ jQuery(document).ready(function() {
       },
 
       deleteScript: function(name) {
-        console.log('deleting script {0}'.format(name));
+        logTrace('deleting script {0}'.format(name));
         var savedScripts = BDA_STORAGE.getScripts();
         delete savedScripts[name];
         BDA_STORAGE.saveScripts(savedScripts);
@@ -556,10 +556,10 @@ jQuery(document).ready(function() {
         $('#dashEditorScriptList').html('');
 
         var savedScripts = BDA_STORAGE.getScripts();
-        console.log('savedScripts ' + JSON.stringify(savedScripts));
+        logTrace('savedScripts ' + JSON.stringify(savedScripts));
         var lines = [];
         for (var name in savedScripts) {
-          console.log('name ' + name);
+          logTrace('name ' + name);
           var line = BDA_DASH.templates.editorScriptLine.format(name);
           lines.push(line);
         }
@@ -655,7 +655,7 @@ jQuery(document).ready(function() {
             BDA_DASH.build();
           }
         } catch (e) {
-          console.log(e);
+          logTrace(e);
         }
 
         BDA_DASH.$modal.modal('show');
@@ -673,7 +673,7 @@ jQuery(document).ready(function() {
           var commands;
           if (!isNull(input)) {
             input = $.trim(input);
-            commands = input.split(/\n|;/);
+            commands = DASH_LINES_SPLITTER.parse(input);
           } else {
             commands = [];
           }
@@ -753,7 +753,7 @@ jQuery(document).ready(function() {
 
       //end method, should be always called at the end of a shell function
       handleOutput: function(val, params, result, textResult, level) {
-        console.log('handleOutput ' + textResult);
+        logTrace('handleOutput ' + textResult);
         if (!isNull(params) && !isNull(params.output)) {
           BDA_DASH.VARS[params.output] = result;
         }
@@ -981,7 +981,7 @@ jQuery(document).ready(function() {
 
     };
 
-    console.log('bda.dash.js start');
+    logTrace('bda.dash.js start');
     var settings;
 
     $(document).keydown(function(e) {
@@ -1002,7 +1002,7 @@ jQuery(document).ready(function() {
       BDA_DASH.openDash();
     }
 
-    console.log('bda.dash.js end');
+    logTrace('bda.dash.js end');
 
 
   })(jQuery);
