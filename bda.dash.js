@@ -274,8 +274,8 @@ jQuery(document).ready(function() {
           }
         },
 
-        rql : {
-           paramDef: [{
+        rql: {
+          paramDef: [{
             name: "repo",
             type: "component"
           }, {
@@ -283,11 +283,11 @@ jQuery(document).ready(function() {
             type: "value"
           }],
 
-          main:function(cmdString,params){
-             $().executeRql(
+          main: function(cmdString, params) {
+            $().executeRql(
               params.xmlText,
               params.repo,
-              function($xmlDoc,head) {
+              function($xmlDoc, head) {
                 try {
                   var res = head + "\n";
                   if (!isNull($xmlDoc)) {
@@ -311,6 +311,37 @@ jQuery(document).ready(function() {
 
           },
 
+        },
+
+        queries: {
+
+          paramDef: [{
+            name: "component",
+            type: "component",
+            required: false
+          }],
+          main: function(cmdString, params) {
+
+            var queries = BDA_STORAGE.getStoredRQLQueries();
+
+            var purgedRqlQueries = [];
+            if (!isNull(params.component)) {
+
+              for (var i = 0; i != queries.length; i++) {
+                var query = queries[i];
+                if (!query.hasOwnProperty("repo") || query.repo == getComponentNameFromPath(params.component)) {
+                  purgedRqlQueries.push(query);
+                }
+              }
+
+            }else{
+              purgedRqlQueries=queries;
+            }
+
+            var value = '<pre>{0}</pre>'.format(JSON.stringify(purgedRqlQueries, null, 2));
+            BDA_DASH.handleOutput(cmdString, params, value, value, "success");
+
+          }
         },
 
         call: {
@@ -797,9 +828,9 @@ jQuery(document).ready(function() {
         }
 
         var msgClass = BDA_DASH.styles[level];
-        var $entry = $(BDA_DASH.templates.screenLine.format( textResult, msgClass));
+        var $entry = $(BDA_DASH.templates.screenLine.format(textResult, msgClass));
         $entry.find('.cmd').text(cmd);
-        $entry.attr('data-command',cmd);
+        $entry.attr('data-command', cmd);
         $entry.appendTo(BDA_DASH.$screen);
 
         //add to history after the command is done - not rly clean but will do for now
