@@ -276,17 +276,50 @@ jQuery(document).ready(function() {
 
         rql: {
           paramDef: [{
+            name: "componentProperty",
+            type: "componentProperty",
+            required: false
+          }, {
             name: "repo",
-            type: "component"
+            type: "component",
+            required: false
           }, {
             name: "xmlText",
-            type: "value"
+            type: "value",
+            required: false
           }],
 
           main: function(cmdString, params) {
+
+            var xmlText, repo;
+            if (!isNull(params.componentProperty)) {
+              repo = params.componentProperty.path;
+              var queryName = params.componentProperty.property;
+              var savedQuery = BDA_STORAGE.getQueryByName(repo, queryName);
+              if (isNull(savedQuery)) {
+                throw {
+                  name: 'InvalidName',
+                  message: 'No saved query by the name {0} in repo {1}'.format(queryName, repo)
+                }
+              } else {
+                xmlText = savedQuery.query;
+              }
+            } else if (!isNull(params.repo) && !isNull(params.xmlText)) {
+              repo = params.repo;
+              xmlText = params.xmlText;
+            } else {
+              throw {
+                name: 'MissingParameters',
+                message: 'Missing repository and request parameters'
+              }
+            }
+
+            console.log('repo : '+repo);
+            console.log('xmlText : '+xmlText);
+
             $().executeRql(
-              params.xmlText,
-              params.repo,
+              xmlText,
+              repo,
               function($xmlDoc, head) {
                 try {
                   var res = head + "\n";
@@ -334,8 +367,8 @@ jQuery(document).ready(function() {
                 }
               }
 
-            }else{
-              purgedRqlQueries=queries;
+            } else {
+              purgedRqlQueries = queries;
             }
 
             var value = '<pre>{0}</pre>'.format(JSON.stringify(purgedRqlQueries, null, 2));
@@ -881,11 +914,13 @@ jQuery(document).ready(function() {
         var res = {};
         if (!isNull(pExpected)) {
           var expected = pExpected.concat(BDA_DASH.defaultParams);
+
+          var j = 0;
           for (var i = 0; i < expected.length; i++) {
             var exp = $.extend({
               required: true
             }, expected[i]);;
-            var inParam = params[i];
+            var inParam = params[j];
 
             logTrace('parseParams');
             logTrace('exp = ' + JSON.stringify(exp));
@@ -896,11 +931,23 @@ jQuery(document).ready(function() {
               if (exp.required) {
                 throw {
                   name: "Missing argument",
-                  message: "Missing {0} at #{1}".format(exp.name, i + 1)
+                  message: "Missing {0} at #{1}".format(exp.name, i)
+                }
+              } //else j stays the same
+
+            } else {
+
+              try{
+                res[exp.name] = BDA_DASH.getParamValue(exp, inParam);
+                j++; //consider next param
+              }catch(e){
+                //if error, j is not increased
+                if(exp.required){
+                  //only raise error if param is required else inspect the next expected value
+                  throw e;
                 }
               }
-            } else {
-              res[exp.name] = BDA_DASH.getParamValue(exp, inParam);
+         
             }
           }
         }
