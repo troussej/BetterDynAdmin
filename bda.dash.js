@@ -580,6 +580,7 @@ jQuery(document).ready(function() {
         logTrace('bind open modal focus');
         //when modal open, focus current tab main input
         BDA_DASH.$modal.on('shown.bs.modal', function() {
+          BDA_DASH.calcDesiredWindowHeight();
           BDA_DASH.updateScreenHeight();
           $('#dashFooter .tab-pane.active .main-input').focus();
         })
@@ -588,8 +589,8 @@ jQuery(document).ready(function() {
         //change the screen size to keep the modal same size
         logTrace('bind tab change events');
         //init size
-        BDA_DASH.calcDesiredWindowHeight();
-        BDA_DASH.updateScreenHeight();
+  /*      BDA_DASH.calcDesiredWindowHeight();
+        BDA_DASH.updateScreenHeight();*/
         $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 
           BDA_DASH.updateScreenHeight();
@@ -867,7 +868,7 @@ jQuery(document).ready(function() {
           }, {
             name: 'dash',
             hint: true,
-            highlight: true,
+            //highlight: true,
             minLength: 1,
             source: BDA_DASH.suggestionEngine,
             displayKey: 'value',
@@ -902,6 +903,7 @@ jQuery(document).ready(function() {
 
           $('#dash_dollar').hide();
           $('#dash_spinner').show();
+
 
           if (isNull(input)) {
             input = BDA_DASH.$input.val();
@@ -960,6 +962,8 @@ jQuery(document).ready(function() {
         logTrace('executeCommand:');
         logTrace(JSON.stringify(command));
 
+         BDA_DASH.saveHistory(val, true);
+
         var fct = BDA_DASH.FCT[command.funct]
         if (!isNull(fct) && !isNull(fct.main)) {
           // 1 extract params
@@ -1003,7 +1007,6 @@ jQuery(document).ready(function() {
 
         //add to history after the command is done - not rly clean but will do for now
         //next step is persist the history
-        BDA_DASH.saveHistory(cmd, true);
         BDA_DASH.$screen.scrollTop(BDA_DASH.$screen[0].scrollHeight);
         BDA_DASH.handleNextQueuedElem();
         return $entry;
