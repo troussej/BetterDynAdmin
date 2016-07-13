@@ -375,7 +375,14 @@ jQuery(document).ready(function() {
               purgedRqlQueries = queries;
             }
 
-            var value = '<pre>{0}</pre>'.format(JSON.stringify(purgedRqlQueries, null, 2));
+            var $values = $('<div></div>');
+            for (var i = 0; i < purgedRqlQueries.length; i++) {
+              var q = purgedRqlQueries[i];
+              console.log(q.query);
+              $values.append($('<p><strong>{0}</strong></p>'.format(q.name+" : ")));
+              $values.append($('<pre></pre>').text(q.query));
+            }
+            var value = $values.outerHTML();
             BDA_DASH.handleOutput(cmdString, params, value, value, "success");
 
           }
@@ -546,7 +553,7 @@ jQuery(document).ready(function() {
           autoSelect: false,
           minLength: 0,
           hightlight:true,
-          
+
         }, {
           name: 'dash',
           source: BDA_DASH.suggestionEngineWithDefault
