@@ -45,6 +45,7 @@ jQuery(document).ready(function() {
           '<div class="input-group">' +
           '<div class="input-group-addon"><span id="dash_dollar">$</span><i class="fa fa-spinner fa-spin" id="dash_spinner" style="display: none;"></i></div>' +
           '<input type="text" class="form-control dash-input main-input" id="dashInput" placeholder="" name="cmd" data-provide="typeahead" autocomplete="off"/>' +
+          '<span  class="input-group-btn"><button id="dashCleanInput" class="btn btn-default">&times;</button></span>' +
           '</div>' +
           '</div>' +
           '</form>' +
@@ -314,15 +315,15 @@ jQuery(document).ready(function() {
               }
             }
 
-            console.log('repo : '+repo);
-            console.log('xmlText : '+xmlText);
+            logTrace('repo : '+repo);
+            logTrace('xmlText : '+xmlText);
 
             $().executeRql(
               xmlText,
               repo,
               function($xmlDoc, head) {
                 try {
-                  var res = head + "\n";
+                  var res = head.join('') + "\n";
                   if (!isNull($xmlDoc)) {
                     var $itemXml;
                     $xmlDoc.find('add-item').each(function() {
@@ -538,6 +539,13 @@ jQuery(document).ready(function() {
             BDA_DASH.handleInput()
             return false;
           }
+        });
+
+        $('#dashCleanInput').on('click',function(e){
+          e.preventDefault();
+          BDA_DASH.$input.typeahead('close');
+          BDA_DASH.$input.val('');
+          return false;
         });
 
 
