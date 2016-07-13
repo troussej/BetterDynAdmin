@@ -19,6 +19,8 @@ jQuery(document).ready(function() {
       //
       initialized: false,
 
+      hist_persist_size: 15,
+
       styles: {
         success: "alert-success",
         error: "alert-danger",
@@ -39,7 +41,7 @@ jQuery(document).ready(function() {
           '</div>' +
           '<div id="dashFooter" class="modal-footer">' +
           '<div class="tab-content">' +
-          '<div role="tabpanel" class="tab-pane fade in  active" id="dash-console-tab">' +
+          '<div role="tabpanel" class="tab-pane fade in active" id="dash-console-tab">' +
           '<form id="dashForm" class="">' +
           '<div class="form-group">' +
           '<div class="input-group">' +
@@ -109,7 +111,7 @@ jQuery(document).ready(function() {
           '</div>' +
           '</div>' +
           '<ul class="nav nav-pills">' +
-          '<li role="presentation" class="active"><a href="#dash-console-tab" aria-controls="console" role="tab" data-toggle="tab">Console</a></li>' +
+          '<li role="presentation" class="active"><a id="dashConsoleButton" href="#dash-console-tab" aria-controls="console" role="tab" data-toggle="tab">Console</a></li>' +
           '<li role="presentation"><a id="dashEditorButton"  href="#dash-editor-tab" aria-controls="editor" role="tab" data-toggle="tab">Editor</a></li>' +
           '</ul>' +
           '</div>' +
@@ -315,8 +317,8 @@ jQuery(document).ready(function() {
               }
             }
 
-            logTrace('repo : '+repo);
-            logTrace('xmlText : '+xmlText);
+            logTrace('repo : ' + repo);
+            logTrace('xmlText : ' + xmlText);
 
             $().executeRql(
               xmlText,
@@ -432,8 +434,14 @@ jQuery(document).ready(function() {
 
         history: {
           main: function(cmdString, params) {
-            var value = JSON.stringify(BDA_DASH.HIST);
-            BDA_DASH.handleOutput(cmdString, params, value, value, "success");
+            var $value = $('<ol></ol>')
+            for (var i = 0; i < BDA_DASH.HIST.length; i++) {
+            var h=  BDA_DASH.HIST[i]
+              $value.append($('<li></li>').text(h));
+            }
+            var txtValue = $value.outerHTML();
+            console.log(txtValue);
+            BDA_DASH.handleOutput(cmdString, params, txtValue, txtValue, "success");
           }
         },
 
@@ -484,6 +492,12 @@ jQuery(document).ready(function() {
           $('#dashModal .modal-title').html('DEVMODE');
         }
 
+
+        var defaultTab = BDA_STORAGE.getConfigurationValue('dashDefaultTab');
+        if (!isNull(defaultTab)) {
+          $('#' + defaultTab).tab('show');
+        }
+
         BDA_DASH.$input = $('#dashInput');
         BDA_DASH.$screen = $('#dashScreen');
         BDA_DASH.$modal = $('#dashModal');
@@ -496,7 +510,12 @@ jQuery(document).ready(function() {
         //when tab change, focus the main input
         //change the screen size to keep the modal same size
         $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-          var newTabId = $(e.target).attr("href");
+
+          var $target = $(e.target);
+          //save latest tab
+          BDA_STORAGE.storeConfiguration('dashDefaultTab', $target.attr('id'));
+
+          var newTabId = $target.attr("href");
           $(newTabId).find('.main-input').focus();
 
           var oldTabId = $(e.relatedTarget).attr("href");
@@ -529,6 +548,8 @@ jQuery(document).ready(function() {
           source: BDA_DASH.suggestionEngine
         });
 
+        BDA_DASH.loadHistory();
+
         //bind console input
         BDA_DASH.$input.keypress(function(e) {
 
@@ -541,7 +562,7 @@ jQuery(document).ready(function() {
           }
         });
 
-        $('#dashCleanInput').on('click',function(e){
+        $('#dashCleanInput').on('click', function(e) {
           e.preventDefault();
           BDA_DASH.$input.typeahead('close');
           BDA_DASH.$input.val('');
@@ -683,43 +704,8 @@ jQuery(document).ready(function() {
 
         BDA_DASH.$editor = $('#dashEditor');
 
-        $('#dashEditorButton')
-          .on('shown.bs.tab', function(e) {
-
-
-            //show/hide buttons
-            /*           $('#dashScreen .dash_save').show();
-                       $('#dashScreen .dash_close').hide();
-                       $('#dashScreen .dash_redo').hide();
-                       BDA_DASH.resetSaveState(); //shoudn't be usefull but who knows..*/
-
-          })
-          .on('hidden.bs.tab', function(e) {
-            /*            $('#dashScreen .dash_save').hide();
-                        $('#dashScreen .dash_close').show();
-                        $('#dashScreen .dash_redo').show();
-                        BDA_DASH.resetSaveState();*/
-          });
-
         //bind toggle
-
-        $('#dashScreen').on('click', '.dash_save', function() {
-          BDA_DASH.toggleSaveLine()
-          return false;
-        });
-
-
-        //bind save
-        /*     $('#dashSaveScriptName').keypress(function(e) {
-               if (e.which == 13 && !e.altKey && !e.shiftKey) {
-                 e.preventDefault();
-                 BDA_DASH.submitSaveScriptForm()
-                 return false;
-               }
-             });*/
-
         $('#dashClearEditor').on('click', BDA_DASH.clearEditor);
-
 
         $('#dashSaveEditor').on('click', function() {
           BDA_DASH.submitSaveScriptForm()
@@ -876,7 +862,7 @@ jQuery(document).ready(function() {
 
         //add to history after the command is done - not rly clean but will do for now
         //next step is persist the history
-        BDA_DASH.saveHistory(cmd);
+        BDA_DASH.saveHistory(cmd, true);
         BDA_DASH.$screen.scrollTop(BDA_DASH.$screen[0].scrollHeight);
         BDA_DASH.handleNextQueuedElem();
         return $entry;
@@ -891,12 +877,31 @@ jQuery(document).ready(function() {
         return $entry;
       },
 
-      saveHistory: function(val) {
+      saveHistory: function(val, persist) {
         BDA_DASH.HIST.push(val);
         if (!isNull(BDA_DASH.suggestionEngine)) {
           BDA_DASH.suggestionEngine.add([val]);
         }
-        //persist history
+        if (persist) {
+          //persist history
+          //on last X
+          var tosave;
+          var maxSize = BDA_DASH.hist_persist_size;
+          if (BDA_DASH.HIST.length <= maxSize) {
+            tosave = BDA_DASH.HIST;
+          } else {
+            tosave = BDA_DASH.HIST.slice(BDA_DASH.HIST.length - maxSize, BDA_DASH.HIST.length);
+          }
+          BDA_STORAGE.storeConfiguration('dashHistory', tosave);
+        }
+      },
+
+      loadHistory: function() {
+        var hist = BDA_STORAGE.getConfigurationValue('dashHistory');
+        for (var i = 0; i < hist.length; i++) {
+          var h = hist[i];
+          BDA_DASH.saveHistory(h, false);
+        }
       },
 
       goToComponent: function(component) {
@@ -945,17 +950,17 @@ jQuery(document).ready(function() {
 
             } else {
 
-              try{
+              try {
                 res[exp.name] = BDA_DASH.getParamValue(exp, inParam);
                 j++; //consider next param
-              }catch(e){
+              } catch (e) {
                 //if error, j is not increased
-                if(exp.required){
+                if (exp.required) {
                   //only raise error if param is required else inspect the next expected value
                   throw e;
                 }
               }
-         
+
             }
           }
         }
@@ -1041,7 +1046,7 @@ jQuery(document).ready(function() {
       },
 
       getComponent: function(componentParam) {
-        logTrace('componentParam : ' + JSON.stringify(componentParam));
+        console.log('componentParam : ' + JSON.stringify(componentParam));
         var path = "";
         switch (componentParam.type) {
           case "this":
