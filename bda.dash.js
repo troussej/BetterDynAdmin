@@ -182,7 +182,7 @@ jQuery(document).ready(function() {
         //get /atg/commerce/order/OrderRepository.repositoryName >toto
         get: {
 
-          commandPattern: 'get (/some/Component|@SHORT).propertyName',
+          commandPattern: '(/some/Component|@SHORT).propertyName',
 
           paramDef: [{
             name: "componentProperty",
@@ -203,7 +203,7 @@ jQuery(document).ready(function() {
         //set /atg/commerce/order/OrderRepository.loggingError false
         set: {
 
-          commandPattern: 'set (/some/Component|@SHORT).propertyName value',
+          commandPattern: '(/some/Component|@SHORT).propertyName value',
           paramDef: [{
             name: "componentProperty",
             type: "componentProperty"
@@ -225,7 +225,7 @@ jQuery(document).ready(function() {
 
         go: {
 
-          commandPattern: 'go /some/Component|@SHORT',
+          commandPattern: '/some/Component|@SHORT',
 
           paramDef: [{
             name: "component",
@@ -239,7 +239,7 @@ jQuery(document).ready(function() {
 
         echo: {
 
-          commandPattern: 'echo value|@SHORT|$var',
+          commandPattern: 'value|@SHORT|$var',
 
           paramDef: [{
             name: "value",
@@ -252,7 +252,7 @@ jQuery(document).ready(function() {
         },
 
         vi: {
-          commandPattern: 'vi',
+          commandPattern: '',
           main: function(cmdString, params) {
             var value = "Just kidding ;)";
             BDA_DASH.handleOutput(cmdString, params, value, value, "success");
@@ -305,7 +305,7 @@ jQuery(document).ready(function() {
 
         rql: {
 
-          commandPattern: 'rql (/some/Repo|@SHORT)(.saveQuery | { <rql/> })',
+          commandPattern: '(/some/Repo|@SHORT)(.saveQuery | { <rql/> })',
 
           paramDef: [{
             name: "componentProperty",
@@ -380,7 +380,7 @@ jQuery(document).ready(function() {
 
         queries: {
 
-          commandPattern: 'queries [/some/Repo|@SHORT]',
+          commandPattern: '[/some/Repo|@SHORT]',
 
           paramDef: [{
             name: "component",
@@ -420,7 +420,7 @@ jQuery(document).ready(function() {
 
         call: {
 
-          commandPattern: 'call (/some/Repo|@SHORT) methodName',
+          commandPattern: '(/some/Repo|@SHORT) methodName',
 
           paramDef: [{
             name: "component",
@@ -447,7 +447,7 @@ jQuery(document).ready(function() {
 
         vars: {
 
-          commandPattern: 'vars',
+          commandPattern: '',
           main: function(cmdString, params) {
 
             var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.VARS, null, 2));
@@ -458,7 +458,7 @@ jQuery(document).ready(function() {
 
         comprefs: {
 
-          commandPattern: 'comprefs',
+          commandPattern: '',
           main: function(cmdString, params) {
 
             var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.COMP_REFS, null, 2));
@@ -468,7 +468,7 @@ jQuery(document).ready(function() {
         },
 
         clear: {
-          commandPattern: 'clear',
+          commandPattern: '',
           main: function(cmdString, params) {
             //BDA_DASH.$screen.find('.alert').each(function(){$(this).alert('close')});
             BDA_DASH.$screen.find('.alert').alert('close');
@@ -478,42 +478,42 @@ jQuery(document).ready(function() {
         },
 
         history: {
-          commandPattern: 'history [clear]',
-            paramDef: [{
+          commandPattern: '[clear]',
+          paramDef: [{
             name: "action",
             type: "value",
-            required:false
+            required: false
           }],
 
           main: function(cmdString, params) {
 
             var action = params.action;
-            if(!isNull(action)){
+            if (!isNull(action)) {
 
-              if('clear' == action){
+              if ('clear' == action) {
                 BDA_DASH.clearHistory();
-              }else{
+              } else {
                 throw {
-                  name:"Invalid Param",
-                  message:"Invalid action {0}".format(action)
+                  name: "Invalid Param",
+                  message: "Invalid action {0}".format(action)
                 }
               }
 
             }
-              var $value = $('<ol></ol>')
-              for (var i = 0; i < BDA_DASH.HIST.length; i++) {
-                var h = BDA_DASH.HIST[i]
-                $value.append($('<li></li>').text(h));
-              }
-              var txtValue = $value.outerHTML();
-              console.log(txtValue);
-              BDA_DASH.handleOutput(cmdString, params, txtValue, txtValue, "success");
+            var $value = $('<ol></ol>')
+            for (var i = 0; i < BDA_DASH.HIST.length; i++) {
+              var h = BDA_DASH.HIST[i]
+              $value.append($('<li></li>').text(h));
+            }
+            var txtValue = $value.outerHTML();
+            console.log(txtValue);
+            BDA_DASH.handleOutput(cmdString, params, txtValue, txtValue, "success");
 
           }
         },
 
         help: {
-          commandPattern: 'help',
+          commandPattern: '',
           main: function(cmdString, params) {
 
             var values = [];
@@ -575,7 +575,7 @@ jQuery(document).ready(function() {
         BDA_DASH.$modal = $('#dashModal');
         BDA_DASH.$footer = $('#dashFooter');
         BDA_DASH.$header = $('#dashModal .modal-header');
-        
+
 
         logTrace('bind open modal focus');
         //when modal open, focus current tab main input
@@ -601,29 +601,7 @@ jQuery(document).ready(function() {
           BDA_DASH.updateScreenHeight();
         });
 
-        logTrace('init typeahead');
-        //init type ahead with all the existing functions
-        for (var funcName in BDA_DASH.FCT) {
-          var fct = BDA_DASH.FCT[funcName];
-          BDA_DASH.typeahead_base.push(fct.commandPattern);
-        }
-
-        BDA_DASH.suggestionEngine = new Bloodhound({
-          initialize: true,
-          local: BDA_DASH.typeahead_base,
-          queryTokenizer: Bloodhound.tokenizers.whitespace,
-          datumTokenizer: Bloodhound.tokenizers.whitespace
-        });
-
-        BDA_DASH.$input.typeahead({
-          minLength: 1,
-          highlight: true,
-
-        }, {
-          name: 'dash',
-          source: BDA_DASH.suggestionEngineWithDefault
-        });
-
+        BDA_DASH.initTypeahead();
 
         BDA_DASH.loadHistory();
 
@@ -851,6 +829,61 @@ jQuery(document).ready(function() {
         BDA_DASH.$editor.val('');
       },
 
+      initTypeahead: function() {
+
+        try {
+          logTrace('init typeahead');
+          //init type ahead with all the existing functions
+          BDA_DASH.typeahead_base = [];
+          for (var funcName in BDA_DASH.FCT) {
+            var fct = BDA_DASH.FCT[funcName];
+            //    var e = funcName;
+            var e = {
+              value: funcName,
+              pattern: fct.commandPattern
+            };
+            BDA_DASH.typeahead_base.push(e);
+          }
+
+          logTrace(JSON.stringify(BDA_DASH.typeahead_base));
+
+          BDA_DASH.suggestionEngine = new Bloodhound({
+            initialize: true,
+            local: BDA_DASH.typeahead_base,
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            datumTokenizer: function(datum) {
+              return Bloodhound.tokenizers.whitespace(datum.value);
+            },
+            identify: function(obj) {
+              return obj.value;
+            }
+
+          });
+
+          BDA_DASH.$input.typeahead({
+            minLength: 1,
+            highlight: true,
+
+          }, {
+            name: 'dash',
+            hint: true,
+            highlight: true,
+            minLength: 1,
+            source: BDA_DASH.suggestionEngine,
+            displayKey: 'value',
+            templates: {
+              suggestion: function(data) {
+                return '<div><strong>' + data.value + '</strong> ' + data.pattern + '</div>';
+              }
+            }
+          });
+
+        } catch (e) {
+          console.error(e);
+        }
+
+      },
+
       openDash: function() {
         try {
 
@@ -1012,17 +1045,20 @@ jQuery(document).ready(function() {
         console.log('BDA_DASH.histIdxOffset = ' + BDA_DASH.histIdxOffset);
       },
 
-      clearHistory:function(){
-         BDA_DASH.HIST = [];
-         BDA_DASH.suggestionEngine.clear();
-         BDA_DASH.suggestionEngine.add(BDA_DASH.typeahead_base);
-         BDA_STORAGE.storeConfiguration('dashHistory',  BDA_DASH.HIST);
+      clearHistory: function() {
+        BDA_DASH.HIST = [];
+        BDA_DASH.suggestionEngine.clear();
+        BDA_DASH.suggestionEngine.add(BDA_DASH.typeahead_base);
+        BDA_STORAGE.storeConfiguration('dashHistory', BDA_DASH.HIST);
       },
 
       saveHistory: function(val, persist) {
         BDA_DASH.HIST.push(val);
         if (!isNull(BDA_DASH.suggestionEngine)) {
-          BDA_DASH.suggestionEngine.add([val]);
+          BDA_DASH.suggestionEngine.add([{
+            value: val,
+            pattern: ''
+          }]);
         }
         if (persist) {
           //persist history
