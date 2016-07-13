@@ -14,8 +14,10 @@ jQuery(document).ready(function() {
       $screen: null,
       $input: null,
       $modal: null,
+      $footer: null,
 
-      screenHeight: 300,
+      modalHeight: 200,
+      modalHeightRatio: 0.85,
       //
       initialized: false,
 
@@ -148,7 +150,7 @@ jQuery(document).ready(function() {
           print: 'print /some/Repository itemDesc id',
           comprefs: 'lists all the available component references',
           vars: 'lists all the available variables',
-          vi:'Text editor'
+          vi: 'Text editor'
 
         },
         errMsg: '<strong>{0}</strong> : {1}<br/> Type <em>help</em> for more information.',
@@ -476,16 +478,37 @@ jQuery(document).ready(function() {
         },
 
         history: {
-          commandPattern: 'history',
+          commandPattern: 'history [clear]',
+            paramDef: [{
+            name: "action",
+            type: "value",
+            required:false
+          }],
+
           main: function(cmdString, params) {
-            var $value = $('<ol></ol>')
-            for (var i = 0; i < BDA_DASH.HIST.length; i++) {
-              var h = BDA_DASH.HIST[i]
-              $value.append($('<li></li>').text(h));
+
+            var action = params.action;
+            if(!isNull(action)){
+
+              if('clear' == action){
+                BDA_DASH.clearHistory();
+              }else{
+                throw {
+                  name:"Invalid Param",
+                  message:"Invalid action {0}".format(action)
+                }
+              }
+
             }
-            var txtValue = $value.outerHTML();
-            console.log(txtValue);
-            BDA_DASH.handleOutput(cmdString, params, txtValue, txtValue, "success");
+              var $value = $('<ol></ol>')
+              for (var i = 0; i < BDA_DASH.HIST.length; i++) {
+                var h = BDA_DASH.HIST[i]
+                $value.append($('<li></li>').text(h));
+              }
+              var txtValue = $value.outerHTML();
+              console.log(txtValue);
+              BDA_DASH.handleOutput(cmdString, params, txtValue, txtValue, "success");
+
           }
         },
 
@@ -516,7 +539,7 @@ jQuery(document).ready(function() {
 
         BDA_DASH.initialized = true;
 
-           logTrace('init modal start');
+        logTrace('init modal start');
         var consoleHtml;
 
         if (BDA_DASH.devMode) {
@@ -538,52 +561,47 @@ jQuery(document).ready(function() {
           $('#dashModal .modal-title').html('DEVMODE');
         }
 
-            logTrace('init modal end');
+        logTrace('init modal end');
 
- logTrace('default tab');
+        logTrace('default tab');
         var defaultTab = BDA_STORAGE.getConfigurationValue('dashDefaultTab');
         if (!isNull(defaultTab)) {
           $('#' + defaultTab).tab('show');
         }
 
-
-
- logTrace('bind dom elements to vars');
+        logTrace('bind dom elements to vars');
         BDA_DASH.$input = $('#dashInput');
         BDA_DASH.$screen = $('#dashScreen');
         BDA_DASH.$modal = $('#dashModal');
+        BDA_DASH.$footer = $('#dashFooter');
+        BDA_DASH.$header = $('#dashModal .modal-header');
+        
 
-logTrace('bind open modal focus');
+        logTrace('bind open modal focus');
         //when modal open, focus current tab main input
         BDA_DASH.$modal.on('shown.bs.modal', function() {
+          BDA_DASH.updateScreenHeight();
           $('#dashFooter .tab-pane.active .main-input').focus();
         })
 
         //when tab change, focus the main input
         //change the screen size to keep the modal same size
         logTrace('bind tab change events');
+        //init size
+        BDA_DASH.calcDesiredWindowHeight();
+        BDA_DASH.updateScreenHeight();
         $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 
-          var $target = $(e.target);
-          //save latest tab
-          BDA_STORAGE.storeConfiguration('dashDefaultTab', $target.attr('id'));
+          BDA_DASH.updateScreenHeight();
 
-          var newTabId = $target.attr("href");
-          $(newTabId).find('.main-input').focus();
-
-          var oldTabId = $(e.relatedTarget).attr("href");
-          var diff = parseInt($(newTabId).css('height').replace('px', '')) - parseInt($(oldTabId).css('height').replace('px', ''));
-
-
-          var curHeight = $('#dashScreen').css('height');
-          curHeight = parseInt(curHeight.replace('px', ''));
-          var newHeight = curHeight - diff;
-          $('#dashScreen').css('height', newHeight + 'px');
-
+        });
+        //resize dash on window resize
+        $(window).resize(function() {
+          BDA_DASH.calcDesiredWindowHeight();
+          BDA_DASH.updateScreenHeight();
         });
 
         logTrace('init typeahead');
-
         //init type ahead with all the existing functions
         for (var funcName in BDA_DASH.FCT) {
           var fct = BDA_DASH.FCT[funcName];
@@ -598,9 +616,8 @@ logTrace('bind open modal focus');
         });
 
         BDA_DASH.$input.typeahead({
-          autoSelect: false,
-          minLength: 0,
-          hightlight: true,
+          minLength: 1,
+          highlight: true,
 
         }, {
           name: 'dash',
@@ -611,7 +628,7 @@ logTrace('bind open modal focus');
         BDA_DASH.loadHistory();
 
         //bind console input
-        console.log('bind enter');
+        logTrace('bind enter');
         BDA_DASH.$input.keydown(function(e) {
           if (e.which == 13 && !e.altKey && !e.shiftKey) {
             e.preventDefault();
@@ -631,7 +648,7 @@ logTrace('bind open modal focus');
                  BDA_DASH.moveInHistory(false);
                }
              });*/
-console.log('bind clear');
+        logTrace('bind clear');
         $('#dashCleanInput').on('click', function(e) {
           e.preventDefault();
           BDA_DASH.$input.typeahead('val', '');
@@ -691,6 +708,25 @@ console.log('bind clear');
         } catch (e) {
           log(e);
         }
+      },
+
+      //we always want the dash window to be some size of the tota
+      calcDesiredWindowHeight: function() {
+        var windowH = window.innerHeight;
+        logTrace(' windowH ' + windowH);
+        var val = windowH * BDA_DASH.modalHeightRatio;
+        BDA_DASH.modalHeight = val;
+        logTrace('new modalHeight ' + val);
+      },
+
+      updateScreenHeight: function() {
+        var curFooterHeight = parseInt(BDA_DASH.$footer.css('height').replace('px', ''));
+        var modalHeader = parseInt(BDA_DASH.$header.css('height').replace('px', ''));
+        logTrace('curFooterHeight ' + curFooterHeight);
+        var newScreenSize = BDA_DASH.modalHeight - curFooterHeight - modalHeader;
+        logTrace('newScreenSize ' + newScreenSize);
+        $('#dashScreen').css('max-height', newScreenSize + 'px');
+        $('#dashScreen').css('height', newScreenSize + 'px');
       },
 
       saveScript: function(scriptName, scriptText, override) {
@@ -976,6 +1012,13 @@ console.log('bind clear');
         console.log('BDA_DASH.histIdxOffset = ' + BDA_DASH.histIdxOffset);
       },
 
+      clearHistory:function(){
+         BDA_DASH.HIST = [];
+         BDA_DASH.suggestionEngine.clear();
+         BDA_DASH.suggestionEngine.add(BDA_DASH.typeahead_base);
+         BDA_STORAGE.storeConfiguration('dashHistory',  BDA_DASH.HIST);
+      },
+
       saveHistory: function(val, persist) {
         BDA_DASH.HIST.push(val);
         if (!isNull(BDA_DASH.suggestionEngine)) {
@@ -1008,7 +1051,7 @@ console.log('bind clear');
       loadHistory: function() {
         logTrace('load history');
         var hist = BDA_STORAGE.getConfigurationValue('dashHistory');
-        if(!isNull(hist)){
+        if (!isNull(hist)) {
           for (var i = 0; i < hist.length; i++) {
             var h = hist[i];
             BDA_DASH.saveHistory(h, false);
