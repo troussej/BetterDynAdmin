@@ -147,7 +147,8 @@ jQuery(document).ready(function() {
           go: 'go /to/some/Component - redirects to the component page',
           print: 'print /some/Repository itemDesc id',
           comprefs: 'lists all the available component references',
-          vars: 'lists all the available variables'
+          vars: 'lists all the available variables',
+          vi:'Text editor'
 
         },
         errMsg: '<strong>{0}</strong> : {1}<br/> Type <em>help</em> for more information.',
@@ -244,6 +245,14 @@ jQuery(document).ready(function() {
           }],
           main: function(cmdString, params) {
             var value = params.value;
+            BDA_DASH.handleOutput(cmdString, params, value, value, "success");
+          }
+        },
+
+        vi: {
+          commandPattern: 'vi',
+          main: function(cmdString, params) {
+            var value = "Just kidding ;)";
             BDA_DASH.handleOutput(cmdString, params, value, value, "success");
           }
         },
@@ -507,6 +516,7 @@ jQuery(document).ready(function() {
 
         BDA_DASH.initialized = true;
 
+           logTrace('init modal start');
         var consoleHtml;
 
         if (BDA_DASH.devMode) {
@@ -528,16 +538,22 @@ jQuery(document).ready(function() {
           $('#dashModal .modal-title').html('DEVMODE');
         }
 
+            logTrace('init modal end');
 
+ logTrace('default tab');
         var defaultTab = BDA_STORAGE.getConfigurationValue('dashDefaultTab');
         if (!isNull(defaultTab)) {
           $('#' + defaultTab).tab('show');
         }
 
+
+
+ logTrace('bind dom elements to vars');
         BDA_DASH.$input = $('#dashInput');
         BDA_DASH.$screen = $('#dashScreen');
         BDA_DASH.$modal = $('#dashModal');
 
+logTrace('bind open modal focus');
         //when modal open, focus current tab main input
         BDA_DASH.$modal.on('shown.bs.modal', function() {
           $('#dashFooter .tab-pane.active .main-input').focus();
@@ -545,6 +561,7 @@ jQuery(document).ready(function() {
 
         //when tab change, focus the main input
         //change the screen size to keep the modal same size
+        logTrace('bind tab change events');
         $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 
           var $target = $(e.target);
@@ -564,6 +581,8 @@ jQuery(document).ready(function() {
           $('#dashScreen').css('height', newHeight + 'px');
 
         });
+
+        logTrace('init typeahead');
 
         //init type ahead with all the existing functions
         for (var funcName in BDA_DASH.FCT) {
@@ -588,10 +607,12 @@ jQuery(document).ready(function() {
           source: BDA_DASH.suggestionEngineWithDefault
         });
 
+
         BDA_DASH.loadHistory();
 
         //bind console input
-        BDA_DASH.$input.keypress(function(e) {
+        console.log('bind enter');
+        BDA_DASH.$input.keydown(function(e) {
           if (e.which == 13 && !e.altKey && !e.shiftKey) {
             e.preventDefault();
             BDA_DASH.histIdxOffset = 0;
@@ -610,7 +631,7 @@ jQuery(document).ready(function() {
                  BDA_DASH.moveInHistory(false);
                }
              });*/
-
+console.log('bind clear');
         $('#dashCleanInput').on('click', function(e) {
           e.preventDefault();
           BDA_DASH.$input.typeahead('val', '');
@@ -750,6 +771,7 @@ jQuery(document).ready(function() {
       },
 
       initEditor: function() {
+        console.log('initEditor');
 
         BDA_DASH.$editor = $('#dashEditor');
 
@@ -800,7 +822,7 @@ jQuery(document).ready(function() {
             BDA_DASH.build();
           }
         } catch (e) {
-          logTrace(e);
+          console.error(e);
         }
 
         BDA_DASH.$modal.modal('show');
@@ -984,10 +1006,13 @@ jQuery(document).ready(function() {
       },
 
       loadHistory: function() {
+        logTrace('load history');
         var hist = BDA_STORAGE.getConfigurationValue('dashHistory');
-        for (var i = 0; i < hist.length; i++) {
-          var h = hist[i];
-          BDA_DASH.saveHistory(h, false);
+        if(!isNull(hist)){
+          for (var i = 0; i < hist.length; i++) {
+            var h = hist[i];
+            BDA_DASH.saveHistory(h, false);
+          }
         }
       },
 
