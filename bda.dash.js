@@ -20,6 +20,7 @@ jQuery(document).ready(function() {
       initialized: false,
 
       hist_persist_size: 15,
+      histIdxOffset: 0,
 
       styles: {
         success: "alert-success",
@@ -436,7 +437,7 @@ jQuery(document).ready(function() {
           main: function(cmdString, params) {
             var $value = $('<ol></ol>')
             for (var i = 0; i < BDA_DASH.HIST.length; i++) {
-            var h=  BDA_DASH.HIST[i]
+              var h = BDA_DASH.HIST[i]
               $value.append($('<li></li>').text(h));
             }
             var txtValue = $value.outerHTML();
@@ -542,25 +543,39 @@ jQuery(document).ready(function() {
         });
 
         BDA_DASH.$input.typeahead({
-          autoSelect: false
+          autoSelect: false,
+          minLength: 0,
+          hightlight:true,
+          
         }, {
           name: 'dash',
-          source: BDA_DASH.suggestionEngine
+          source: BDA_DASH.suggestionEngineWithDefault
         });
 
         BDA_DASH.loadHistory();
 
         //bind console input
         BDA_DASH.$input.keypress(function(e) {
-
           if (e.which == 13 && !e.altKey && !e.shiftKey) {
             e.preventDefault();
+            BDA_DASH.histIdxOffset = 0;
             //close suggestions
             BDA_DASH.$input.typeahead('close');
             BDA_DASH.handleInput()
             return false;
           }
+
+
         });
+
+        /*     BDA_DASH.$input.keydown(function(e) {
+               if (e.which == 38 && e.shiftKey) {
+                 BDA_DASH.moveInHistory(true);
+               }
+               if (e.which == 40 && e.shiftKey) {
+                 BDA_DASH.moveInHistory(false);
+               }
+             });*/
 
         $('#dashCleanInput').on('click', function(e) {
           e.preventDefault();
@@ -877,6 +892,33 @@ jQuery(document).ready(function() {
         return $entry;
       },
 
+      moveInHistory: function(up) {
+        console.log('moveInHistory ' + up);
+        var offset = BDA_DASH.histIdxOffset;
+        if (up) {
+          offset++;
+        } else {
+          offset--;
+        }
+        var idx = BDA_DASH.HIST.length - offset;
+        console.log('idx =' + idx);
+        if (idx >= 0 && idx < BDA_DASH.HIST.length) {
+          var val = BDA_DASH.HIST[idx];
+          BDA_DASH.$input.val(val);
+          BDA_DASH.$input.typeahead('close');
+        }
+        var newoffset = BDA_DASH.HIST.length - idx;
+        //clamp the idx after
+        if (newoffset < 0) {
+          newoffset = 0;
+        }
+        if (newoffset > BDA_DASH.HIST.length) {
+          newoffset = BDA_DASH.HIST.length;
+        }
+        BDA_DASH.histIdxOffset = newoffset;
+        console.log('BDA_DASH.histIdxOffset = ' + BDA_DASH.histIdxOffset);
+      },
+
       saveHistory: function(val, persist) {
         BDA_DASH.HIST.push(val);
         if (!isNull(BDA_DASH.suggestionEngine)) {
@@ -895,6 +937,17 @@ jQuery(document).ready(function() {
           BDA_STORAGE.storeConfiguration('dashHistory', tosave);
         }
       },
+
+      suggestionEngineWithDefault: function(q, sync) {
+        if (q === '') {
+          var clone = BDA_DASH.HIST.slice(0);
+          clone.reverse();
+          sync(clone);
+        } else {
+          BDA_DASH.suggestionEngine.search(q, sync);
+        }
+      },
+
 
       loadHistory: function() {
         var hist = BDA_STORAGE.getConfigurationValue('dashHistory');
