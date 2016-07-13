@@ -178,6 +178,9 @@ jQuery(document).ready(function() {
 
         //get /atg/commerce/order/OrderRepository.repositoryName >toto
         get: {
+
+          commandPattern: 'get (/some/Component|@SHORT).propertyName',
+
           paramDef: [{
             name: "componentProperty",
             type: "componentProperty"
@@ -196,6 +199,8 @@ jQuery(document).ready(function() {
 
         //set /atg/commerce/order/OrderRepository.loggingError false
         set: {
+
+          commandPattern: 'set (/some/Component|@SHORT).propertyName value',
           paramDef: [{
             name: "componentProperty",
             type: "componentProperty"
@@ -216,6 +221,9 @@ jQuery(document).ready(function() {
         },
 
         go: {
+
+          commandPattern: 'go /some/Component|@SHORT',
+
           paramDef: [{
             name: "component",
             type: "component"
@@ -227,6 +235,9 @@ jQuery(document).ready(function() {
         },
 
         echo: {
+
+          commandPattern: 'echo value|@SHORT|$var',
+
           paramDef: [{
             name: "value",
             type: "value"
@@ -239,6 +250,9 @@ jQuery(document).ready(function() {
 
         //print @OR order p92133231
         print: {
+
+          commandPattern: 'print /some/Repo|@SHORT itemDescriptor id',
+
           paramDef: [{
             name: "repo",
             type: "component"
@@ -279,6 +293,9 @@ jQuery(document).ready(function() {
         },
 
         rql: {
+
+          commandPattern: 'rql (/some/Repo|@SHORT)(.saveQuery | { <rql/> })',
+
           paramDef: [{
             name: "componentProperty",
             type: "componentProperty",
@@ -352,6 +369,8 @@ jQuery(document).ready(function() {
 
         queries: {
 
+          commandPattern: 'queries [/some/Repo|@SHORT]',
+
           paramDef: [{
             name: "component",
             type: "component",
@@ -379,7 +398,7 @@ jQuery(document).ready(function() {
             for (var i = 0; i < purgedRqlQueries.length; i++) {
               var q = purgedRqlQueries[i];
               console.log(q.query);
-              $values.append($('<p><strong>{0}</strong></p>'.format(q.name+" : ")));
+              $values.append($('<p><strong>{0}</strong></p>'.format(q.name + " : ")));
               $values.append($('<pre></pre>').text(q.query));
             }
             var value = $values.outerHTML();
@@ -389,6 +408,8 @@ jQuery(document).ready(function() {
         },
 
         call: {
+
+          commandPattern: 'call (/some/Repo|@SHORT) methodName',
 
           paramDef: [{
             name: "component",
@@ -414,6 +435,8 @@ jQuery(document).ready(function() {
 
 
         vars: {
+
+          commandPattern: 'vars',
           main: function(cmdString, params) {
 
             var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.VARS, null, 2));
@@ -423,6 +446,8 @@ jQuery(document).ready(function() {
         },
 
         comprefs: {
+
+          commandPattern: 'comprefs',
           main: function(cmdString, params) {
 
             var value = '<pre>{0}</pre>'.format(JSON.stringify(BDA_DASH.COMP_REFS, null, 2));
@@ -432,6 +457,7 @@ jQuery(document).ready(function() {
         },
 
         clear: {
+          commandPattern: 'clear',
           main: function(cmdString, params) {
             //BDA_DASH.$screen.find('.alert').each(function(){$(this).alert('close')});
             BDA_DASH.$screen.find('.alert').alert('close');
@@ -441,6 +467,7 @@ jQuery(document).ready(function() {
         },
 
         history: {
+          commandPattern: 'history',
           main: function(cmdString, params) {
             var $value = $('<ol></ol>')
             for (var i = 0; i < BDA_DASH.HIST.length; i++) {
@@ -454,6 +481,7 @@ jQuery(document).ready(function() {
         },
 
         help: {
+          commandPattern: 'help',
           main: function(cmdString, params) {
 
             var values = [];
@@ -539,7 +567,8 @@ jQuery(document).ready(function() {
 
         //init type ahead with all the existing functions
         for (var funcName in BDA_DASH.FCT) {
-          BDA_DASH.typeahead_base.push(funcName);
+          var fct = BDA_DASH.FCT[funcName];
+          BDA_DASH.typeahead_base.push(fct.commandPattern);
         }
 
         BDA_DASH.suggestionEngine = new Bloodhound({
@@ -552,7 +581,7 @@ jQuery(document).ready(function() {
         BDA_DASH.$input.typeahead({
           autoSelect: false,
           minLength: 0,
-          hightlight:true,
+          hightlight: true,
 
         }, {
           name: 'dash',
@@ -571,8 +600,6 @@ jQuery(document).ready(function() {
             BDA_DASH.handleInput()
             return false;
           }
-
-
         });
 
         /*     BDA_DASH.$input.keydown(function(e) {
@@ -586,8 +613,8 @@ jQuery(document).ready(function() {
 
         $('#dashCleanInput').on('click', function(e) {
           e.preventDefault();
+          BDA_DASH.$input.typeahead('val', '');
           BDA_DASH.$input.typeahead('close');
-          BDA_DASH.$input.val('');
           return false;
         });
 
@@ -816,7 +843,8 @@ jQuery(document).ready(function() {
             BDA_DASH.handleError(input, e);
           }
 
-          BDA_DASH.$input.val('');
+          BDA_DASH.$input.typeahead('val', '');
+          //          BDA_DASH.$input.val('');
         } catch (e) {
           logTrace(e);
         }
@@ -954,7 +982,6 @@ jQuery(document).ready(function() {
           BDA_DASH.suggestionEngine.search(q, sync);
         }
       },
-
 
       loadHistory: function() {
         var hist = BDA_STORAGE.getConfigurationValue('dashHistory');
