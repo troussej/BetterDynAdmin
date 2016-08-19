@@ -6,22 +6,14 @@
     isXMLDefinitionFilePage: false,
     xmlDefinitionMaxSize: 150000, // 150 Ko
     templates: {
-      itemDescTable: '<div class="panel panel-default">' +
-        '<div class="panel-heading">' +
-        '<h3 class="panel-title">{0}</h3>' +
-        '</div>' +
-        '<div class="panel-body">' +
-        '<div class="row">' +
-        '<table class="table item-descriptor-table" >'+
+      itemDescTable: '<div id="item_{0}" class="panel panel-default">' +
+        '<table class="table item-descriptor-table" >' +
         '{1}' +
-        '</table>'+
-        '</div>' +
-        '</div>' +
+        '</table>' +
         '</div>',
-      itemDescSubTable: '{0}',
       tableHeader: ['name', 'type', 'id-column-name', 'shared-table-sequence'],
       tableColumns: [
-        'name', 'column-name', 'required', 'cache-mode', 'queryable', 'data-type', 'item-type'
+        'name', 'data-type', 'item-type', 'column-name', 'required', 'cache-mode', 'queryable'
       ],
     },
 
@@ -87,7 +79,7 @@
 
         var $wrapper = $('<div class="twbs"></div></div>');
         $('#xmlDefAsTableSection').append($wrapper);
-        var $container = $('<div  id="xmlDefAsTable"  style="display:none;" class="container-fluid">');
+        var $container = $('<div  id="xmlDefAsTable"  style="display:none;" class="container">');
         $wrapper.append($container)
 
         var escapeXML = $("pre").first().html();
@@ -96,38 +88,62 @@
         unescapeXML = unescapeXML.replace(new RegExp(/table/, 'g'), 'div');
 
         var $xmlDef = $(unescapeXML);
-        var $panel, $itemDesc, $table, caption, headerFields, attr, rows, cols, $propertyDesc, val;
+        var $panel, $itemDesc, $table, caption, headerFields, attr, rows, cols, $propertyDesc, val, itemDescName;
+
+        var itemSize = {};
+
         $xmlDef.find('item-descriptor').each(function(idx, itemDesc) {
           $itemDesc = $(itemDesc);
           var subTables = [];
+          itemDescName = $itemDesc.attr('name');
+          itemSize[itemDescName] = 0;
+          //header row 
+          rows = [];
+          rows.push('<tr id="header_{1}" class="item-descriptor success"><th colspan="{0}">{1}</th></tr>'.format(BDA_XML_DEF.templates.tableColumns.length,itemDescName));
+//
           $itemDesc.find('div').each(function(idx, table) {
-            $table = $(table);
-            headerFields = [];
-            rows = [];
+              $table = $(table);
 
-            //table def
-            cols = [];
-            for (var i = 0; i < BDA_XML_DEF.templates.tableHeader.length; i++) {
-              attr = BDA_XML_DEF.templates.tableHeader[i];
-              val = $table.attr(attr);
-              if (isNull(val)) {
-                val = "";
+              //table def
+              cols = [];
+              for (var i = 0; i < BDA_XML_DEF.templates.tableHeader.length; i++) {
+                attr = BDA_XML_DEF.templates.tableHeader[i];
+                val = $table.attr(attr);
+                if (isNull(val)) {
+                  val = "";
+                }
+                cols.push('<th>{0} : {1}</th>'.format(attr, val));
               }
-              cols.push('<th>{0} : {1}</th>'.format(attr,val));
-            }
-            cols.push('<td  colspan="{0}"></td>'.format(BDA_XML_DEF.templates.tableColumns.length - BDA_XML_DEF.templates.tableHeader.length));
-            rows.push('<tr class="table-def">{0}</tr>'.format(cols.join('')));
+              cols.push('<td  colspan="{0}"></td>'.format(BDA_XML_DEF.templates.tableColumns.length - BDA_XML_DEF.templates.tableHeader.length));
+              rows.push('<tr class="table-def">{0}</tr>'.format(cols.join('')));
 
-            //headers
-            cols = [];
-            for (var i = 0; i < BDA_XML_DEF.templates.tableColumns.length; i++) {
-              attr = BDA_XML_DEF.templates.tableColumns[i];
-              cols.push('<th>{0}</th>'.format(attr));
-            }
-            rows.push('<tr>{0}</tr>'.format(cols.join('')));
+              rows.push(BDA_XML_DEF.buildSubTableHeader());
 
-            //rows
-            $table.find('property').each(function(idx, propertyDesc) {
+              //properties that are tables:
+              $table.find('property').each(function(idx, propertyDesc) {
+                  $propertyDesc = $(propertyDesc);
+                  cols = [];
+                  for (var i = 0; i < BDA_XML_DEF.templates.tableColumns.length; i++) {
+                    attr = BDA_XML_DEF.templates.tableColumns[i];
+                    val = $propertyDesc.attr(attr);
+                    if (isNull(val)) {
+                      val = "";
+                    }
+                    cols.push('<td>{0}</td>'.format(val));
+                  }
+                  rows.push('<tr>{0}</tr>'.format(cols.join('')));
+                })
+                //
+
+            })
+            //non table properties (transient/dynamic)
+
+          //headers
+          rows.push('<tr class="table-def" ><th colspan="{0}">Non table properties</th></tr>'.format(BDA_XML_DEF.templates.tableColumns.length));
+          rows.push(BDA_XML_DEF.buildSubTableHeader());
+
+          //properties that are tables:
+          $itemDesc.children('property').each(function(idx, propertyDesc) {
               $propertyDesc = $(propertyDesc);
               cols = [];
               for (var i = 0; i < BDA_XML_DEF.templates.tableColumns.length; i++) {
@@ -140,13 +156,13 @@
               }
               rows.push('<tr>{0}</tr>'.format(cols.join('')));
             })
-            subTables.push(BDA_XML_DEF.templates.itemDescSubTable.format(rows.join('')));
-
-          })
+            //
 
           $panel = $(
-            BDA_XML_DEF.templates.itemDescTable.format($itemDesc.attr('name'), subTables.join(''))
+            BDA_XML_DEF.templates.itemDescTable.format(itemDescName, rows.join(''))
           )
+           itemSize[itemDescName] = rows.length;
+           $panel.find('#header_'+itemDescName).prepend($('<th class="collapser open" rowspan="{0}" title="collapse" data-target="{1}">[-]</th>'.format(rows.length,itemDescName)));
 
           $container.append($panel);
 
@@ -168,10 +184,38 @@
               .hide();
 
           }));
+
+        $('.collapser').on('click',function(){
+          var $this = $(this);
+            var target = $this.attr('data-target');
+          if($this.hasClass('open')){
+            $this.removeClass('open').addClass('closed');
+            $('#item_'+target).find('tr')
+            .filter(function(){
+              return !$(this).hasClass('item-descriptor')
+            })
+            .hide();
+          }else{
+            $this.removeClass('closed').addClass('open');
+            $('#item_'+target).find('tr').show();
+          }
+        })
+
       } catch (e) {
         console.error(e);
       }
     },
+
+    buildSubTableHeader : function(){
+      //headers
+            var  cols = [];
+            var attr;
+              for (var i = 0; i < BDA_XML_DEF.templates.tableColumns.length; i++) {
+                attr = BDA_XML_DEF.templates.tableColumns[i];
+                cols.push('<th>{0}</th>'.format(attr));
+              }
+              return '<tr>{0}</tr>'.format(cols.join(''));
+    }
 
   };
   // Reference to BDA

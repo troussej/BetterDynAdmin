@@ -1019,3 +1019,14 @@ button.cache{
 .item-descriptor-table .highlight {
   background-color: yellow;
 }
+
+#xmlDefAsTable .collapser{
+  vertical-align: middle;
+  text-align: center;
+  background-color: white;
+  border-right: 1px solid #ddd;
+}
+
+#xmlDefAsTable .collapser:hover{
+  background-color: #dff0d8;
+}
