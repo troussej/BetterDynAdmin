@@ -214,6 +214,7 @@ jQuery(document).ready(function() {
           BDA.setupFindClassLink();
 
           BDA.setupCopyClipboardButtons();
+          BDA.setupBurgerMenu();
 
           // Make search field visible
           $("#search").css("display", "inline");
@@ -256,6 +257,98 @@ jQuery(document).ready(function() {
         $("<span style='margin-left : 25px'><a href='/dyn/dyn/findclass.jhtml?className="+className+"&debug=true'>Find Class</a></span>") .insertAfter($classLink);
       },
 
+      setupBurgerMenu: function() {
+        var $componentBreadCrumb = null;
+        if (BDA.isOldDynamo) {
+          $componentBreadCrumb = $("h1:eq(0)");
+        } else {
+          $componentBreadCrumb = $("h1:eq(1)");
+        }
+
+        let span = $(`
+          <span class="twbs">
+           
+           <div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+             <i class="fa fa-bars"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a href="#">Debug: &nbsp; <button class="btn debug toggle-on"><i class="fa fa-check"></i> </button><button class="btn debug toggle-off"><i class="fa fa-times"></i></button></a></li>
+              <li><a href="#">Info:&nbsp; <button class="btn info toggle-on"><i class="fa fa-check"></i> </button><button class="btn info toggle-off"><i class="fa fa-times"></i></button></a></li>
+              <li><a href="#">Error:&nbsp; <button class="btn logerror toggle-on"><i class="fa fa-check"></i> </button><button class="btn logerror toggle-off"><i class="fa fa-times"></i></button></a></li>
+              <li><a href="#">Warning:&nbsp; <button class="btn warning toggle-on"><i class="fa fa-check"></i> </button><button class="btn warning toggle-off"><i class="fa fa-times"></i></button></a></li>
+              <li><a href="#">Trace:&nbsp; <button class="btn trace toggle-on"><i class="fa fa-check"></i> </button><button class="btn trace toggle-off"><i class="fa fa-times"></i></button></a></li>
+
+
+             
+            </ul>
+          </div>
+          
+          </span>
+          `)
+
+
+          let nucleusPath = getCurrentComponentPath().replace(/\/dyn\/admin\/nucleus/g, '');
+          let setLog = function(level,value) {
+            BDA_COMPONENT.setProperty('', nucleusPath, level, value, (value) => {
+              $.notify(
+                "Component {0} set to {1}={2}".format(nucleusPath, level,value), {
+                  position: "top center",
+                  className: "success"
+                }
+              );
+            }, (jqXHR, textStatus, errorThrown) => {
+              $.notify(
+                "An error occured : {0}".format(errorThrown), {
+                  position: "top center",
+                  className: "error"
+                }
+              );
+            })
+          }
+
+          span
+            .on('click', '.debug.toggle-on', function() {
+              setLog('loggingDebug','true');
+            })
+            .on('click', '.debug.toggle-off', function() {
+              setLog('loggingDebug','false');
+            })
+
+            .on('click', '.info.toggle-on', function() {
+              setLog('loggingInfo','true');
+            })
+            .on('click', '.info.toggle-off', function() {
+              setLog('loggingInfo','false');
+            })
+
+            .on('click', '.warning.toggle-on', function() {
+              setLog('loggingWarning','true');
+            })
+            .on('click', '.warning.toggle-off', function() {
+              setLog('loggingWarning','false');
+            })
+
+            .on('click', '.trace.toggle-on', function() {
+              setLog('loggingTrace','true');
+            })
+            .on('click', '.trace.toggle-off', function() {
+              setLog('loggingTrace','false');
+            })
+
+            .on('click', '.logerror.toggle-on', function() {
+              setLog('loggingError','true');
+            })
+            .on('click', '.logerror.toggle-off', function() {
+              setLog('loggingError','false');
+            })
+
+
+        $componentBreadCrumb
+          .append(span);
+
+       
+      },
 
       setupCopyClipboardButtons: function() {
         logTrace('setupCopyClipboardButtons');

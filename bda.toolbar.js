@@ -4,44 +4,82 @@
 
     templates: {
       FAV_ELEM: '<div class="favLink">' //
-        + '<a href="{0}" title="{1}" >' //
-        + '<div class="favTitle">{2}</div>' //
-        + '<div class="favName">{1}</div>' //
-        + '</a></div>' //
-        + '<div class="favArrow" id="favArrow{3}"><i class=" up fa fa-arrow-down"></i></div>' //
-        + '<div class="favMoreInfo" id="favMoreInfo{3}">' //
-        + '<div class="favLogDebug">' //
-        + '</div>' //
-        + '{4}' //
-        + '<div class="favDelete" id="delete{1}"><i class="fa fa-trash-o"></i> Delete</div>' //
-        + '<div class="favEdit" data-component="{0}"><i class="fa fa-pencil"></i> Edit</div>' //
-        + '<div class="fav-tags">{5}</div>' //
-        + '</div>',
+        +
+        '<a href="{0}" title="{1}" >' //
+        +
+        '<div class="favTitle">{2}</div>' //
+        +
+        '<div class="favName">{1}</div>' //
+        +
+        '</a></div>' //
+        +
+        '<div class="favArrow" id="favArrow{3}"><i class=" up fa fa-arrow-down"></i></div>' //
+        +
+        '<div class="favMoreInfo" id="favMoreInfo{3}">' //
+        +
+        '<div class="favLogDebug">' //
+        +
+        '</div>' //
+        +
+        '{4}' //
+        +
+        '<div class="favDelete" id="delete{1}"><i class="fa fa-trash-o"></i> Delete</div>' //
+        +
+        '<div class="favEdit" data-component="{0}"><i class="fa fa-pencil"></i> Edit</div>' //
+        +
+        '<div class="fav-tags">{5}</div>' //
+        +
+        '</div>',
+
       POPUP: ' <div id="addComponentToolbarPopup" class="popup_block" data-mode="">' //
-        + ' <div class="addFavOptions">' //
-        + ' <a href="#" class="close"><i class="fa fa-times"></i></a>' //
-        + ' <h3 class="popup_title">Add new component</h3>' //
-        + ' <h3 class="popup_title_update"></h3>' //
-        + ' <p>Choose methods and/or properties to shortcut : </p>' //
-        + ' <div id="addComponentToolbarPopupContent">' //
-        + ' <div id="methods"><ul></ul></div>' //
-        + ' <div id="vars"><ul></ul></div>' //
-        + ' </div><br>' //
-        + ' <div id="favSetTags">' //
-        + ' <div class="favline">' //
-        + ' <div>Add tags:</div>' //
-        + ' <div><ul id="existingTags"></ul></div>' //
-        + ' </div>' //
-        + ' <div class="favline">' //
-        + ' <div>New tags:</div>' //
-        + ' <div><input id="newtags" class="newtags" type="text" placeholder="comma separated"></input></div>' //
-        + ' </div>' //
-        + ' </div>' //
-        + ' <div class="addFavSubmit">' //
-        + ' <button type="button" id="submitComponent">Add <i class="fa fa-play fa-x"/></button>' //
-        + ' </div>' //
-        + ' </div>' //
-        + ' </div>'
+        +
+        ' <div class="addFavOptions">' //
+        +
+        ' <a href="#" class="close"><i class="fa fa-times"></i></a>' //
+        +
+        ' <h3 class="popup_title">Add new component</h3>' //
+        +
+        ' <h3 class="popup_title_update"></h3>' //
+        +
+        ' <p>Choose methods and/or properties to shortcut : </p>' //
+        +
+        ' <div id="addComponentToolbarPopupContent">' //
+        +
+        ' <div id="methods"><ul></ul></div>' //
+        +
+        ' <div id="vars"><ul></ul></div>' //
+        +
+        ' </div><br>' //
+        +
+        ' <div id="favSetTags">' //
+        +
+        ' <div class="favline">' //
+        +
+        ' <div>Add tags:</div>' //
+        +
+        ' <div><ul id="existingTags"></ul></div>' //
+        +
+        ' </div>' //
+        +
+        ' <div class="favline">' //
+        +
+        ' <div>New tags:</div>' //
+        +
+        ' <div><input id="newtags" class="newtags" type="text" placeholder="comma separated"></input></div>' //
+        +
+        ' </div>' //
+        +
+        ' </div>' //
+        +
+        ' <div class="addFavSubmit">' //
+        +
+        ' <button type="button" id="submitComponent">Add <i class="fa fa-play fa-x"/></button>' //
+        +
+        ' </div>' //
+        +
+        ' </div>' //
+        +
+        ' </div>'
     },
 
     build: function() {
